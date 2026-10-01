@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pulse &amp; Plate — Hypertension Risk Check</title>
+<meta name="description" content="See how your daily habits shape your blood pressure risk, and what to eat to change it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#122821;
+    --ink-soft:#3C5048;
+    --paper:#EFF3F2;
+    --raised:#FFFFFF;
+    --rule:#D3DBD6;
+    --rule-strong:#AEBAB3;
+    --risk-high:#E04B2A;
+    --risk-mid:#C98A1F;
+    --risk-low:#2F7A51;
+    --info:#2F5D8A;
+    --info-soft:#E7EEF4;
+    --accent-soft:#FBEFE2;
+    --focus:#1C5FAE;
+    --radius:10px;
+    --radius-lg:16px;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Public Sans", system-ui, sans-serif;
+    font-size:16px;
+    line-height:1.5;
+  }
+  h1,h2,h3{
+    font-family:"Fraunces", Georgia, serif;
+    font-weight:600;
+    color:var(--ink);
+    margin:0;
+  }
+  a{color:var(--info);}
+  :focus-visible{outline:2.5px solid var(--focus); outline-offset:2px;}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px;}
+
+  /* ---------- Header / hero ---------- */
+  header.site{
+    border-bottom:1px solid var(--rule);
+    background:
+      radial-gradient(620px 300px at 85% -40%, rgba(224,75,42,0.10), transparent 70%),
+      radial-gradient(500px 260px at 100% 10%, rgba(47,122,81,0.10), transparent 70%);
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px;
+    padding:22px 0 0;
+  }
+  .brand svg{flex:none;}
+  .brand span{
+    font-family:"Fraunces", serif;
+    font-weight:600;
+    font-size:1.15rem;
+    letter-spacing:0.01em;
+  }
+  .hero{
+    padding:34px 0 44px;
+    display:grid;
+    grid-template-columns: minmax(0,1.3fr) minmax(220px,0.7fr);
+    gap:32px;
+    align-items:end;
+  }
+  .hero h1{
+    font-size:clamp(2.1rem, 4vw, 3rem);
+    line-height:1.08;
+    letter-spacing:-0.01em;
+    max-width:16ch;
+  }
+  .hero p.lede{
+    margin:16px 0 0;
+    max-width:46ch;
+    color:var(--ink-soft);
+    font-size:1.06rem;
+  }
+  .hero .stat{
+    border-left:3px solid var(--risk-high);
+    padding-left:16px;
+  }
+  .hero .stat b{
+    display:block;
+    font-family:"Fraunces", serif;
+    font-size:2.1rem;
+    font-weight:600;
+    line-height:1;
+  }
+  .hero .stat span{
+    display:block;
+    margin-top:6px;
+    color:var(--ink-soft);
+    font-size:0.92rem;
+  }
+
+  /* ---------- Layout ---------- */
+  main{padding:38px 0 70px;}
+  .layout{
+    display:grid;
+    grid-template-columns: minmax(0,1.15fr) minmax(300px,0.95fr);
+    gap:28px;
+    align-items:start;
+  }
+  @media (max-width:900px){
+    .hero{grid-template-columns:1fr; align-items:start;}
+    .layout{grid-template-columns:1fr;}
+  }
+
+  /* ---------- Form ---------- */
+  form.assess{
+    background:var(--raised);
+    border:1px solid var(--rule);
+    border-radius:var(--radius-lg);
+    padding:28px 28px 30px;
+  }
+  fieldset{
+    border:0; margin:0 0 26px; padding:0;
+  }
+  fieldset:last-of-type{margin-bottom:4px;}
+  legend{
+    font-family:"Fraunces", serif;
+    font-weight:600;
+    font-size:1.08rem;
+    padding:0 0 10px;
+    border-bottom:1px solid var(--rule);
+    margin-bottom:16px;
+    width:100%;
+  }
+  .grid2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px 18px;
+  }
+  @media (max-width:520px){ .grid2{grid-template-columns:1fr;} }
+  .field{display:flex; flex-direction:column; gap:6px;}
+  .field label{font-size:0.92rem; font-weight:600;}
+  .field .hint{font-size:0.8rem; color:var(--ink-soft); font-weight:400;}
+  .field input, .field select{
+    font:inherit;
+    padding:10px 11px;
+    border:1.5px solid var(--rule-strong);
+    border-radius:var(--radius);
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .field input:focus, .field select:focus{border-color:var(--focus);}
+  .field input:invalid:not(:placeholder-shown){border-color:var(--risk-high);}
+  .unit{position:relative;}
+  .unit span{
+    position:absolute; right:11px; top:50%; transform:translateY(-50%);
+    font-size:0.82rem; color:var(--ink-soft); pointer-events:none;
+  }
+  .unit input{padding-right:48px;}
+
+  .examples{
+    display:flex; flex-wrap:wrap; gap:10px;
+    margin:0 0 24px;
+  }
+  .chip{
+    font:inherit; font-size:0.86rem; font-weight:600;
+    padding:8px 14px;
+    border-radius:999px;
+    border:1.5px solid var(--rule-strong);
+    background:var(--paper);
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .chip:hover{border-color:var(--info); color:var(--info);}
+
+  .submit-row{
+    display:flex; align-items:center; gap:14px; margin-top:6px;
+  }
+  button.primary{
+    font:inherit; font-weight:700; font-size:1rem;
+    background:var(--ink);
+    color:#fff;
+    border:0;
+    padding:13px 24px;
+    border-radius:999px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  button.primary:hover{background:#0A1C16;}
+  button.primary:disabled{background:var(--rule-strong); cursor:progress;}
+  .submit-note{font-size:0.84rem; color:var(--ink-soft);}
+
+  /* ---------- Results panel ---------- */
+  .results{
+    position:sticky; top:20px;
+    background:var(--raised);
+    border:1px solid var(--rule);
+    border-radius:var(--radius-lg);
+    padding:28px;
+    min-height:420px;
+  }
+  .results h2{font-size:1.2rem;}
+  .placeholder{
+    display:flex; flex-direction:column; align-items:flex-start;
+    gap:14px; padding:20px 2px 6px;
+    color:var(--ink-soft);
+  }
+  .placeholder p{margin:0; max-width:34ch; font-size:0.96rem;}
+
+  .gauge-wrap{display:flex; flex-direction:column; align-items:center; padding:4px 0 6px;}
+  .gauge-num{
+    font-family:"Fraunces", serif;
+    font-weight:600;
+    font-size:2.6rem;
+    margin-top:-54px;
+  }
+  .gauge-label{
+    font-weight:700; font-size:0.95rem;
+    padding:3px 12px; border-radius:999px;
+    margin-top:2px;
+  }
+  .gauge-label.high{background:#FBEAE5; color:var(--risk-high);}
+  .gauge-label.low{background:#E6F2EA; color:var(--risk-low);}
+
+  .factors{list-style:none; margin:22px 0 0; padding:0; display:flex; flex-direction:column; gap:14px;}
+  .factor{
+    border-left:4px solid var(--info);
+    background:var(--paper);
+    border-radius:0 var(--radius) var(--radius) 0;
+    padding:12px 14px;
+  }
+  .factor.up{border-left-color:var(--risk-high);}
+  .factor.down{border-left-color:var(--risk-low);}
+  .factor .row1{
+    display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap;
+  }
+  .factor .flabel{font-weight:700;}
+  .factor .fdir{font-size:0.82rem; color:var(--ink-soft);}
+  .factor .ftag{
+    font-size:0.72rem; font-weight:700; color:var(--ink-soft);
+  }
+  .factor p{margin:8px 0 0; font-size:0.92rem; color:var(--ink-soft);}
+  .factor .note{
+    margin-top:8px; padding:8px 10px;
+    background:var(--accent-soft); border-radius:var(--radius);
+    font-size:0.86rem; color:var(--ink);
+  }
+
+  .trust{
+    margin-top:22px; padding:14px 16px;
+    background:var(--info-soft);
+    border-radius:var(--radius);
+    font-size:0.86rem; color:var(--ink);
+  }
+  .trust b{display:block; margin-bottom:4px; font-family:"Fraunces", serif; font-size:0.98rem;}
+
+  .error-box{
+    margin-top:16px; padding:14px 16px;
+    background:#FBEAE5; border-radius:var(--radius);
+    color:#7A2A17; font-size:0.9rem;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .error-box button{
+    font:inherit; font-weight:700; font-size:0.84rem;
+    background:none; border:1.5px solid #7A2A17; color:#7A2A17;
+    padding:6px 12px; border-radius:999px; cursor:pointer;
+  }
+
+  footer{
+    border-top:1px solid var(--rule);
+    padding:26px 0 50px;
+    color:var(--ink-soft);
+    font-size:0.86rem;
+  }
+  footer p{max-width:70ch; margin:0 0 6px;}
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <div class="brand">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M3 12h4l2-7 4 14 2-7h6" stroke="#E04B2A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Pulse &amp; Plate</span>
+    </div>
+    <div class="hero">
+      <div>
+        <h1>See how today's choices shape your blood pressure.</h1>
+        <p class="lede">Answer a few questions about your body, your diet, and your habits. We'll estimate your hypertension risk and tell you exactly which factors are driving it — and what to eat about it.</p>
+      </div>
+      <div class="stat">
+        <b>5,250</b>
+        <span>U.S. adults from a real national health survey trained the model behind this estimate.</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="layout">
+
+    <form class="assess" id="assessForm" novalidate>
+
+      <div class="examples" role="group" aria-label="Fill the form with an example">
+        <button type="button" class="chip" data-example="active">Try an example: active, lower risk</button>
+        <button type="button" class="chip" data-example="sodium">Try an example: sodium-driven risk</button>
+      </div>
+
+      <fieldset>
+        <legend>About you</legend>
+        <div class="grid2">
+          <div class="field">
+            <label for="gender">Sex</label>
+            <select id="gender" required>
+              <option value="" disabled selected>Choose one</option>
+              <option value="1">Male</option>
+              <option value="2">Female</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="age">Age</label>
+            <div class="unit"><input id="age" type="number" min="18" max="100" step="1" required placeholder="45"><span>years</span></div>
+          </div>
+          <div class="field">
+            <label for="ethnicity">Race / ethnicity</label>
+            <select id="ethnicity" required>
+              <option value="" disabled selected>Choose one</option>
+              <option value="1">Mexican American</option>
+              <option value="2">Other Hispanic</option>
+              <option value="3">Non-Hispanic White</option>
+              <option value="4">Non-Hispanic Black</option>
+              <option value="6">Non-Hispanic Asian</option>
+              <option value="7">Other / multiracial</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="pir">Household income</label>
+            <input id="pir" type="number" min="0" max="5" step="0.1" required placeholder="2.5">
+            <span class="hint">As a multiple of the federal poverty line — 1.0 means right at the line, 5 means well above it.</span>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Body measurements</legend>
+        <div class="grid2">
+          <div class="field">
+            <label for="bmi">Body mass index (BMI)</label>
+            <div class="unit"><input id="bmi" type="number" min="12" max="70" step="0.1" required placeholder="27.5"><span>kg/m&sup2;</span></div>
+          </div>
+          <div class="field">
+            <label for="waist">Waist circumference</label>
+            <div class="unit"><input id="waist" type="number" min="50" max="200" step="0.5" required placeholder="95"><span>cm</span></div>
+          </div>
+          <div class="field">
+            <label for="creatinine">Serum creatinine</label>
+            <div class="unit"><input id="creatinine" type="number" min="0.3" max="5" step="0.1" required placeholder="0.9"><span>mg/dL</span></div>
+            <span class="hint">From a recent blood test, if you have one. Otherwise 0.9 is a reasonable average.</span>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>What you ate yesterday</legend>
+        <div class="grid2">
+          <div class="field">
+            <label for="kcal">Calories</label>
+            <div class="unit"><input id="kcal" type="number" min="500" max="6000" step="10" required placeholder="2100"><span>kcal</span></div>
+          </div>
+          <div class="field">
+            <label for="sodium">Sodium</label>
+            <div class="unit"><input id="sodium" type="number" min="0" max="10000" step="10" required placeholder="3400"><span>mg</span></div>
+          </div>
+          <div class="field">
+            <label for="potassium">Potassium</label>
+            <div class="unit"><input id="potassium" type="number" min="0" max="8000" step="10" required placeholder="2600"><span>mg</span></div>
+          </div>
+          <div class="field">
+            <label for="protein">Protein</label>
+            <div class="unit"><input id="protein" type="number" min="0" max="400" step="1" required placeholder="80"><span>g</span></div>
+          </div>
+          <div class="field">
+            <label for="carbs">Carbohydrates</label>
+            <div class="unit"><input id="carbs" type="number" min="0" max="800" step="1" required placeholder="250"><span>g</span></div>
+          </div>
+          <div class="field">
+            <label for="fat">Fat</label>
+            <div class="unit"><input id="fat" type="number" min="0" max="300" step="1" required placeholder="70"><span>g</span></div>
+          </div>
+          <div class="field">
+            <label for="alcoholg">Alcohol</label>
+            <div class="unit"><input id="alcoholg" type="number" min="0" max="200" step="1" required placeholder="4"><span>g</span></div>
+            <span class="hint">Roughly 14g per standard drink.</span>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Lifestyle</legend>
+        <div class="grid2">
+          <div class="field">
+            <label for="smoke">Have you smoked at least 100 cigarettes in your life?</label>
+            <select id="smoke" required>
+              <option value="" disabled selected>Choose one</option>
+              <option value="1">Yes</option>
+              <option value="2">No</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="vigorous">Do you do vigorous exercise?</label>
+            <select id="vigorous" required>
+              <option value="" disabled selected>Choose one</option>
+              <option value="1">Yes</option>
+              <option value="2">No</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="moderate">Do you do moderate exercise?</label>
+            <select id="moderate" required>
+              <option value="" disabled selected>Choose one</option>
+              <option value="1">Yes</option>
+              <option value="2">No</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="alcfreq">How often do you drink alcohol?</label>
+            <select id="alcfreq" required>
+              <option value="" disabled selected>Choose one</option>
+              <option value="0">Never in the past year</option>
+              <option value="10">A few times a year</option>
+              <option value="7">About once a month</option>
+              <option value="5">About once a week</option>
+              <option value="4">A couple times a week</option>
+              <option value="3">Most days</option>
+              <option value="1">Every day</option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Food preferences <span style="font-weight:400; color:var(--ink-soft); font-size:0.85rem;">(optional — changes how guidance is worded, not what it says)</span></legend>
+        <div class="grid2">
+          <div class="field">
+            <label for="cuisine">Cuisine you cook most</label>
+            <select id="cuisine">
+              <option value="">No preference</option>
+              <option>Mexican</option>
+              <option>South Asian</option>
+              <option>Mediterranean</option>
+              <option>East Asian</option>
+              <option>American</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="constraint">Dietary pattern</label>
+            <select id="constraint">
+              <option value="">No preference</option>
+              <option value="vegetarian">Vegetarian</option>
+              <option value="vegan">Vegan</option>
+              <option value="low-sodium">Already low-sodium</option>
+              <option value="gluten-free">Gluten-free</option>
+            </select>
+          </div>
+          <div class="field" style="grid-column:1/-1;">
+            <label for="dislikes">Foods to avoid suggesting</label>
+            <input id="dislikes" type="text" placeholder="e.g. fish, mushrooms">
+            <span class="hint">Separate with commas.</span>
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="submit-row">
+        <button type="submit" class="primary" id="submitBtn">Check my risk</button>
+        <span class="submit-note">Takes about a second — nothing is stored with your name.</span>
+      </div>
+    </form>
+
+    <aside class="results" id="results" aria-live="polite">
+      <h2>Your results</h2>
+      <div id="resultsBody">
+        <div class="placeholder">
+          <svg width="54" height="54" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M3 12h4l2-7 4 14 2-7h6" stroke="#AEBAB3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <p>Fill in the form and check your risk — your personalized score, the factors behind it, and dietary guidance will appear here.</p>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><strong>Not a medical diagnosis.</strong> This estimate comes from a statistical model trained on population survey data (NHANES 2017–2018), explained with SHAP, paired with fixed, evidence-based DASH/AHA guidance. Confirm anything specific to you with a doctor or registered dietitian.</p>
+    <p>Built for a TECH646 group project — Human–Machine Intelligence for Hypertension Risk Assessment and Personalized Dietary Guidance.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  // Point this at your FastAPI backend on Railway.
+  var BACKEND_URL = "https://backend-production-b3eff.up.railway.app";
+
+  var form = document.getElementById("assessForm");
+  var submitBtn = document.getElementById("submitBtn");
+  var resultsBody = document.getElementById("resultsBody");
+
+  var EXAMPLES = {
+    active: {
+      gender:"1", age:41, ethnicity:"6", pir:3.2, bmi:26.0, waist:90.0,
+      creatinine:1.0, kcal:2400, sodium:3400, potassium:2600, protein:95,
+      carbs:270, fat:70, alcoholg:6, smoke:"2", vigorous:"1", moderate:"1",
+      alcfreq:"4", cuisine:"", constraint:"", dislikes:"fish"
+    },
+    sodium: {
+      gender:"1", age:55, ethnicity:"4", pir:1.8, bmi:29.0, waist:100.0,
+      creatinine:1.0, kcal:2000, sodium:4800, potassium:2300, protein:75,
+      carbs:250, fat:80, alcoholg:5, smoke:"2", vigorous:"2", moderate:"2",
+      alcfreq:"3", cuisine:"Mexican", constraint:"", dislikes:""
+    }
+  };
+
+  document.querySelectorAll(".chip[data-example]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var ex = EXAMPLES[btn.getAttribute("data-example")];
+      Object.keys(ex).forEach(function(key){
+        var el = document.getElementById(key);
+        if (el) el.value = ex[key];
+      });
+    });
+  });
+
+  function num(id){ return parseFloat(document.getElementById(id).value); }
+  function val(id){ return document.getElementById(id).value; }
+
+  function buildPayload(){
+    var profile = {
+      RIAGENDR: parseInt(val("gender"), 10),
+      RIDAGEYR: num("age"),
+      RIDRETH3: parseInt(val("ethnicity"), 10),
+      INDFMPIR: num("pir"),
+      BMXBMI: num("bmi"),
+      BMXWAIST: num("waist"),
+      DR1TKCAL: num("kcal"),
+      DR1TSODI: num("sodium"),
+      DR1TPOTA: num("potassium"),
+      DR1TPROT: num("protein"),
+      DR1TCARB: num("carbs"),
+      DR1TTFAT: num("fat"),
+      DR1TALCO: num("alcoholg"),
+      LBXSCR: num("creatinine"),
+      SMQ020: parseInt(val("smoke"), 10),
+      PAQ650: parseInt(val("vigorous"), 10),
+      PAQ665: parseInt(val("moderate"), 10),
+      ALQ121: parseFloat(val("alcfreq"))
+    };
+    var preferences = {};
+    if (val("cuisine")) preferences.cuisine = val("cuisine");
+    if (val("constraint")) preferences.constraint = val("constraint");
+    if (val("dislikes").trim()){
+      preferences.dislikes = val("dislikes").split(",").map(function(s){return s.trim();}).filter(Boolean);
+    }
+    var body = { profile: profile };
+    if (Object.keys(preferences).length) body.preferences = preferences;
+    return body;
+  }
+
+  function riskTier(p){
+    if (p >= 0.5) return "high";
+    if (p >= 0.33) return "mid";
+    return "low";
+  }
+
+  function renderGauge(p){
+    var pct = Math.round(p * 100);
+    var tier = riskTier(p);
+    var color = tier === "high" ? "var(--risk-high)" : tier === "mid" ? "var(--risk-mid)" : "var(--risk-low)";
+    var r = 80, cx = 100, cy = 100;
+    var circumference = Math.PI * r; // semicircle length
+    var offset = circumference * (1 - p);
+    return (
+      '<div class="gauge-wrap">' +
+        '<svg width="200" height="118" viewBox="0 0 200 118" role="img" aria-label="Estimated risk ' + pct + ' percent">' +
+          '<path d="M20,100 A80,80 0 0 1 180,100" fill="none" stroke="var(--rule)" stroke-width="14" stroke-linecap="round"/>' +
+          '<path d="M20,100 A80,80 0 0 1 180,100" fill="none" stroke="' + color + '" stroke-width="14" stroke-linecap="round" ' +
+            'stroke-dasharray="' + circumference.toFixed(2) + '" stroke-dashoffset="' + offset.toFixed(2) + '" ' +
+            'style="transition: stroke-dashoffset 900ms ease;"/>' +
+        '</svg>' +
+        '<div class="gauge-num">' + pct + '%</div>' +
+        '<div class="gauge-label ' + (tier === "low" ? "low" : "high") + '">' +
+          (tier === "high" ? "Higher-risk range" : tier === "mid" ? "Moderate-risk range" : "Lower-risk range") +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function renderFactors(guidance){
+    if (!guidance || !guidance.length) return "";
+    var items = guidance.map(function(g){
+      var dirClass = g.shap_value > 0 ? "up" : "down";
+      var tag = g.is_modifiable ? "Modifiable" : "Contextual";
+      var note = g.personalized_note ? '<div class="note">' + escapeHtml(g.personalized_note) + "</div>" : "";
+      return (
+        '<li class="factor ' + dirClass + '">' +
+          '<div class="row1">' +
+            '<span class="flabel">' + escapeHtml(g.label) + "</span>" +
+            '<span class="fdir">' + escapeHtml(g.direction) + " &middot; " + tag + "</span>" +
+          "</div>" +
+          "<p>" + escapeHtml(g.recommendation) + "</p>" +
+          note +
+        "</li>"
+      );
+    }).join("");
+    return '<ul class="factors">' + items + "</ul>";
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  function renderResults(data){
+    var pct = Math.round(data.risk_probability * 100);
+    resultsBody.innerHTML =
+      renderGauge(data.risk_probability) +
+      '<h2 style="margin-top:22px; font-size:1.02rem;">What\'s driving this estimate</h2>' +
+      renderFactors(data.guidance) +
+      '<div class="trust"><b>A note on trust and safety</b>' +
+      "These factors are statistical associations from population data, explained with SHAP — not a medical diagnosis. " +
+      "The guidance above follows DASH/AHA recommendations broadly; confirm how it applies to you with a doctor or " +
+      "registered dietitian, especially if you take blood pressure medication or have kidney disease.</div>";
+  }
+
+  function renderError(message, raw){
+    resultsBody.innerHTML =
+      '<div class="placeholder">' +
+        '<p>' + escapeHtml(message) + "</p>" +
+      "</div>" +
+      '<div class="error-box"><span>' + escapeHtml(raw || "") + '</span><button type="button" id="retryBtn">Retry</button></div>';
+    var retry = document.getElementById("retryBtn");
+    if (retry) retry.addEventListener("click", function(){ form.requestSubmit(); });
+  }
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Checking…";
+
+    fetch(BACKEND_URL + "/assess", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(buildPayload())
+    })
+      .then(function(res){
+        if (!res.ok) throw new Error("The server responded with an error (" + res.status + ").");
+        return res.json();
+      })
+      .then(function(data){
+        renderResults(data);
+      })
+      .catch(function(err){
+        renderError("Couldn't reach the risk model. Check your connection and try again.", err.message);
+      })
+      .finally(function(){
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Check my risk";
+      });
+  });
+})();
+</script>
+
+</body>
+</html>
