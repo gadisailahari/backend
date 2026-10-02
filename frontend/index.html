@@ -4,28 +4,35 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pulse &amp; Plate — Hypertension Risk Check</title>
-<meta name="description" content="See how your daily habits shape your blood pressure risk, and what to eat to change it.">
+<meta name="description" content="A step-by-step hypertension risk check with personalized, DASH-based dietary guidance.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600;7..72,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#122821;
-    --ink-soft:#3C5048;
-    --paper:#EFF3F2;
-    --raised:#FFFFFF;
-    --rule:#D3DBD6;
-    --rule-strong:#AEBAB3;
-    --risk-high:#E04B2A;
-    --risk-mid:#C98A1F;
-    --risk-low:#2F7A51;
-    --info:#2F5D8A;
-    --info-soft:#E7EEF4;
-    --accent-soft:#FBEFE2;
+    --paper:#F4F8F7;
+    --surface:#FFFFFF;
+    --ink:#123A36;
+    --ink-soft:#4C6864;
+    --ink-faint:#7E948F;
+    --rule:#D8E6E3;
+    --rule-strong:#B9CFC9;
+    --primary:#0F766E;
+    --primary-dark:#0B544E;
+    --primary-soft:#E3F2EF;
+    --accent:#2A5C8A;
+    --accent-soft:#E7EEF5;
+    --risk-high:#C8432D;
+    --risk-high-soft:#FBEAE6;
+    --risk-mid:#C47A1F;
+    --risk-mid-soft:#FBF1E2;
+    --risk-low:#1F8F63;
+    --risk-low-soft:#E6F5EE;
+    --radius:12px;
+    --radius-lg:20px;
+    --shadow:0 1px 2px rgba(18,58,54,0.05), 0 8px 28px rgba(18,58,54,0.07);
     --focus:#1C5FAE;
-    --radius:10px;
-    --radius-lg:16px;
-    --maxw:1180px;
+    --maxw:760px;
   }
   *{box-sizing:border-box;}
   html{-webkit-text-size-adjust:100%;}
@@ -33,208 +40,189 @@
     margin:0;
     background:var(--paper);
     color:var(--ink);
-    font-family:"Public Sans", system-ui, sans-serif;
+    font-family:"Inter", system-ui, sans-serif;
     font-size:16px;
-    line-height:1.5;
+    line-height:1.55;
   }
   h1,h2,h3{
-    font-family:"Fraunces", Georgia, serif;
-    font-weight:600;
+    font-family:"Literata", Georgia, serif;
     color:var(--ink);
     margin:0;
   }
-  a{color:var(--info);}
   :focus-visible{outline:2.5px solid var(--focus); outline-offset:2px;}
   @media (prefers-reduced-motion: reduce){
     *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
   }
 
-  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px;}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 20px;}
 
-  /* ---------- Header / hero ---------- */
-  header.site{
-    border-bottom:1px solid var(--rule);
-    background:
-      radial-gradient(620px 300px at 85% -40%, rgba(224,75,42,0.10), transparent 70%),
-      radial-gradient(500px 260px at 100% 10%, rgba(47,122,81,0.10), transparent 70%);
-  }
-  .brand{
-    display:flex; align-items:center; gap:10px;
+  /* ---------- Top bar ---------- */
+  .topbar{
     padding:22px 0 0;
   }
-  .brand svg{flex:none;}
+  .brand{
+    display:flex; align-items:center; gap:9px;
+  }
+  .brand .mark{
+    width:30px; height:30px; border-radius:9px;
+    background:var(--primary);
+    display:flex; align-items:center; justify-content:center;
+    flex:none;
+  }
   .brand span{
-    font-family:"Fraunces", serif;
+    font-family:"Literata", serif;
     font-weight:600;
-    font-size:1.15rem;
-    letter-spacing:0.01em;
-  }
-  .hero{
-    padding:34px 0 44px;
-    display:grid;
-    grid-template-columns: minmax(0,1.3fr) minmax(220px,0.7fr);
-    gap:32px;
-    align-items:end;
-  }
-  .hero h1{
-    font-size:clamp(2.1rem, 4vw, 3rem);
-    line-height:1.08;
-    letter-spacing:-0.01em;
-    max-width:16ch;
-  }
-  .hero p.lede{
-    margin:16px 0 0;
-    max-width:46ch;
-    color:var(--ink-soft);
-    font-size:1.06rem;
-  }
-  .hero .stat{
-    border-left:3px solid var(--risk-high);
-    padding-left:16px;
-  }
-  .hero .stat b{
-    display:block;
-    font-family:"Fraunces", serif;
-    font-size:2.1rem;
-    font-weight:600;
-    line-height:1;
-  }
-  .hero .stat span{
-    display:block;
-    margin-top:6px;
-    color:var(--ink-soft);
-    font-size:0.92rem;
+    font-size:1.1rem;
   }
 
-  /* ---------- Layout ---------- */
-  main{padding:38px 0 70px;}
-  .layout{
-    display:grid;
-    grid-template-columns: minmax(0,1.15fr) minmax(300px,0.95fr);
-    gap:28px;
-    align-items:start;
+  main{padding:28px 0 72px;}
+
+  .intro{margin:6px 0 26px;}
+  .intro h1{
+    font-size:clamp(1.6rem, 3.4vw, 2.1rem);
+    font-weight:600;
+    line-height:1.18;
+    max-width:24ch;
   }
-  @media (max-width:900px){
-    .hero{grid-template-columns:1fr; align-items:start;}
-    .layout{grid-template-columns:1fr;}
+  .intro p{
+    margin:12px 0 0; color:var(--ink-soft); max-width:60ch; font-size:1rem;
   }
 
-  /* ---------- Form ---------- */
-  form.assess{
-    background:var(--raised);
+  /* ---------- Progress rail ---------- */
+  .progress{
+    margin:28px 0 22px;
+  }
+  .progress-track{
+    display:flex; gap:6px;
+  }
+  .progress-seg{
+    flex:1; height:5px; border-radius:999px; background:var(--rule);
+    overflow:hidden;
+  }
+  .progress-seg i{
+    display:block; height:100%; width:0%; background:var(--primary);
+    transition:width 420ms ease;
+  }
+  .progress-labels{
+    display:flex; justify-content:space-between;
+    margin-top:9px;
+    font-size:0.78rem; color:var(--ink-faint); font-weight:600;
+  }
+  .progress-labels span{flex:1; text-align:left;}
+  .progress-labels span:last-child{text-align:right;}
+  .progress-labels span.current{color:var(--primary);}
+
+  /* ---------- Card ---------- */
+  .card{
+    background:var(--surface);
     border:1px solid var(--rule);
     border-radius:var(--radius-lg);
-    padding:28px 28px 30px;
+    box-shadow:var(--shadow);
+    padding:30px 30px 26px;
   }
-  fieldset{
-    border:0; margin:0 0 26px; padding:0;
-  }
-  fieldset:last-of-type{margin-bottom:4px;}
-  legend{
-    font-family:"Fraunces", serif;
-    font-weight:600;
-    font-size:1.08rem;
-    padding:0 0 10px;
-    border-bottom:1px solid var(--rule);
-    margin-bottom:16px;
-    width:100%;
-  }
+  @media (max-width:560px){ .card{padding:22px 18px 20px;} }
+
+  .step{display:none;}
+  .step.active{display:block; animation:fadein 260ms ease;}
+  @keyframes fadein{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  .step h2{font-size:1.28rem; font-weight:600;}
+  .step .step-hint{margin:6px 0 22px; color:var(--ink-soft); font-size:0.94rem;}
+
   .grid2{
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:16px 18px;
+    gap:16px 16px;
   }
-  @media (max-width:520px){ .grid2{grid-template-columns:1fr;} }
-  .field{display:flex; flex-direction:column; gap:6px;}
-  .field label{font-size:0.92rem; font-weight:600;}
-  .field .hint{font-size:0.8rem; color:var(--ink-soft); font-weight:400;}
+  @media (max-width:480px){ .grid2{grid-template-columns:1fr;} }
+  .field{display:flex; flex-direction:column; gap:6px; margin-bottom:16px;}
+  .field.full{grid-column:1/-1;}
+  .field label{font-size:0.91rem; font-weight:600;}
+  .field .hint{font-size:0.8rem; color:var(--ink-faint); font-weight:400;}
   .field input, .field select{
     font:inherit;
-    padding:10px 11px;
+    padding:11px 12px;
     border:1.5px solid var(--rule-strong);
     border-radius:var(--radius);
     background:var(--paper);
     color:var(--ink);
   }
-  .field input:focus, .field select:focus{border-color:var(--focus);}
+  .field input:focus, .field select:focus{border-color:var(--primary); background:var(--surface);}
   .field input:invalid:not(:placeholder-shown){border-color:var(--risk-high);}
   .unit{position:relative;}
   .unit span{
-    position:absolute; right:11px; top:50%; transform:translateY(-50%);
-    font-size:0.82rem; color:var(--ink-soft); pointer-events:none;
+    position:absolute; right:12px; top:50%; transform:translateY(-50%);
+    font-size:0.82rem; color:var(--ink-faint); pointer-events:none;
   }
-  .unit input{padding-right:48px;}
+  .unit input{padding-right:50px;}
 
   .examples{
-    display:flex; flex-wrap:wrap; gap:10px;
-    margin:0 0 24px;
+    display:flex; flex-wrap:wrap; gap:9px;
+    margin:0 0 22px;
   }
   .chip{
-    font:inherit; font-size:0.86rem; font-weight:600;
-    padding:8px 14px;
+    font:inherit; font-size:0.84rem; font-weight:600;
+    padding:7px 13px;
     border-radius:999px;
     border:1.5px solid var(--rule-strong);
     background:var(--paper);
     color:var(--ink);
     cursor:pointer;
   }
-  .chip:hover{border-color:var(--info); color:var(--info);}
+  .chip:hover{border-color:var(--primary); color:var(--primary-dark);}
 
-  .submit-row{
-    display:flex; align-items:center; gap:14px; margin-top:6px;
+  .review-list{list-style:none; margin:0 0 20px; padding:0; display:flex; flex-direction:column; gap:0;}
+  .review-list li{
+    display:flex; justify-content:space-between; gap:16px;
+    padding:10px 0; border-bottom:1px solid var(--rule);
+    font-size:0.92rem;
   }
-  button.primary{
-    font:inherit; font-weight:700; font-size:1rem;
-    background:var(--ink);
-    color:#fff;
-    border:0;
-    padding:13px 24px;
-    border-radius:999px;
-    cursor:pointer;
-    white-space:nowrap;
-  }
-  button.primary:hover{background:#0A1C16;}
-  button.primary:disabled{background:var(--rule-strong); cursor:progress;}
-  .submit-note{font-size:0.84rem; color:var(--ink-soft);}
+  .review-list li:last-child{border-bottom:0;}
+  .review-list .rlabel{color:var(--ink-soft);}
+  .review-list .rval{font-weight:600; text-align:right;}
 
-  /* ---------- Results panel ---------- */
-  .results{
-    position:sticky; top:20px;
-    background:var(--raised);
-    border:1px solid var(--rule);
-    border-radius:var(--radius-lg);
-    padding:28px;
-    min-height:420px;
+  /* ---------- Nav buttons ---------- */
+  .step-nav{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:14px; margin-top:8px; padding-top:18px; border-top:1px solid var(--rule);
   }
-  .results h2{font-size:1.2rem;}
-  .placeholder{
-    display:flex; flex-direction:column; align-items:flex-start;
-    gap:14px; padding:20px 2px 6px;
-    color:var(--ink-soft);
+  .step-nav .spacer{flex:1;}
+  button{font-family:inherit;}
+  button.btn{
+    font-weight:700; font-size:0.96rem;
+    border:0; border-radius:999px; cursor:pointer;
+    padding:12px 22px;
   }
-  .placeholder p{margin:0; max-width:34ch; font-size:0.96rem;}
+  button.btn.primary{background:var(--primary); color:#fff;}
+  button.btn.primary:hover{background:var(--primary-dark);}
+  button.btn.primary:disabled{background:var(--rule-strong); cursor:progress;}
+  button.btn.ghost{background:none; color:var(--ink-soft); padding:12px 8px;}
+  button.btn.ghost:hover{color:var(--ink);}
+  .step-count{font-size:0.82rem; color:var(--ink-faint); font-weight:600;}
 
-  .gauge-wrap{display:flex; flex-direction:column; align-items:center; padding:4px 0 6px;}
+  /* ---------- Results ---------- */
+  .results-head{display:flex; flex-direction:column; align-items:center; text-align:center; padding:6px 0 4px;}
   .gauge-num{
-    font-family:"Fraunces", serif;
-    font-weight:600;
-    font-size:2.6rem;
-    margin-top:-54px;
+    font-family:"Literata", serif; font-weight:600;
+    font-size:2.7rem; margin-top:-56px;
   }
   .gauge-label{
     font-weight:700; font-size:0.95rem;
-    padding:3px 12px; border-radius:999px;
-    margin-top:2px;
+    padding:4px 14px; border-radius:999px;
+    margin-top:4px;
   }
-  .gauge-label.high{background:#FBEAE5; color:var(--risk-high);}
-  .gauge-label.low{background:#E6F2EA; color:var(--risk-low);}
+  .gauge-label.high{background:var(--risk-high-soft); color:var(--risk-high);}
+  .gauge-label.mid{background:var(--risk-mid-soft); color:var(--risk-mid);}
+  .gauge-label.low{background:var(--risk-low-soft); color:var(--risk-low);}
+  .results-head p{margin:10px 0 0; color:var(--ink-soft); font-size:0.94rem; max-width:44ch;}
 
-  .factors{list-style:none; margin:22px 0 0; padding:0; display:flex; flex-direction:column; gap:14px;}
+  .factors{list-style:none; margin:26px 0 0; padding:0; display:flex; flex-direction:column; gap:12px;}
   .factor{
-    border-left:4px solid var(--info);
+    border:1px solid var(--rule);
+    border-left:4px solid var(--accent);
     background:var(--paper);
     border-radius:0 var(--radius) var(--radius) 0;
-    padding:12px 14px;
+    padding:13px 15px;
   }
   .factor.up{border-left-color:var(--risk-high);}
   .factor.down{border-left-color:var(--risk-low);}
@@ -242,30 +230,27 @@
     display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap;
   }
   .factor .flabel{font-weight:700;}
-  .factor .fdir{font-size:0.82rem; color:var(--ink-soft);}
-  .factor .ftag{
-    font-size:0.72rem; font-weight:700; color:var(--ink-soft);
-  }
+  .factor .fdir{font-size:0.82rem; color:var(--ink-faint);}
   .factor p{margin:8px 0 0; font-size:0.92rem; color:var(--ink-soft);}
   .factor .note{
-    margin-top:8px; padding:8px 10px;
-    background:var(--accent-soft); border-radius:var(--radius);
-    font-size:0.86rem; color:var(--ink);
+    margin-top:8px; padding:9px 11px;
+    background:var(--primary-soft); border-radius:var(--radius);
+    font-size:0.86rem; color:var(--primary-dark);
   }
 
   .trust{
-    margin-top:22px; padding:14px 16px;
-    background:var(--info-soft);
+    margin-top:24px; padding:15px 16px;
+    background:var(--accent-soft);
     border-radius:var(--radius);
     font-size:0.86rem; color:var(--ink);
   }
-  .trust b{display:block; margin-bottom:4px; font-family:"Fraunces", serif; font-size:0.98rem;}
+  .trust b{display:block; margin-bottom:4px; font-family:"Literata", serif; font-size:0.98rem;}
 
   .error-box{
     margin-top:16px; padding:14px 16px;
-    background:#FBEAE5; border-radius:var(--radius);
+    background:var(--risk-high-soft); border-radius:var(--radius);
     color:#7A2A17; font-size:0.9rem;
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
   }
   .error-box button{
     font:inherit; font-weight:700; font-size:0.84rem;
@@ -273,50 +258,65 @@
     padding:6px 12px; border-radius:999px; cursor:pointer;
   }
 
-  footer{
-    border-top:1px solid var(--rule);
-    padding:26px 0 50px;
-    color:var(--ink-soft);
-    font-size:0.86rem;
+  .restart-row{margin-top:22px; text-align:center;}
+  .restart-row button{
+    font:inherit; font-weight:700; font-size:0.9rem;
+    background:none; border:1.5px solid var(--rule-strong); color:var(--ink-soft);
+    padding:9px 18px; border-radius:999px; cursor:pointer;
   }
-  footer p{max-width:70ch; margin:0 0 6px;}
+  .restart-row button:hover{border-color:var(--primary); color:var(--primary-dark);}
+
+  footer{
+    padding:0 0 50px;
+    color:var(--ink-faint);
+    font-size:0.84rem;
+  }
+  footer p{max-width:62ch; margin:0 0 6px;}
 </style>
 </head>
 <body>
 
-<header class="site">
-  <div class="wrap">
-    <div class="brand">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M3 12h4l2-7 4 14 2-7h6" stroke="#E04B2A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<div class="topbar wrap">
+  <div class="brand">
+    <span class="mark" aria-hidden="true">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M3 12h4l2-7 4 14 2-7h6" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      <span>Pulse &amp; Plate</span>
-    </div>
-    <div class="hero">
-      <div>
-        <h1>See how today's choices shape your blood pressure.</h1>
-        <p class="lede">Answer a few questions about your body, your diet, and your habits. We'll estimate your hypertension risk and tell you exactly which factors are driving it — and what to eat about it.</p>
-      </div>
-      <div class="stat">
-        <b>5,250</b>
-        <span>U.S. adults from a real national health survey trained the model behind this estimate.</span>
-      </div>
-    </div>
+    </span>
+    <span>Pulse &amp; Plate</span>
   </div>
-</header>
+</div>
 
 <main class="wrap">
-  <div class="layout">
 
-    <form class="assess" id="assessForm" novalidate>
+  <div class="intro" id="introBlock">
+    <h1>A five-minute check on your blood pressure risk.</h1>
+    <p>Answer a few short questions about your body, your diet, and your habits. You'll get a personalized risk estimate, the factors behind it, and specific food guidance — grounded in a model trained on 5,250 real NHANES health records.</p>
+  </div>
 
-      <div class="examples" role="group" aria-label="Fill the form with an example">
-        <button type="button" class="chip" data-example="active">Try an example: active, lower risk</button>
-        <button type="button" class="chip" data-example="sodium">Try an example: sodium-driven risk</button>
-      </div>
+  <div class="progress" id="progressBlock">
+    <div class="progress-track" id="progressTrack"></div>
+    <div class="progress-labels" id="progressLabels"></div>
+  </div>
 
-      <fieldset>
-        <legend>About you</legend>
+  <div class="card">
+    <form id="assessForm" novalidate>
+
+      <!-- Step 0: About you -->
+      <section class="step active" data-step="0">
+        <h2>About you</h2>
+        <p class="step-hint">So we can account for how risk differs across age, sex and income.</p>
+
+        <div class="examples" role="group" aria-label="Fill the form with an example">
+          <button type="button" class="chip" data-example="active">Try example: active, lower risk</button>
+          <button type="button" class="chip" data-example="sodium">Try example: sodium-driven risk</button>
+        </div>
+
+        <div class="field full">
+          <label for="personName">Your name</label>
+          <input id="personName" type="text" required placeholder="Jane Doe">
+          <span class="hint">So your results can be found again later.</span>
+        </div>
         <div class="grid2">
           <div class="field">
             <label for="gender">Sex</label>
@@ -345,13 +345,15 @@
           <div class="field">
             <label for="pir">Household income</label>
             <input id="pir" type="number" min="0" max="5" step="0.1" required placeholder="2.5">
-            <span class="hint">As a multiple of the federal poverty line — 1.0 means right at the line, 5 means well above it.</span>
+            <span class="hint">Multiple of the federal poverty line.</span>
           </div>
         </div>
-      </fieldset>
+      </section>
 
-      <fieldset>
-        <legend>Body measurements</legend>
+      <!-- Step 1: Body measurements -->
+      <section class="step" data-step="1">
+        <h2>Body measurements</h2>
+        <p class="step-hint">These feed directly into the risk model alongside your diet.</p>
         <div class="grid2">
           <div class="field">
             <label for="bmi">Body mass index (BMI)</label>
@@ -361,16 +363,18 @@
             <label for="waist">Waist circumference</label>
             <div class="unit"><input id="waist" type="number" min="50" max="200" step="0.5" required placeholder="95"><span>cm</span></div>
           </div>
-          <div class="field">
+          <div class="field full">
             <label for="creatinine">Serum creatinine</label>
             <div class="unit"><input id="creatinine" type="number" min="0.3" max="5" step="0.1" required placeholder="0.9"><span>mg/dL</span></div>
             <span class="hint">From a recent blood test, if you have one. Otherwise 0.9 is a reasonable average.</span>
           </div>
         </div>
-      </fieldset>
+      </section>
 
-      <fieldset>
-        <legend>What you ate yesterday</legend>
+      <!-- Step 2: Diet -->
+      <section class="step" data-step="2">
+        <h2>What you ate yesterday</h2>
+        <p class="step-hint">Rough estimates are fine — sodium and potassium matter most here.</p>
         <div class="grid2">
           <div class="field">
             <label for="kcal">Calories</label>
@@ -396,19 +400,21 @@
             <label for="fat">Fat</label>
             <div class="unit"><input id="fat" type="number" min="0" max="300" step="1" required placeholder="70"><span>g</span></div>
           </div>
-          <div class="field">
+          <div class="field full">
             <label for="alcoholg">Alcohol</label>
             <div class="unit"><input id="alcoholg" type="number" min="0" max="200" step="1" required placeholder="4"><span>g</span></div>
             <span class="hint">Roughly 14g per standard drink.</span>
           </div>
         </div>
-      </fieldset>
+      </section>
 
-      <fieldset>
-        <legend>Lifestyle</legend>
+      <!-- Step 3: Lifestyle -->
+      <section class="step" data-step="3">
+        <h2>Lifestyle</h2>
+        <p class="step-hint">Smoking and activity both shift cardiovascular risk independent of diet.</p>
         <div class="grid2">
           <div class="field">
-            <label for="smoke">Have you smoked at least 100 cigarettes in your life?</label>
+            <label for="smoke">Smoked 100+ cigarettes in your life?</label>
             <select id="smoke" required>
               <option value="" disabled selected>Choose one</option>
               <option value="1">Yes</option>
@@ -416,7 +422,7 @@
             </select>
           </div>
           <div class="field">
-            <label for="vigorous">Do you do vigorous exercise?</label>
+            <label for="vigorous">Do vigorous exercise?</label>
             <select id="vigorous" required>
               <option value="" disabled selected>Choose one</option>
               <option value="1">Yes</option>
@@ -424,7 +430,7 @@
             </select>
           </div>
           <div class="field">
-            <label for="moderate">Do you do moderate exercise?</label>
+            <label for="moderate">Do moderate exercise?</label>
             <select id="moderate" required>
               <option value="" disabled selected>Choose one</option>
               <option value="1">Yes</option>
@@ -432,7 +438,7 @@
             </select>
           </div>
           <div class="field">
-            <label for="alcfreq">How often do you drink alcohol?</label>
+            <label for="alcfreq">How often do you drink?</label>
             <select id="alcfreq" required>
               <option value="" disabled selected>Choose one</option>
               <option value="0">Never in the past year</option>
@@ -445,10 +451,12 @@
             </select>
           </div>
         </div>
-      </fieldset>
+      </section>
 
-      <fieldset>
-        <legend>Food preferences <span style="font-weight:400; color:var(--ink-soft); font-size:0.85rem;">(optional — changes how guidance is worded, not what it says)</span></legend>
+      <!-- Step 4: Preferences -->
+      <section class="step" data-step="4">
+        <h2>Food preferences</h2>
+        <p class="step-hint">Optional — changes how guidance is worded, not what it recommends.</p>
         <div class="grid2">
           <div class="field">
             <label for="cuisine">Cuisine you cook most</label>
@@ -472,40 +480,45 @@
               <option value="gluten-free">Gluten-free</option>
             </select>
           </div>
-          <div class="field" style="grid-column:1/-1;">
+          <div class="field full">
             <label for="dislikes">Foods to avoid suggesting</label>
             <input id="dislikes" type="text" placeholder="e.g. fish, mushrooms">
             <span class="hint">Separate with commas.</span>
           </div>
         </div>
-      </fieldset>
+      </section>
 
-      <div class="submit-row">
-        <button type="submit" class="primary" id="submitBtn">Check my risk</button>
-        <span class="submit-note">Takes about a second — nothing is stored with your name.</span>
-      </div>
-    </form>
+      <!-- Step 5: Review -->
+      <section class="step" data-step="5">
+        <h2>Review your answers</h2>
+        <p class="step-hint">Everything looks right? Submit to see your risk estimate.</p>
+        <ul class="review-list" id="reviewList"></ul>
+      </section>
 
-    <aside class="results" id="results" aria-live="polite">
-      <h2>Your results</h2>
-      <div id="resultsBody">
-        <div class="placeholder">
-          <svg width="54" height="54" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M3 12h4l2-7 4 14 2-7h6" stroke="#AEBAB3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <p>Fill in the form and check your risk — your personalized score, the factors behind it, and dietary guidance will appear here.</p>
+      <!-- Step 6: Results -->
+      <section class="step" data-step="6" id="resultsStep">
+        <div id="resultsBody"></div>
+        <div class="restart-row">
+          <button type="button" id="restartBtn">Start a new check</button>
         </div>
-      </div>
-    </aside>
+      </section>
 
+      <div class="step-nav" id="stepNav">
+        <button type="button" class="btn ghost" id="backBtn">Back</button>
+        <span class="step-count" id="stepCount">Step 1 of 6</span>
+        <span class="spacer"></span>
+        <button type="button" class="btn primary" id="nextBtn">Continue</button>
+        <button type="submit" class="btn primary" id="submitBtn" style="display:none;">Check my risk</button>
+      </div>
+
+    </form>
   </div>
+
 </main>
 
-<footer>
-  <div class="wrap">
-    <p><strong>Not a medical diagnosis.</strong> This estimate comes from a statistical model trained on population survey data (NHANES 2017–2018), explained with SHAP, paired with fixed, evidence-based DASH/AHA guidance. Confirm anything specific to you with a doctor or registered dietitian.</p>
-    <p>Built for a TECH646 group project — Human–Machine Intelligence for Hypertension Risk Assessment and Personalized Dietary Guidance.</p>
-  </div>
+<footer class="wrap">
+  <p><strong>Not a medical diagnosis.</strong> This estimate comes from a statistical model trained on population survey data (NHANES 2017–2018), explained with SHAP, paired with fixed, evidence-based DASH/AHA guidance. Confirm anything specific to you with a doctor or registered dietitian.</p>
+  <p>Built for a TECH646 group project — Human–Machine Intelligence for Hypertension Risk Assessment and Personalized Dietary Guidance.</p>
 </footer>
 
 <script>
@@ -515,19 +528,50 @@
   // Point this at your FastAPI backend on Railway.
   var BACKEND_URL = "https://backend-production-b3eff.up.railway.app";
 
+  var STEPS = [
+    {label:"About you", fields:["personName","gender","age","ethnicity","pir"]},
+    {label:"Body", fields:["bmi","waist","creatinine"]},
+    {label:"Diet", fields:["kcal","sodium","potassium","protein","carbs","fat","alcoholg"]},
+    {label:"Lifestyle", fields:["smoke","vigorous","moderate","alcfreq"]},
+    {label:"Preferences", fields:[]},
+    {label:"Review", fields:[]}
+  ];
+  // index 6 = results, not part of the rail
+
+  var current = 0;
   var form = document.getElementById("assessForm");
+  var backBtn = document.getElementById("backBtn");
+  var nextBtn = document.getElementById("nextBtn");
   var submitBtn = document.getElementById("submitBtn");
+  var stepCount = document.getElementById("stepCount");
+  var stepNav = document.getElementById("stepNav");
+  var progressTrack = document.getElementById("progressTrack");
+  var progressLabels = document.getElementById("progressLabels");
+  var introBlock = document.getElementById("introBlock");
+  var progressBlock = document.getElementById("progressBlock");
   var resultsBody = document.getElementById("resultsBody");
+
+  // Build progress rail
+  STEPS.forEach(function(s, i){
+    var seg = document.createElement("div");
+    seg.className = "progress-seg";
+    seg.innerHTML = "<i></i>";
+    progressTrack.appendChild(seg);
+    var lbl = document.createElement("span");
+    lbl.textContent = s.label;
+    lbl.dataset.idx = i;
+    progressLabels.appendChild(lbl);
+  });
 
   var EXAMPLES = {
     active: {
-      gender:"1", age:41, ethnicity:"6", pir:3.2, bmi:26.0, waist:90.0,
+      personName:"Sample: Active profile", gender:"1", age:41, ethnicity:"6", pir:3.2, bmi:26.0, waist:90.0,
       creatinine:1.0, kcal:2400, sodium:3400, potassium:2600, protein:95,
       carbs:270, fat:70, alcoholg:6, smoke:"2", vigorous:"1", moderate:"1",
       alcfreq:"4", cuisine:"", constraint:"", dislikes:"fish"
     },
     sodium: {
-      gender:"1", age:55, ethnicity:"4", pir:1.8, bmi:29.0, waist:100.0,
+      personName:"Sample: Sodium-driven profile", gender:"1", age:55, ethnicity:"4", pir:1.8, bmi:29.0, waist:100.0,
       creatinine:1.0, kcal:2000, sodium:4800, potassium:2300, protein:75,
       carbs:250, fat:80, alcoholg:5, smoke:"2", vigorous:"2", moderate:"2",
       alcfreq:"3", cuisine:"Mexican", constraint:"", dislikes:""
@@ -544,8 +588,94 @@
     });
   });
 
-  function num(id){ return parseFloat(document.getElementById(id).value); }
-  function val(id){ return document.getElementById(id).value; }
+  var FIELD_LABELS = {
+    personName:"Name", gender:"Sex", age:"Age", ethnicity:"Race / ethnicity", pir:"Household income",
+    bmi:"BMI", waist:"Waist", creatinine:"Serum creatinine",
+    kcal:"Calories", sodium:"Sodium", potassium:"Potassium", protein:"Protein", carbs:"Carbohydrates", fat:"Fat", alcoholg:"Alcohol",
+    smoke:"Smoked 100+ cigarettes", vigorous:"Vigorous exercise", moderate:"Moderate exercise", alcfreq:"Drinking frequency",
+    cuisine:"Cuisine", constraint:"Dietary pattern", dislikes:"Foods to avoid"
+  };
+  var SELECT_DISPLAY = {
+    gender:{"1":"Male","2":"Female"},
+    ethnicity:{"1":"Mexican American","2":"Other Hispanic","3":"Non-Hispanic White","4":"Non-Hispanic Black","6":"Non-Hispanic Asian","7":"Other / multiracial"},
+    smoke:{"1":"Yes","2":"No"}, vigorous:{"1":"Yes","2":"No"}, moderate:{"1":"Yes","2":"No"},
+    alcfreq:{"0":"Never in the past year","10":"A few times a year","7":"About once a month","5":"About once a week","4":"A couple times a week","3":"Most days","1":"Every day"}
+  };
+
+  function val(id){ var el = document.getElementById(id); return el ? el.value : ""; }
+  function num(id){ return parseFloat(val(id)); }
+
+  function updateUI(){
+    document.querySelectorAll(".step").forEach(function(sec){
+      sec.classList.toggle("active", parseInt(sec.dataset.step,10) === current);
+    });
+
+    var onResults = current === 6;
+    introBlock.style.display = onResults ? "none" : "";
+    progressBlock.style.display = onResults ? "none" : "";
+    stepNav.style.display = onResults ? "none" : "flex";
+
+    if (!onResults){
+      var segs = progressTrack.querySelectorAll(".progress-seg i");
+      segs.forEach(function(i, idx){ i.style.width = idx <= current ? "100%" : "0%"; });
+      var labels = progressLabels.querySelectorAll("span");
+      labels.forEach(function(l, idx){ l.classList.toggle("current", idx === current); });
+
+      backBtn.style.visibility = current === 0 ? "hidden" : "visible";
+      stepCount.textContent = "Step " + (current+1) + " of " + STEPS.length;
+
+      var isReview = current === STEPS.length - 1;
+      nextBtn.style.display = isReview ? "none" : "inline-block";
+      submitBtn.style.display = isReview ? "inline-block" : "none";
+      nextBtn.textContent = current === STEPS.length - 2 ? "Continue to review" : "Continue";
+
+      if (isReview) buildReview();
+    }
+  }
+
+  function validateStep(i){
+    var fields = STEPS[i].fields;
+    for (var k=0; k<fields.length; k++){
+      var el = document.getElementById(fields[k]);
+      if (el && !el.checkValidity()){
+        el.reportValidity();
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function buildReview(){
+    var list = document.getElementById("reviewList");
+    var allFields = STEPS.slice(0,5).reduce(function(acc,s){ return acc.concat(s.fields); }, [])
+      .concat(["cuisine","constraint","dislikes"]);
+    list.innerHTML = allFields.map(function(id){
+      var raw = val(id);
+      if (!raw) return "";
+      var display = (SELECT_DISPLAY[id] && SELECT_DISPLAY[id][raw]) ? SELECT_DISPLAY[id][raw] : raw;
+      return '<li><span class="rlabel">' + escapeHtml(FIELD_LABELS[id] || id) + '</span><span class="rval">' + escapeHtml(String(display)) + '</span></li>';
+    }).join("");
+  }
+
+  nextBtn.addEventListener("click", function(){
+    if (!validateStep(current)) return;
+    current = Math.min(current + 1, STEPS.length - 1);
+    updateUI();
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+
+  backBtn.addEventListener("click", function(){
+    current = Math.max(current - 1, 0);
+    updateUI();
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+
+  document.getElementById("restartBtn").addEventListener("click", function(){
+    form.reset();
+    current = 0;
+    updateUI();
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
 
   function buildPayload(){
     var profile = {
@@ -574,7 +704,7 @@
     if (val("dislikes").trim()){
       preferences.dislikes = val("dislikes").split(",").map(function(s){return s.trim();}).filter(Boolean);
     }
-    var body = { profile: profile };
+    var body = { name: val("personName").trim(), profile: profile };
     if (Object.keys(preferences).length) body.preferences = preferences;
     return body;
   }
@@ -589,11 +719,12 @@
     var pct = Math.round(p * 100);
     var tier = riskTier(p);
     var color = tier === "high" ? "var(--risk-high)" : tier === "mid" ? "var(--risk-mid)" : "var(--risk-low)";
-    var r = 80, cx = 100, cy = 100;
-    var circumference = Math.PI * r; // semicircle length
+    var r = 80;
+    var circumference = Math.PI * r;
     var offset = circumference * (1 - p);
+    var tierText = tier === "high" ? "Higher-risk range" : tier === "mid" ? "Moderate-risk range" : "Lower-risk range";
     return (
-      '<div class="gauge-wrap">' +
+      '<div class="results-head">' +
         '<svg width="200" height="118" viewBox="0 0 200 118" role="img" aria-label="Estimated risk ' + pct + ' percent">' +
           '<path d="M20,100 A80,80 0 0 1 180,100" fill="none" stroke="var(--rule)" stroke-width="14" stroke-linecap="round"/>' +
           '<path d="M20,100 A80,80 0 0 1 180,100" fill="none" stroke="' + color + '" stroke-width="14" stroke-linecap="round" ' +
@@ -601,9 +732,8 @@
             'style="transition: stroke-dashoffset 900ms ease;"/>' +
         '</svg>' +
         '<div class="gauge-num">' + pct + '%</div>' +
-        '<div class="gauge-label ' + (tier === "low" ? "low" : "high") + '">' +
-          (tier === "high" ? "Higher-risk range" : tier === "mid" ? "Moderate-risk range" : "Lower-risk range") +
-        '</div>' +
+        '<div class="gauge-label ' + tier + '">' + tierText + '</div>' +
+        '<p>Estimated likelihood of hypertension based on your answers, compared against the NHANES population.</p>' +
       '</div>'
     );
   }
@@ -625,7 +755,7 @@
         "</li>"
       );
     }).join("");
-    return '<ul class="factors">' + items + "</ul>";
+    return '<h3 style="font-size:1.05rem; margin-top:28px;">What\'s driving this estimate</h3><ul class="factors">' + items + "</ul>";
   }
 
   function escapeHtml(s){
@@ -635,30 +765,35 @@
   }
 
   function renderResults(data){
-    var pct = Math.round(data.risk_probability * 100);
     resultsBody.innerHTML =
       renderGauge(data.risk_probability) +
-      '<h2 style="margin-top:22px; font-size:1.02rem;">What\'s driving this estimate</h2>' +
       renderFactors(data.guidance) +
       '<div class="trust"><b>A note on trust and safety</b>' +
       "These factors are statistical associations from population data, explained with SHAP — not a medical diagnosis. " +
       "The guidance above follows DASH/AHA recommendations broadly; confirm how it applies to you with a doctor or " +
       "registered dietitian, especially if you take blood pressure medication or have kidney disease.</div>";
+    current = 6;
+    updateUI();
+    window.scrollTo({top:0, behavior:"smooth"});
   }
 
   function renderError(message, raw){
     resultsBody.innerHTML =
-      '<div class="placeholder">' +
-        '<p>' + escapeHtml(message) + "</p>" +
-      "</div>" +
+      '<div class="results-head"><p>' + escapeHtml(message) + "</p></div>" +
       '<div class="error-box"><span>' + escapeHtml(raw || "") + '</span><button type="button" id="retryBtn">Retry</button></div>';
+    current = 6;
+    document.getElementById("restartBtn").textContent = "Back to form";
+    updateUI();
     var retry = document.getElementById("retryBtn");
-    if (retry) retry.addEventListener("click", function(){ form.requestSubmit(); });
+    if (retry) retry.addEventListener("click", function(){
+      current = STEPS.length - 1;
+      updateUI();
+      form.requestSubmit();
+    });
   }
 
   form.addEventListener("submit", function(e){
     e.preventDefault();
-    if (!form.reportValidity()) return;
 
     submitBtn.disabled = true;
     submitBtn.textContent = "Checking…";
@@ -683,6 +818,8 @@
         submitBtn.textContent = "Check my risk";
       });
   });
+
+  updateUI();
 })();
 </script>
 
