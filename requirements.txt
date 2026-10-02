@@ -5,3 +5,4 @@ pandas
 numpy
 xgboost
 shap
+psycopg2-binary
