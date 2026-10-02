@@ -3,8 +3,8 @@ FastAPI backend for the Hypertension Risk Assessment system.
 
 Endpoints:
   POST /assess              -- run a full risk assessment, saves to history
-  GET  /assessments         -- list past assessments
-  GET  /assessments/{id}    -- get one past assessment
+  GET  /assessments         -- list past assessments (requires admin key if ADMIN_KEY is set)
+  GET  /assessments/{id}    -- get one past assessment (requires admin key if ADMIN_KEY is set)
   GET  /scenarios           -- the 5 standard usability-eval scenarios, pre-computed
   POST /usability-review    -- submit a reviewer's rating for a scenario
   GET  /usability-reviews   -- list all submitted reviews
@@ -17,7 +17,9 @@ Run locally:
 Docker/Railway: see Dockerfile in this same backend/ folder.
 """
 
-from fastapi import FastAPI, HTTPException
+import os
+
+from fastapi import FastAPI, HTTPException, Query, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
@@ -34,6 +36,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Set ADMIN_KEY in Railway's environment variables to require this key on
+# the results endpoints (so random visitors can't browse everyone's name +
+# results). Leave it unset only while you're first testing locally.
+ADMIN_KEY = os.environ.get("ADMIN_KEY")
+
+
+def require_admin_key(key: Optional[str] = Query(default=None)):
+    if ADMIN_KEY and key != ADMIN_KEY:
+        raise HTTPException(status_code=401, detail="Missing or invalid admin key")
+    return True
 
 
 @app.on_event("startup")
@@ -69,6 +82,7 @@ class Preferences(BaseModel):
 
 
 class AssessRequest(BaseModel):
+    name: Optional[str] = None
     profile: Profile
     preferences: Optional[Preferences] = None
 
@@ -103,6 +117,7 @@ def assess(req: AssessRequest):
         risk_label=risk_result["risk_label"],
         top_factors=explain_result["top_factors"],
         guidance=guidance,
+        name=req.name,
     )
 
     return {
@@ -116,12 +131,12 @@ def assess(req: AssessRequest):
 
 
 @app.get("/assessments")
-def get_assessments(limit: int = 50):
+def get_assessments(limit: int = 50, _auth: bool = Depends(require_admin_key)):
     return database.list_assessments(limit)
 
 
 @app.get("/assessments/{assessment_id}")
-def get_assessment(assessment_id: int):
+def get_assessment(assessment_id: int, _auth: bool = Depends(require_admin_key)):
     result = database.get_assessment(assessment_id)
     if result is None:
         raise HTTPException(status_code=404, detail="Assessment not found")
