@@ -1,0 +1,50 @@
+[
+ {
+  "id": "sodium_general",
+  "text": "Adults: limit sodium to less than 2,300 mg per day.",
+  "source": "aha_acc_2025",
+  "title": "2025 AHA/ACC High Blood Pressure Guideline",
+  "page": 28,
+  "ocr": false
+ },
+ {
+  "id": "sodium_ckd",
+  "text": "People with CKD: suggest sodium under 2 g/day (under 5 g salt) (KDIGO Rec 3.3.2.1, grade 2C).",
+  "source": "kdigo_ckd_2024",
+  "title": "KDIGO 2024 Clinical Practice Guideline for Evaluation and Management of CKD",
+  "page": 42,
+  "ocr": false
+ },
+ {
+  "id": "ckd_definition",
+  "text": "CKD is eGFR below 60 ml/min per 1.73 m2 (categories G3a-G5) for more than 3 months.",
+  "source": "kdigo_ckd_2024",
+  "title": "KDIGO 2024 Clinical Practice Guideline for Evaluation and Management of CKD",
+  "page": 20,
+  "ocr": false
+ },
+ {
+  "id": "potassium_ai",
+  "text": "Adequate Intake of potassium, adults 19+: 3,400 mg men, 2,600 mg women (NASEM 2019, via NIH ODS).",
+  "source": "nih_ods_potassium",
+  "title": "Potassium: Fact Sheet for Health Professionals",
+  "page": 3,
+  "ocr": true
+ },
+ {
+  "id": "dash_servings_2000kcal",
+  "text": "DASH at 2,000 kcal/day: grains 6-8, vegetables 4-5, fruits 4-5, low-fat dairy 2-3, lean meat/poultry/fish 6 or less, nuts/seeds/legumes 4-5 per week, fats/oils 2-3, sweets 5 or less per week.",
+  "source": "dash_nhlbi",
+  "title": "Your Guide to Lowering Your Blood Pressure with DASH",
+  "page": 14,
+  "ocr": false
+ },
+ {
+  "id": "potassium_ckd",
+  "text": "In CKD with hyperkalemia concern: assess dietary potassium (dietary referral) and consider moderating intake (KDIGO 2024).",
+  "source": "kdigo_ckd_2024",
+  "title": "KDIGO 2024 Clinical Practice Guideline for Evaluation and Management of CKD",
+  "page": 113,
+  "ocr": false
+ }
+]
