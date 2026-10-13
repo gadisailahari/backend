@@ -1,0 +1,53 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Pulse &amp; Plate — Review &amp; Study Admin</title><meta name="robots" content="noindex"><link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><style>:root{--paper:#F4F8F7;--surface:#fff;--ink:#123A36;--ink-soft:#4C6864;--rule:#D8E6E3;--primary:#0F766E;--primary-dark:#0B544E;--primary-soft:#E3F2EF;--risk-high:#C8432D;--risk-high-soft:#FBEAE6;--risk-low:#1F8F63;--radius:12px;--shadow:0 1px 2px rgba(18,58,54,.05),0 8px 28px rgba(18,58,54,.07);--focus:#1C5FAE}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,system-ui,sans-serif;font-size:15.5px;line-height:1.5}
+h1,h2{font-family:Literata,Georgia,serif;font-weight:600;margin:0}:focus-visible{outline:2.5px solid var(--focus);outline-offset:2px}
+.wrap{max-width:860px;margin:0 auto;padding:0 20px}header{border-bottom:1px solid var(--rule);padding:22px 0}header h1{font-size:1.5rem}header p{margin:6px 0 0;color:var(--ink-soft)}
+main{padding:22px 0 60px}.card{background:var(--surface);border:1px solid var(--rule);border-radius:16px;box-shadow:var(--shadow);padding:22px;margin-bottom:18px}
+input[type=text],input[type=password],textarea{width:100%;font:inherit;padding:10px 12px;border:1px solid #B9CFC9;border-radius:var(--radius);background:#fff;color:var(--ink)}
+textarea{min-height:90px;resize:vertical}label{font-weight:600;font-size:.9rem;display:block;margin:10px 0 4px}
+button{font:inherit;font-weight:600;border:0;border-radius:var(--radius);padding:10px 18px;cursor:pointer;background:var(--primary);color:#fff}button:hover{background:var(--primary-dark)}
+button.ghost{background:#fff;color:var(--primary);border:1px solid var(--primary)}button.danger{background:var(--risk-high)}button:disabled{opacity:.5;cursor:default}
+.muted{color:var(--ink-soft);font-size:.9rem}.err{color:var(--risk-high);font-weight:600;margin-top:8px}.ok{color:var(--risk-low);font-weight:600}
+.plantext{white-space:pre-wrap;background:#FAFCFB;border:1px solid var(--rule);border-radius:var(--radius);padding:14px;font-size:.95rem}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}table{border-collapse:collapse;width:100%;font-size:.88rem}th,td{border-bottom:1px solid var(--rule);padding:6px 8px;text-align:left}
+
+.tabs{display:flex;gap:8px;margin-bottom:16px}.tabs button{background:#fff;color:var(--primary);border:1px solid var(--primary)}.tabs button.on{background:var(--primary);color:#fff}
+</style></head><body>
+<header><div class="wrap"><h1>Review &amp; Study Admin</h1><p>Clinician review of checked plans, and control of the 3-system rating study.</p></div></header>
+<main class="wrap">
+<section class="card" id="gate"><h2>Admin key</h2><p class="muted">Enter the admin key (stored only in this browser).</p><label for="k">Key</label><input type="password" id="k" autocomplete="off"><div class="row"><button id="unlock">Unlock</button></div><div class="err" id="gerr"></div></section>
+<div id="app" hidden>
+<div class="tabs"><button id="t1" class="on">Plans to review</button><button id="t2">Rating study</button><button class="ghost" id="lock" style="margin-left:auto">Lock</button></div>
+<section id="p1"><div class="muted" id="pcount"></div><div id="plist"></div></section>
+<section id="p2" hidden><div class="card"><h2>Generate study plans</h2><p class="muted">Creates plans for each test scenario with all three systems (template, LLM alone, LLM + RAG + checker). This replaces any existing study plans and takes a few minutes.</p>
+<div class="row"><button id="gen" class="danger">Generate / regenerate</button><button class="ghost" id="stat">Refresh status</button></div><pre id="sstat" class="plantext"></pre></div>
+<div class="card"><h2>Results so far</h2><div class="row" style="margin-top:0"><button class="ghost" id="sum">Refresh results</button></div><div id="sumout"></div></div></section>
+</div></main>
+<script>
+(function(){
+var BACKEND_URL="https://backend-production-b3eff.up.railway.app",SK="pp_admin_key",$=function(i){return document.getElementById(i)};
+function esc(s){var d=document.createElement("div");d.textContent=s==null?"":s;return d.innerHTML}
+function key(){try{return localStorage.getItem(SK)||""}catch(e){return window.__k||""}}
+function setKey(v){try{localStorage.setItem(SK,v)}catch(e){window.__k=v}}
+function api(path,opt){var sep=path.indexOf("?")>=0?"&":"?";return fetch(BACKEND_URL+path+sep+"key="+encodeURIComponent(key()),opt).then(function(r){if(r.status===401||r.status===403)throw new Error("auth");if(!r.ok)return r.text().then(function(t){throw new Error(r.status+" "+t)});return r.json()})}
+function lockOut(m){try{localStorage.removeItem(SK)}catch(e){}window.__k="";$("app").hidden=true;$("gate").hidden=false;$("gerr").textContent=m||""}
+function fail(e){if(e.message==="auth")lockOut("That key was not accepted.");else alert(e.message)}
+function tab(n){$("p1").hidden=n!==1;$("p2").hidden=n!==2;$("t1").className=n===1?"on":"";$("t2").className=n===2?"on":""}
+function loadPending(){return api("/review/pending").then(function(a){
+ $("pcount").textContent=a.length+" plan(s) waiting for review (checker-approved, not yet human-reviewed).";
+ $("plist").innerHTML=a.map(function(p){return '<div class="card" data-id="'+p.id+'"><div class="muted">Plan #'+p.id+' · '+esc(String(p.created_at).slice(0,16))+'</div><textarea class="edit" style="margin-top:8px;min-height:220px">'+esc(p.text)+'</textarea><label>Note (optional)</label><input type="text" class="note"><div class="row"><button data-a="approved">Approve as is</button><button data-a="edited" class="ghost">Save my edits</button><button data-a="rejected" class="danger">Reject</button></div></div>'}).join("")
+ }).catch(fail)}
+$("plist").onclick=function(e){var b=e.target.closest("button[data-a]");if(!b)return;var c=b.closest(".card"),id=c.getAttribute("data-id"),a=b.getAttribute("data-a");
+ var body={action:a,note:c.querySelector(".note").value};if(a==="edited")body.text=c.querySelector(".edit").value;
+ api("/review/"+id,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).then(loadPending).catch(fail)};
+function unlock(){return api("/review/pending").then(function(){$("gate").hidden=true;$("app").hidden=false;return loadPending()}).catch(function(e){if(e.message==="auth")lockOut("That key was not accepted.");else $("gerr").textContent=e.message})}
+$("unlock").onclick=function(){setKey($("k").value.trim());unlock()};
+$("lock").onclick=function(){lockOut("")};$("t1").onclick=function(){tab(1)};$("t2").onclick=function(){tab(2);status()};
+function status(){return api("/study/status").then(function(s){$("sstat").textContent=JSON.stringify(s,null,2)}).catch(fail)}
+$("stat").onclick=status;
+$("gen").onclick=function(){if(!confirm("This replaces existing study plans and any ratings tied to them will no longer match. Continue?"))return;api("/study/generate",{method:"POST"}).then(status).catch(fail)};
+function tbl(rows){if(!rows||!rows.length)return '<p class="muted">No data yet.</p>';var k=Object.keys(rows[0]);return '<div style="overflow-x:auto"><table><tr>'+k.map(function(x){return '<th>'+esc(x)+'</th>'}).join("")+'</tr>'+rows.map(function(r){return '<tr>'+k.map(function(x){return '<td>'+esc(r[x])+'</td>'}).join("")+'</tr>'}).join("")+'</table></div>'}
+$("sum").onclick=function(){api("/study/summary").then(function(s){$("sumout").innerHTML='<p class="muted">Raters: '+esc(s.totals.raters)+' · ratings: '+esc(s.totals.ratings)+'</p><h3>Ratings by system (1–5)</h3>'+tbl(s.ratings_by_system)+'<h3>Objective sodium check</h3>'+tbl(s.objective_by_system)+'<h3>Live user feedback</h3>'+tbl(s.feedback)}).catch(fail)};
+if(key())unlock();
+})();
+</script></body></html>

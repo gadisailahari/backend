@@ -1,0 +1,62 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Pulse &amp; Plate — Rate eating plans</title><meta name="robots" content="noindex"><link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><style>:root{--paper:#F4F8F7;--surface:#fff;--ink:#123A36;--ink-soft:#4C6864;--rule:#D8E6E3;--primary:#0F766E;--primary-dark:#0B544E;--primary-soft:#E3F2EF;--risk-high:#C8432D;--risk-high-soft:#FBEAE6;--risk-low:#1F8F63;--radius:12px;--shadow:0 1px 2px rgba(18,58,54,.05),0 8px 28px rgba(18,58,54,.07);--focus:#1C5FAE}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,system-ui,sans-serif;font-size:15.5px;line-height:1.5}
+h1,h2{font-family:Literata,Georgia,serif;font-weight:600;margin:0}:focus-visible{outline:2.5px solid var(--focus);outline-offset:2px}
+.wrap{max-width:860px;margin:0 auto;padding:0 20px}header{border-bottom:1px solid var(--rule);padding:22px 0}header h1{font-size:1.5rem}header p{margin:6px 0 0;color:var(--ink-soft)}
+main{padding:22px 0 60px}.card{background:var(--surface);border:1px solid var(--rule);border-radius:16px;box-shadow:var(--shadow);padding:22px;margin-bottom:18px}
+input[type=text],input[type=password],textarea{width:100%;font:inherit;padding:10px 12px;border:1px solid #B9CFC9;border-radius:var(--radius);background:#fff;color:var(--ink)}
+textarea{min-height:90px;resize:vertical}label{font-weight:600;font-size:.9rem;display:block;margin:10px 0 4px}
+button{font:inherit;font-weight:600;border:0;border-radius:var(--radius);padding:10px 18px;cursor:pointer;background:var(--primary);color:#fff}button:hover{background:var(--primary-dark)}
+button.ghost{background:#fff;color:var(--primary);border:1px solid var(--primary)}button.danger{background:var(--risk-high)}button:disabled{opacity:.5;cursor:default}
+.muted{color:var(--ink-soft);font-size:.9rem}.err{color:var(--risk-high);font-weight:600;margin-top:8px}.ok{color:var(--risk-low);font-weight:600}
+.plantext{white-space:pre-wrap;background:#FAFCFB;border:1px solid var(--rule);border-radius:var(--radius);padding:14px;font-size:.95rem}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}table{border-collapse:collapse;width:100%;font-size:.88rem}th,td{border-bottom:1px solid var(--rule);padding:6px 8px;text-align:left}
+
+.crit{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule)}.crit small{color:var(--ink-soft);display:block;font-weight:400}
+.scale{display:flex;gap:6px}.scale label{margin:0;font-weight:500}.scale input{position:absolute;opacity:0}.scale span{display:inline-block;width:38px;height:38px;line-height:36px;text-align:center;border:1px solid #B9CFC9;border-radius:10px;cursor:pointer;background:#fff}
+.scale input:checked+span{background:var(--primary);color:#fff;border-color:var(--primary)}.scale input:focus-visible+span{outline:2.5px solid var(--focus)}
+.bar{height:8px;background:var(--rule);border-radius:8px;overflow:hidden;margin:8px 0}.bar i{display:block;height:100%;background:var(--primary)}
+.person{background:var(--primary-soft);border-radius:var(--radius);padding:12px 14px;margin-bottom:12px}
+</style></head><body>
+<header><div class="wrap"><h1>Rate eating plans</h1><p>Thank you for helping evaluate dietary guidance. Your ratings are anonymous to the plan source.</p></div></header>
+<main class="wrap">
+<section class="card" id="gate"><h2>Start</h2><p class="muted">Enter the rater ID your study coordinator gave you (for example R1). Use the same ID each time so you can resume where you stopped.</p>
+<label for="rid">Rater ID</label><input type="text" id="rid" maxlength="60" autocomplete="off"><div class="row"><button id="go">Begin</button></div><div class="err" id="gerr"></div></section>
+<section id="intro" hidden class="card"><h2>How to rate</h2>
+<p class="muted">Each card shows a person and one eating plan written for them. You will rate 5 things from 1 (very poor) to 5 (excellent). Rate each plan on its own; the plans come from different sources and you are not told which.</p>
+<ul class="muted"><li><b>Clarity</b>: is it easy to understand?</li><li><b>Relevance</b>: does it fit this person's risk factors and preferences?</li><li><b>Practicality</b>: could this person realistically follow it?</li><li><b>Adherence</b>: does it look consistent with standard hypertension guidance (e.g., DASH, sodium limits)?</li><li><b>Safety</b>: is anything in it risky for this person? (5 = nothing risky)</li></ul>
+<div class="row"><button id="start">Start rating</button></div></section>
+<section id="task" hidden class="card"><div class="muted" id="prog"></div><div class="bar"><i id="fill" style="width:0"></i></div>
+<div class="person" id="person"></div><div class="plantext" id="ptext"></div><div id="crits"></div>
+<label for="cm">Comments (optional)</label><textarea id="cm" maxlength="1000"></textarea>
+<div class="row"><button id="submit">Save and next</button><span class="err" id="terr"></span></div></section>
+<section id="done" hidden class="card"><h2>All done</h2><p class="ok">Thank you — every plan has been rated.</p></section>
+</main>
+<script>
+(function(){
+var BACKEND_URL="https://backend-production-b3eff.up.railway.app";
+var CR=[["clarity","Clarity","Easy to understand?"],["relevance","Relevance","Fits this person?"],["practicality","Practicality","Realistic to follow?"],["adherence","Adherence","Consistent with hypertension guidance?"],["safety","Safety","Nothing risky for this person? (5 = safe)"]];
+var items=[],idx=0,rater="",$=function(i){return document.getElementById(i)};
+function esc(s){var d=document.createElement("div");d.textContent=s==null?"":s;return d.innerHTML}
+function show(id){["gate","intro","task","done"].forEach(function(x){$(x).hidden=x!==id})}
+function load(){return fetch(BACKEND_URL+"/study/task?rater="+encodeURIComponent(rater)).then(function(r){if(!r.ok)throw new Error("Could not load plans ("+r.status+")");return r.json()})}
+function render(){
+ var total=items.length,rated=items.filter(function(i){return i.already_rated}).length;
+ var next=items.findIndex(function(i){return !i.already_rated});
+ if(total===0){$("gerr").textContent="No plans are available yet. Ask your coordinator.";show("gate");return}
+ if(next<0){show("done");return}
+ idx=next;var it=items[idx];
+ $("prog").textContent="Plan "+(rated+1)+" of "+total;$("fill").style.width=(100*rated/total)+"%";
+ $("person").textContent=it.person;$("ptext").textContent=it.text.replace(/\s?\[(?:P|F)\d+\]/g,"");  /* hide citation tags so the plan source stays blinded */$("cm").value="";$("terr").textContent="";
+ $("crits").innerHTML=CR.map(function(c){var h='<div class="crit"><div><b>'+c[1]+'</b><small>'+c[2]+'</small></div><div class="scale" role="radiogroup" aria-label="'+c[1]+'">';
+  for(var n=1;n<=5;n++)h+='<label><input type="radio" name="'+c[0]+'" value="'+n+'"><span>'+n+'</span></label>';return h+'</div></div>'}).join("");
+ show("task");window.scrollTo(0,0)}
+$("go").onclick=function(){rater=$("rid").value.trim();if(!rater){$("gerr").textContent="Please enter your rater ID.";return}
+ $("gerr").textContent="";load().then(function(d){items=d.items;if(d.rated>0&&d.rated<d.total)render();else if(d.total>0&&d.rated===d.total)show("done");else if(d.total===0){$("gerr").textContent="No plans are available yet. Ask your coordinator."}else show("intro")}).catch(function(e){$("gerr").textContent=e.message})};
+$("start").onclick=render;
+$("submit").onclick=function(){
+ var body={rater_id:rater,plan_code:items[idx].plan_code,comments:$("cm").value};
+ for(var i=0;i<CR.length;i++){var el=document.querySelector('input[name="'+CR[i][0]+'"]:checked');if(!el){$("terr").textContent="Please rate all five items.";return}body[CR[i][0]]=parseInt(el.value,10)}
+ $("submit").disabled=true;
+ fetch(BACKEND_URL+"/ratings",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).then(function(r){if(!r.ok)throw new Error("Save failed ("+r.status+"). Try again.");items[idx].already_rated=true;render()}).catch(function(e){$("terr").textContent=e.message}).then(function(){$("submit").disabled=false})};
+})();
+</script></body></html>

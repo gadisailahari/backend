@@ -7,39 +7,31 @@
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600;7..72,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#F4F8F7;
-    --surface:#FFFFFF;
-    --ink:#123A36;
-    --ink-soft:#4C6864;
-    --ink-faint:#7E948F;
-    --rule:#D8E6E3;
-    --rule-strong:#B9CFC9;
-    --primary:#0F766E;
-    --primary-dark:#0B544E;
-    --primary-soft:#E3F2EF;
-    --accent:#2A5C8A;
-    --accent-soft:#E7EEF5;
-    --risk-high:#C8432D;
-    --risk-high-soft:#FBEAE6;
-    --risk-mid:#C47A1F;
-    --risk-mid-soft:#FBF1E2;
-    --risk-low:#1F8F63;
-    --risk-low-soft:#E6F5EE;
-    --radius:12px;
-    --radius-lg:20px;
-    --shadow:0 1px 2px rgba(18,58,54,0.05), 0 8px 28px rgba(18,58,54,0.07);
+    --ink:#122821;
+    --ink-soft:#3C5048;
+    --paper:#EFF3F2;
+    --raised:#FFFFFF;
+    --rule:#D3DBD6;
+    --rule-strong:#AEBAB3;
+    --risk-high:#E04B2A;
+    --risk-mid:#C98A1F;
+    --risk-low:#2F7A51;
+    --info:#2F5D8A;
+    --info-soft:#E7EEF4;
     --focus:#1C5FAE;
+    --radius:10px;
+    --radius-lg:16px;
     --maxw:1180px;
   }
   *{box-sizing:border-box;}
   body{
     margin:0; background:var(--paper); color:var(--ink);
-    font-family:"Inter", system-ui, sans-serif; font-size:15.5px; line-height:1.5;
+    font-family:"Public Sans", system-ui, sans-serif; font-size:15.5px; line-height:1.5;
   }
-  h1,h2{font-family:"Literata", Georgia, serif; font-weight:600; margin:0;}
+  h1,h2{font-family:"Fraunces", Georgia, serif; font-weight:600; margin:0;}
   :focus-visible{outline:2.5px solid var(--focus); outline-offset:2px;}
   .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px;}
   header{
@@ -50,73 +42,34 @@
   header p{margin:6px 0 0; color:var(--ink-soft);}
   main{padding:26px 0 60px;}
 
-  /* ---------- Gate ---------- */
-  .gate{
-    max-width:420px; margin:70px auto; background:var(--surface);
-    border:1px solid var(--rule); border-radius:var(--radius-lg); box-shadow:var(--shadow);
-    padding:30px 28px;
-  }
-  .gate h2{font-size:1.25rem; margin-bottom:8px;}
-  .gate p{color:var(--ink-soft); font-size:0.92rem; margin:0 0 18px;}
-  .gate input{
-    width:100%; font:inherit; padding:11px 12px; border:1.5px solid var(--rule-strong);
-    border-radius:var(--radius); background:var(--paper); margin-bottom:12px;
-  }
-  .gate input:focus{border-color:var(--primary); background:var(--surface);}
-  .gate button{
-    width:100%; font:inherit; font-weight:700; font-size:0.95rem;
-    background:var(--primary); color:#fff; border:0; padding:12px; border-radius:999px; cursor:pointer;
-  }
-  .gate button:hover{background:var(--primary-dark);}
-  .gate .err{color:var(--risk-high); font-size:0.86rem; margin-top:10px; display:none;}
-
-  /* ---------- Stat strip ---------- */
-  .stats{
-    display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px;
-  }
-  @media (max-width:760px){ .stats{grid-template-columns:repeat(2,1fr);} }
-  .stat-card{
-    background:var(--surface); border:1px solid var(--rule); border-radius:var(--radius-lg);
-    padding:16px 18px;
-  }
-  .stat-card .num{font-family:"Literata", serif; font-weight:600; font-size:1.7rem;}
-  .stat-card .lbl{font-size:0.8rem; color:var(--ink-soft); margin-top:2px;}
-  .stat-card.high .num{color:var(--risk-high);}
-  .stat-card.mid .num{color:var(--risk-mid);}
-  .stat-card.low .num{color:var(--risk-low);}
-
   .toolbar{
     display:flex; flex-wrap:wrap; gap:12px; align-items:center;
     margin-bottom:18px;
   }
   .toolbar input[type="search"]{
     font:inherit; padding:9px 12px; border:1.5px solid var(--rule-strong);
-    border-radius:var(--radius); background:var(--surface); min-width:220px;
+    border-radius:var(--radius); background:var(--raised); min-width:220px;
   }
-  .toolbar input[type="search"]:focus{border-color:var(--primary);}
   .stat-chip{
     font-size:0.86rem; font-weight:600; color:var(--ink-soft);
-    background:var(--surface); border:1px solid var(--rule);
+    background:var(--raised); border:1px solid var(--rule);
     padding:7px 13px; border-radius:999px;
   }
-  button.refresh, button.logout{
+  button.refresh{
     font:inherit; font-weight:700; font-size:0.86rem;
-    border:0; padding:9px 16px; border-radius:999px; cursor:pointer;
+    background:var(--ink); color:#fff; border:0;
+    padding:9px 16px; border-radius:999px; cursor:pointer;
   }
-  button.refresh{background:var(--primary); color:#fff;}
-  button.refresh:hover{background:var(--primary-dark);}
-  button.logout{background:none; color:var(--ink-soft); border:1.5px solid var(--rule-strong);}
-  button.logout:hover{color:var(--ink);}
 
   table{
     width:100%; border-collapse:collapse;
-    background:var(--surface); border:1px solid var(--rule); border-radius:var(--radius-lg);
+    background:var(--raised); border:1px solid var(--rule); border-radius:var(--radius-lg);
     overflow:hidden;
   }
   thead th{
     text-align:left; font-size:0.78rem; font-weight:700; color:var(--ink-soft);
-    padding:12px 14px; border-bottom:1px solid var(--rule);
-    background:var(--primary-soft);
+    text-transform:none; padding:12px 14px; border-bottom:1px solid var(--rule);
+    background:#F6F9F8;
   }
   tbody td{
     padding:12px 14px; border-bottom:1px solid var(--rule);
@@ -130,71 +83,52 @@
     display:inline-block; font-weight:700; font-size:0.84rem;
     padding:3px 10px; border-radius:999px;
   }
-  .risk-pill.high{background:var(--risk-high-soft); color:var(--risk-high);}
-  .risk-pill.mid{background:var(--risk-mid-soft); color:var(--risk-mid);}
-  .risk-pill.low{background:var(--risk-low-soft); color:var(--risk-low);}
+  .risk-pill.high{background:#FBEAE5; color:var(--risk-high);}
+  .risk-pill.mid{background:#FBF2E2; color:var(--risk-mid);}
+  .risk-pill.low{background:#E6F2EA; color:var(--risk-low);}
   .factors-cell{font-size:0.88rem; color:var(--ink-soft); max-width:360px;}
   .factors-cell span{
     display:inline-block; margin:0 6px 4px 0; padding:2px 8px;
-    background:var(--accent-soft); color:var(--accent); border-radius:999px; font-size:0.8rem;
+    background:var(--info-soft); color:var(--info); border-radius:999px; font-size:0.8rem;
   }
   .empty, .error{
     padding:40px 20px; text-align:center; color:var(--ink-soft);
-    background:var(--surface); border:1px solid var(--rule); border-radius:var(--radius-lg);
+    background:var(--raised); border:1px solid var(--rule); border-radius:var(--radius-lg);
   }
-  .error{color:#7A2A17; background:var(--risk-high-soft); border-color:#F0C9BE;}
+  .error{color:#7A2A17; background:#FBEAE5; border-color:#F0C9BE;}
   .row-detail{display:none;}
   .row-detail.open{display:table-row;}
   .row-detail td{background:#F9FBFA; font-size:0.88rem; color:var(--ink-soft); white-space:pre-wrap;}
   .expand-btn{
-    font:inherit; font-size:0.78rem; font-weight:700; color:var(--accent);
+    font:inherit; font-size:0.78rem; font-weight:700; color:var(--info);
     background:none; border:0; cursor:pointer; padding:0;
   }
 </style>
 </head>
 <body>
 
-<div id="gateScreen" class="gate">
-  <h2>Admin access</h2>
-  <p>Enter the admin key to view submitted assessments.</p>
-  <input type="password" id="adminKeyInput" placeholder="Admin key" autocomplete="off">
-  <button type="button" id="gateBtn">View dashboard</button>
-  <div class="err" id="gateErr">That key didn't work. Check it and try again.</div>
-</div>
+<header class="wrap">
+  <h1>Results dashboard</h1>
+  <p>Every risk assessment submitted through Pulse &amp; Plate, newest first. This page has no password — don't share the link outside your team.</p>
+</header>
 
-<div id="dashScreen" style="display:none;">
-  <header class="wrap">
-    <h1>Results dashboard</h1>
-    <p>Every risk assessment submitted through Pulse &amp; Plate, newest first.</p>
-  </header>
+<main class="wrap">
+  <div class="toolbar">
+    <input type="search" id="search" placeholder="Search by name…">
+    <span class="stat-chip" id="countChip">Loading…</span>
+    <button class="refresh" id="refreshBtn" type="button">Refresh</button>
+  </div>
 
-  <main class="wrap">
-    <div class="stats" id="statsRow"></div>
-
-    <div class="toolbar">
-      <input type="search" id="search" placeholder="Search by name…">
-      <span class="stat-chip" id="countChip">Loading…</span>
-      <button class="refresh" id="refreshBtn" type="button">Refresh</button>
-      <button class="logout" id="logoutBtn" type="button">Log out</button>
-    </div>
-
-    <div id="tableWrap">
-      <div class="empty">Loading results…</div>
-    </div>
-  </main>
-</div>
+  <div id="tableWrap">
+    <div class="empty">Loading results…</div>
+  </div>
+</main>
 
 <script>
 (function(){
   "use strict";
   var BACKEND_URL = "https://backend-production-b3eff.up.railway.app";
-  var STORAGE_KEY = "pp_admin_key";
   var allRows = [];
-
-  var gateScreen = document.getElementById("gateScreen");
-  var dashScreen = document.getElementById("dashScreen");
-  var adminKeyInput = document.getElementById("adminKeyInput");
-  var gateErr = document.getElementById("gateErr");
 
   function escapeHtml(s){
     return String(s).replace(/[&<>"']/g, function(c){
@@ -220,22 +154,6 @@
     BMXBMI:"BMI", BMXWAIST:"Waist", DR1TSODI:"Sodium", DR1TPOTA:"Potassium",
     DR1TTFAT:"Fat", DR1TALCO:"Alcohol", SMQ020:"Smoking"
   };
-
-  function getKey(){ try{ return localStorage.getItem(STORAGE_KEY) || ""; }catch(e){ return ""; } }
-  function setKey(k){ try{ localStorage.setItem(STORAGE_KEY, k); }catch(e){} }
-  function clearKey(){ try{ localStorage.removeItem(STORAGE_KEY); }catch(e){} }
-
-  function renderStats(rows){
-    var n = rows.length;
-    var high = rows.filter(function(r){ return riskTier(r.risk_probability) === "high"; }).length;
-    var mid = rows.filter(function(r){ return riskTier(r.risk_probability) === "mid"; }).length;
-    var low = n - high - mid;
-    document.getElementById("statsRow").innerHTML =
-      '<div class="stat-card"><div class="num">' + n + '</div><div class="lbl">Total assessments</div></div>' +
-      '<div class="stat-card low"><div class="num">' + low + '</div><div class="lbl">Lower-risk range</div></div>' +
-      '<div class="stat-card mid"><div class="num">' + mid + '</div><div class="lbl">Moderate-risk range</div></div>' +
-      '<div class="stat-card high"><div class="num">' + high + '</div><div class="lbl">Higher-risk range</div></div>';
-  }
 
   function renderTable(rows){
     var wrap = document.getElementById("tableWrap");
@@ -295,68 +213,25 @@
   function load(){
     document.getElementById("countChip").textContent = "Loading…";
     document.getElementById("tableWrap").innerHTML = '<div class="empty">Loading results…</div>';
-    var key = getKey();
-    var url = BACKEND_URL + "/assessments?limit=500" + (key ? "&key=" + encodeURIComponent(key) : "");
-    fetch(url)
+    fetch(BACKEND_URL + "/assessments?limit=500")
       .then(function(res){
-        if (res.status === 401){
-          clearKey();
-          showGate(true);
-          throw new Error("unauthorized");
-        }
         if (!res.ok) throw new Error("Server returned " + res.status);
         return res.json();
       })
       .then(function(data){
         allRows = data;
-        renderStats(allRows);
         applyFilter();
       })
       .catch(function(err){
-        if (err.message === "unauthorized") return;
         document.getElementById("countChip").textContent = "Error";
         document.getElementById("tableWrap").innerHTML =
           '<div class="error">Could not load results: ' + escapeHtml(err.message) + '</div>';
       });
   }
 
-  function showGate(withError){
-    gateScreen.style.display = "block";
-    dashScreen.style.display = "none";
-    gateErr.style.display = withError ? "block" : "none";
-    adminKeyInput.focus();
-  }
-
-  function showDash(){
-    gateScreen.style.display = "none";
-    dashScreen.style.display = "block";
-    load();
-  }
-
-  document.getElementById("gateBtn").addEventListener("click", function(){
-    var k = adminKeyInput.value.trim();
-    setKey(k);
-    showDash();
-  });
-  adminKeyInput.addEventListener("keydown", function(e){
-    if (e.key === "Enter") document.getElementById("gateBtn").click();
-  });
-  document.getElementById("logoutBtn").addEventListener("click", function(){
-    clearKey();
-    showGate(false);
-  });
   document.getElementById("search").addEventListener("input", applyFilter);
   document.getElementById("refreshBtn").addEventListener("click", load);
-
-  // If a key was already entered this browser, skip straight to the
-  // dashboard; load() will bounce back to the gate if it's since been
-  // revoked or was wrong.
-  var hasStoredKey = (function(){ try{ return localStorage.getItem(STORAGE_KEY) !== null; }catch(e){ return false; } })();
-  if (hasStoredKey){
-    showDash();
-  } else {
-    showGate(false);
-  }
+  load();
 })();
 </script>
 

@@ -272,6 +272,24 @@
     font-size:0.84rem;
   }
   footer p{max-width:62ch; margin:0 0 6px;}
+
+  /* ---- personalised plan panel ---- */
+  .plan{margin-top:22px; padding:22px 20px; border:1px solid var(--rule); border-radius:16px; background:var(--surface);}
+  .plan h3{margin:0 0 4px; font-family:"Literata", serif; font-size:1.2rem;}
+  .plan-sub{margin:0 0 14px; color:var(--ink-soft); font-size:0.92rem;}
+  .plan-text{white-space:pre-wrap; background:var(--primary-soft); border-radius:12px; padding:16px; line-height:1.55; font-size:0.96rem; margin:14px 0 8px;}
+  .plan-meta,.plan-src{font-size:0.85rem; color:var(--ink-soft); margin:6px 0;}
+  .plan-flag{background:var(--risk-mid-soft); border:1px solid var(--risk-mid); border-radius:10px; padding:10px 12px; font-size:0.9rem; margin:10px 0;}
+  .plan-err{background:var(--risk-high-soft); border-radius:10px; padding:10px 12px; font-size:0.92rem; margin:10px 0;}
+  .chatlog{margin:14px 0 8px; display:flex; flex-direction:column; gap:8px;}
+  .bubble{padding:10px 12px; border-radius:12px; font-size:0.93rem; line-height:1.45; max-width:92%; white-space:pre-wrap;}
+  .bubble.me{align-self:flex-end; background:var(--accent-soft);}
+  .bubble.bot{align-self:flex-start; background:#fff; border:1px solid var(--rule);}
+  .chatform{display:flex; gap:8px; margin-top:6px;}
+  .chatform input{flex:1; padding:11px 12px; border:1px solid var(--rule-strong); border-radius:10px; font:inherit;}
+  .ratebox{margin-top:16px; padding-top:14px; border-top:1px solid var(--rule); font-size:0.92rem;}
+  .ratebox label{display:inline-flex; align-items:center; gap:6px; margin:4px 12px 4px 0;}
+  .ratebox select,.ratebox input[type=text]{padding:6px 8px; border:1px solid var(--rule-strong); border-radius:8px; font:inherit;}
 </style>
 </head>
 <body>
@@ -773,9 +791,130 @@
       "These factors are statistical associations from population data, explained with SHAP — not a medical diagnosis. " +
       "The guidance above follows DASH/AHA recommendations broadly; confirm how it applies to you with a doctor or " +
       "registered dietitian, especially if you take blood pressure medication or have kidney disease.</div>";
+    resultsBody.insertAdjacentHTML("beforeend", planPanelHtml());
+    wirePlan(data.id);
     current = 6;
     updateUI();
     window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+
+  // ---------- personalised plan, chat and feedback ----------
+  function planPanelHtml(){
+    return '<div class="plan" id="planPanel">' +
+      "<h3>Your personalised eating plan</h3>" +
+      '<p class="plan-sub">Written from the DASH and AHA/ACC guidelines (and KDIGO if your kidney result is low), then checked by software for sodium limits and safety. Education only, not a diagnosis.</p>' +
+      '<button type="button" class="btn primary" id="planBtn">Create my plan</button>' +
+      '<div id="planOut"></div></div>';
+  }
+
+  function postJson(path, body){
+    return fetch(BACKEND_URL + path, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)})
+      .then(function(res){
+        return res.json().catch(function(){ return {}; }).then(function(j){
+          if (!res.ok) throw new Error((j && j.detail) ? (typeof j.detail === "string" ? j.detail : "Please check your input.") : ("Server error " + res.status));
+          return j;
+        });
+      });
+  }
+
+  function wirePlan(assessmentId){
+    var btn = document.getElementById("planBtn");
+    var out = document.getElementById("planOut");
+    var planId = null;
+
+    function sourcesFor(text, sources){
+      var seen = {}, items = [];
+      (text.match(/\[(?:P|F)\d+\]/g) || []).forEach(function(tag){
+        var k = tag.slice(1, -1);
+        if (!seen[k] && sources && sources[k]){ seen[k] = 1; items.push(k + ": " + sources[k].title + " (PDF page " + sources[k].page + ")"); }
+      });
+      return items.length ? '<div class="plan-src"><b>Sources used:</b><br>' + items.map(escapeHtml).join("<br>") + "</div>" : "";
+    }
+
+    function showPlan(res){
+      planId = res.plan_id;
+      var html = "";
+      if (res.kidney_safe_mode){
+        html += '<div class="plan-flag"><b>Kidney-safe mode.</b> Your kidney result is low or unknown, so this plan uses a stricter sodium limit and does not push potassium. Please talk to a kidney dietitian before changing potassium or protein.</div>';
+      }
+      if (res.status !== "approved_by_checker"){
+        html += '<div class="plan-flag">We could not produce a personalised plan that passes our safety checks, so standard guidance is shown instead.</div>';
+      }
+      html += '<div class="plan-text">' + escapeHtml(res.text) + "</div>";
+      if (res.totals){
+        html += '<div class="plan-meta">Checked by software: about ' + Math.round(res.totals.sodium_mg) + " mg sodium, " +
+                Math.round(res.totals.kcal) + " kcal and " + Math.round(res.totals.potassium_mg) + " mg potassium across the day (USDA FNDDS values).</div>";
+      }
+      html += sourcesFor(res.text || "", res.sources);
+      html += '<div class="chatlog" id="chatLog"></div>' +
+        '<div class="chatform" id="chatForm"><input id="chatMsg" maxlength="500" placeholder="Ask why, or say: give me a South Indian vegetarian version">' +
+        '<button type="button" class="btn primary" id="chatSend">Send</button></div>' +
+        '<div class="ratebox"><b>How was this plan?</b><br>' +
+        rateSel("rc","Clear") + rateSel("rr","Relevant") + rateSel("rp","Practical") +
+        '<br><input type="text" id="rcomment" maxlength="300" placeholder="Anything else? (optional)" style="width:70%;margin-top:6px">' +
+        ' <button type="button" class="btn primary" id="rateBtn">Send feedback</button> <span id="rateMsg"></span></div>';
+      out.innerHTML = html;
+      document.getElementById("chatSend").addEventListener("click", onChat);
+      document.getElementById("chatMsg").addEventListener("keydown", function(e){ if (e.key === "Enter"){ onChat(e); } });
+      document.getElementById("rateBtn").addEventListener("click", onRate);
+    }
+
+    function rateSel(id, label){
+      return "<label>" + label + ' <select id="' + id + '"><option value="">–</option>' +
+        [1,2,3,4,5].map(function(n){ return '<option value="' + n + '">' + n + "</option>"; }).join("") + "</select></label>";
+    }
+
+    function bubble(cls, text){
+      var log = document.getElementById("chatLog");
+      var d = document.createElement("div"); d.className = "bubble " + cls; d.textContent = text; log.appendChild(d);
+    }
+
+    function onChat(e){
+      e.preventDefault();   // the page sits inside the main form, so Enter must not submit it
+      var inp = document.getElementById("chatMsg"), msg = inp.value.trim();
+      if (!msg || !planId) return;
+      var send = document.getElementById("chatSend"); send.disabled = true; inp.value = "";
+      bubble("me", msg); bubble("bot", "Thinking…");
+      var thinking = document.getElementById("chatLog").lastChild;
+      postJson("/chat", {plan_id: planId, message: msg}).then(function(r){
+        if (r.mode === "why"){
+          thinking.textContent = r.answer;
+        } else {
+          thinking.textContent = (r.status === "approved_by_checker")
+            ? "Done. I rewrote the plan with your request, and it passed the checks. The new plan is above."
+            : (r.note || "I could not apply that safely.");
+          showPlanKeepChat(r);
+        }
+      }).catch(function(err){ thinking.textContent = "Sorry, that did not work: " + err.message; })
+        .finally(function(){ send.disabled = false; });
+    }
+
+    function showPlanKeepChat(r){
+      planId = r.plan_id;
+      var box = out.querySelector(".plan-text"); if (box) box.textContent = r.text;
+      var meta = out.querySelector(".plan-meta"); if (meta) meta.remove();
+    }
+
+    function onRate(){
+      var c = +document.getElementById("rc").value, r = +document.getElementById("rr").value, p = +document.getElementById("rp").value;
+      var msg = document.getElementById("rateMsg");
+      if (!c || !r || !p){ msg.textContent = "Please choose a score for all three."; return; }
+      postJson("/feedback", {plan_id: planId, clarity: c, relevance: r, practicality: p, comment: document.getElementById("rcomment").value})
+        .then(function(){ msg.textContent = "Thank you. Your feedback was saved."; })
+        .catch(function(err){ msg.textContent = "Could not save: " + err.message; });
+    }
+
+    btn.addEventListener("click", function(){
+      btn.disabled = true; btn.textContent = "Writing and checking your plan… (up to 30 seconds)";
+      out.innerHTML = "";
+      postJson("/plan", {assessment_id: assessmentId}).then(function(res){
+        btn.style.display = "none"; showPlan(res);
+      }).catch(function(err){
+        btn.disabled = false; btn.textContent = "Create my plan";
+        out.innerHTML = '<div class="plan-err">Could not create the plan: ' + escapeHtml(err.message) + "</div>";
+      });
+    });
   }
 
   function renderError(message, raw){
