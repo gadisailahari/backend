@@ -3,8 +3,8 @@ FastAPI backend for the Hypertension Risk Assessment system.
 
 Endpoints:
   POST /assess              -- run a full risk assessment, saves to history
-  GET  /assessments         -- list past assessments (requires admin key if ADMIN_KEY is set)
-  GET  /assessments/{id}    -- get one past assessment (requires admin key if ADMIN_KEY is set)
+  GET  /assessments         -- list past assessments
+  GET  /assessments/{id}    -- get one past assessment
   GET  /scenarios           -- the 5 standard usability-eval scenarios, pre-computed
   POST /usability-review    -- submit a reviewer's rating for a scenario
   GET  /usability-reviews   -- list all submitted reviews
@@ -27,6 +27,7 @@ from typing import Optional
 from app.ml.risk_model import run_risk_prediction, run_explainability
 from app.ml.dietary_guidance import generate_core_guidance, personalize_presentation, format_report
 from app import database
+from app.plan_routes import router as plan_router, init_plan_tables
 
 app = FastAPI(title="Hypertension Risk Assessment API", version="1.0")
 
@@ -49,9 +50,13 @@ def require_admin_key(key: Optional[str] = Query(default=None)):
     return True
 
 
+app.include_router(plan_router)
+
+
 @app.on_event("startup")
 def startup():
     database.init_db()
+    init_plan_tables()
 
 
 class Profile(BaseModel):
