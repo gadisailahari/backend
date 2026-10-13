@@ -12,7 +12,8 @@ def groq_llm(messages, json_mode=True, max_tokens=1200, temperature=0.2):
     if json_mode:
         body["response_format"] = {"type": "json_object"}
     req = urllib.request.Request("https://api.groq.com/openai/v1/chat/completions", data=json.dumps(body).encode(),
-                                 headers={"Content-Type": "application/json", "Authorization": f"Bearer {key}"}, method="POST")
+                                 headers={"Content-Type": "application/json", "Authorization": f"Bearer {key}",
+                                          "User-Agent": "pulse-and-plate/1.0 (python)", "Accept": "application/json"}, method="POST")
     for attempt in range(3):
         try:
             with urllib.request.urlopen(req, timeout=60) as r:
@@ -20,4 +21,6 @@ def groq_llm(messages, json_mode=True, max_tokens=1200, temperature=0.2):
         except urllib.error.HTTPError as e:
             if e.code == 429 and attempt < 2:          # free-tier rate limit: wait and retry
                 time.sleep(2 * (attempt + 1)); continue
-            raise RuntimeError(f"LLM API error {e.code}") from None
+            try: detail = e.read().decode()[:200]          # Groq's own reason (never contains your key)
+            except Exception: detail = ""
+            raise RuntimeError(f"LLM API error {e.code}: {detail}") from None
