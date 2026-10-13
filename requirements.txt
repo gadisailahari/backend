@@ -6,3 +6,7 @@ numpy
 xgboost
 shap
 psycopg2-binary
+rank_bm25
+numpy
+fastembed
+
