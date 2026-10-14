@@ -280,6 +280,20 @@
   .plan-text{white-space:pre-wrap; background:var(--primary-soft); border-radius:12px; padding:16px; line-height:1.55; font-size:0.96rem; margin:14px 0 8px;}
   .plan-meta,.plan-src{font-size:0.85rem; color:var(--ink-soft); margin:6px 0;}
   .plan-flag{background:var(--risk-mid-soft); border:1px solid var(--risk-mid); border-radius:10px; padding:10px 12px; font-size:0.9rem; margin:10px 0;}
+  .checks{display:flex; flex-wrap:wrap; gap:8px 14px; margin-top:6px;}
+  .checks label{font-weight:500; font-size:0.94rem; display:flex; align-items:center; gap:6px; background:var(--primary-soft); padding:6px 12px; border-radius:999px; cursor:pointer;}
+  .checks input{width:auto; margin:0;}
+  .pv h4{margin:18px 0 6px; font-family:"Literata", serif; font-size:1.05rem;}
+  .pv .sum{background:var(--primary-soft); border-radius:12px; padding:12px 14px; margin:12px 0;}
+  .pv .prot{border-left:4px solid var(--primary); padding:6px 12px; margin:8px 0; font-size:0.95rem;}
+  .pv .opts{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px;}
+  .pv .opt{border:1px solid var(--rule); border-radius:12px; padding:10px 12px; background:var(--bg,#fff);}
+  .pv .opt b{display:block; margin-bottom:4px;}
+  .pv .opt ul{margin:0 0 6px; padding-left:18px; font-size:0.9rem;}
+  .pv .opt .nums{font-size:0.8rem; color:var(--ink-soft);}
+  .pv ul.plain{margin:4px 0; padding-left:20px; font-size:0.93rem; line-height:1.5;}
+  .pv .tag{font-size:0.75rem; color:var(--ink-faint);}
+  .pv .ex{display:flex; justify-content:space-between; gap:10px; padding:6px 0; border-bottom:1px dashed var(--rule); font-size:0.94rem;}
   .plan-err{background:var(--risk-high-soft); border-radius:10px; padding:10px 12px; font-size:0.92rem; margin:10px 0;}
   .chatlog{margin:14px 0 8px; display:flex; flex-direction:column; gap:8px;}
   .bubble{padding:10px 12px; border-radius:12px; font-size:0.93rem; line-height:1.45; max-width:92%; white-space:pre-wrap;}
@@ -507,7 +521,7 @@
       <!-- Step 4: Preferences -->
       <section class="step" data-step="4">
         <h2><span class="em" aria-hidden="true">🌮</span>Food preferences</h2>
-        <p class="step-hint">Optional — changes how guidance is worded, not what it recommends.</p>
+        <p class="step-hint">Optional, but this is how Rosie builds meals and workouts that fit you.</p>
         <div class="grid2">
           <div class="field">
             <label for="cuisine">Cuisine you cook most</label>
@@ -536,6 +550,35 @@
             <label for="dislikes">Foods to avoid suggesting</label>
             <input id="dislikes" type="text" placeholder="e.g. fish, mushrooms">
             <span class="hint">Separate with commas.</span>
+          </div>
+          <div class="field full">
+            <label>Health conditions (tick any that apply)</label>
+            <div class="checks" id="condChecks">
+              <label><input type="checkbox" value="pcos"> PCOS</label>
+              <label><input type="checkbox" value="diabetes"> Diabetes / pre-diabetes</label>
+              <label><input type="checkbox" value="cholesterol"> High cholesterol</label>
+              <label><input type="checkbox" value="pregnant"> Pregnant or breastfeeding</label>
+            </div>
+            <span class="hint">The food choices change for these. Pregnant or breastfeeding: we send you to a doctor instead of making a plan.</span>
+          </div>
+          <div class="field full">
+            <label>Exercise you like (tick any)</label>
+            <div class="checks" id="actChecks">
+              <label><input type="checkbox" value="yoga"> 🧘 Yoga</label>
+              <label><input type="checkbox" value="home"> 🏠 Home workouts</label>
+              <label><input type="checkbox" value="gym"> 🏋️ Gym</label>
+              <label><input type="checkbox" value="zumba"> 💃 Zumba / dance</label>
+              <label><input type="checkbox" value="walking"> 🚶 Walking</label>
+              <label><input type="checkbox" value="swimming"> 🏊 Swimming</label>
+              <label><input type="checkbox" value="cycling"> 🚴 Cycling</label>
+            </div>
+          </div>
+          <div class="field">
+            <label for="fitness">Your fitness level</label>
+            <select id="fitness">
+              <option value="beginner">Beginner (new or restarting)</option>
+              <option value="active">Already active</option>
+            </select>
           </div>
         </div>
       </section>
@@ -700,12 +743,16 @@
     var list = document.getElementById("reviewList");
     var allFields = STEPS.slice(0,5).reduce(function(acc,s){ return acc.concat(s.fields); }, [])
       .concat(["cuisine","constraint","dislikes"]);
+    var extra = [["Health conditions","#condChecks"],["Exercise you like","#actChecks"]].map(function(p){
+      var v = [].slice.call(document.querySelectorAll(p[1] + " input:checked")).map(function(x){return x.parentNode.textContent.trim();});
+      return v.length ? '<li><span class="rlabel">' + p[0] + '</span><span class="rval">' + escapeHtml(v.join(", ")) + "</span></li>" : "";
+    }).join("");
     list.innerHTML = allFields.map(function(id){
       var raw = val(id);
       if (!raw) return "";
       var display = (SELECT_DISPLAY[id] && SELECT_DISPLAY[id][raw]) ? SELECT_DISPLAY[id][raw] : raw;
       return '<li><span class="rlabel">' + escapeHtml(FIELD_LABELS[id] || id) + '</span><span class="rval">' + escapeHtml(String(display)) + '</span></li>';
-    }).join("");
+    }).join("") + extra;
   }
 
   nextBtn.addEventListener("click", function(){
@@ -755,6 +802,11 @@
     if (val("dislikes").trim()){
       preferences.dislikes = val("dislikes").split(",").map(function(s){return s.trim();}).filter(Boolean);
     }
+    var conds = [].slice.call(document.querySelectorAll("#condChecks input:checked")).map(function(x){return x.value;});
+    var acts = [].slice.call(document.querySelectorAll("#actChecks input:checked")).map(function(x){return x.value;});
+    if (conds.length) preferences.conditions = conds;
+    if (acts.length) preferences.activities = acts;
+    if (val("fitness")) preferences.fitness = val("fitness");
     var body = { name: val("personName").trim(), profile: profile };
     if (Object.keys(preferences).length) body.preferences = preferences;
     return body;
@@ -875,6 +927,51 @@
       return items.length ? '<div class="plan-src"><b>Sources used:</b><br>' + items.map(escapeHtml).join("<br>") + "</div>" : "";
     }
 
+    function cites(c){ return (c && c.length) ? ' <span class="tag">[' + c.map(escapeHtml).join(", ") + "]</span>" : ""; }
+
+    function viewHtml(v){
+      var o = '<div class="pv">';
+      if (v.summary) o += '<div class="sum">' + escapeHtml(v.summary) + "</div>";
+      if (v.protein && v.protein.text) o += '<h4>💪 Protein</h4><div class="prot">' + escapeHtml(v.protein.text) + "</div>";
+      o += "<h4>🍽️ What to eat (pick one option per meal)</h4>";
+      [["breakfast","🌅 Breakfast"],["lunch","🥗 Lunch"],["dinner","🍲 Dinner"],["snack","🍎 Snack"]].forEach(function(s){
+        var opts = (v.meals || {})[s[0]] || []; if (!opts.length) return;
+        o += "<div><b>" + s[1] + '</b></div><div class="opts">';
+        opts.forEach(function(op, n){
+          o += '<div class="opt"><b>' + String.fromCharCode(65 + n) + ") " + escapeHtml(op.name) + "</b><ul>" +
+            op.items.map(function(i){ return "<li>" + escapeHtml(i.label) + " – " + i.grams + " g</li>"; }).join("") +
+            '</ul><div class="nums">about ' + op.kcal + " kcal · " + op.protein_g + " g protein · " + op.sodium_mg + " mg sodium</div></div>";
+        });
+        o += "</div>";
+      });
+      if (v.avoid && v.avoid.length){
+        o += "<h4>🚫 What to avoid or limit</h4><ul class='plain'>" + v.avoid.map(function(a){
+          return "<li>" + escapeHtml(a.text) + (a.source ? ' <span class="tag">(' + escapeHtml(a.source.title) + ", p" + a.source.page + ")</span>" : "") + "</li>"; }).join("") + "</ul>";
+      }
+      if (v.exercise && v.exercise.length){
+        o += "<h4>🏃 Exercise each week</h4>" + v.exercise.map(function(e){
+          return '<div class="ex"><span>' + escapeHtml(e.label) + "</span><span>" + e.minutes + " min × " + e.days + " days</span></div>"; }).join("");
+        if (v.exercise_summary) o += '<div class="plan-meta">That adds up to about ' + v.exercise_summary.aerobic_min_per_week + " minutes of cardio and " + v.exercise_summary.strength_days_per_week + " strength days a week.</div>";
+        if (v.exercise_note) o += '<div class="plan-meta">' + escapeHtml(v.exercise_note) + "</div>";
+      }
+      if (v.tips && v.tips.length){
+        o += "<h4>💡 Tips</h4><ul class='plain'>" + v.tips.map(function(t){ return "<li>" + escapeHtml(t.text) + cites(t.cite) + "</li>"; }).join("") + "</ul>";
+      }
+      if (v.totals){
+        o += '<div class="plan-meta">Checked by software, for a day of meals: about ' + Math.round(v.totals.kcal) + " kcal, " + Math.round(v.totals.protein_g) +
+          " g protein. Worst-case sodium (the saltiest option of each meal): " + Math.round(v.totals.sodium_mg_worst_case) + " mg. " + escapeHtml(v.sodium_note || "") + "</div>";
+      }
+      if (v.sources){
+        var items = Object.keys(v.sources).map(function(k){ return k + ": " + v.sources[k].title + " (PDF page " + v.sources[k].page + ")"; });
+        if (items.length) o += '<div class="plan-src"><b>Sources used:</b><br>' + items.map(escapeHtml).join("<br>") + "</div>";
+      }
+      return o + "</div>";
+    }
+
+    function bodyHtml(res){
+      return res.view ? viewHtml(res.view) : '<div class="plan-text">' + escapeHtml(res.text) + "</div>";
+    }
+
     function showPlan(res){
       planId = res.plan_id;
       var html = "";
@@ -885,12 +982,8 @@
         html += '<details class="plan-src"><summary>Technical details for the project team (why the checker rejected the AI draft)</summary>' +
           res.history.map(function(h){ return "<p><b>Attempt " + h.attempt + ":</b><br>" + (h.violations || []).slice(0, 8).map(escapeHtml).join("<br>") + "</p>"; }).join("") + "</details>";
       }
-      html += '<div class="plan-text">' + escapeHtml(res.text) + "</div>";
-      if (res.totals){
-        html += '<div class="plan-meta">Checked by software: about ' + Math.round(res.totals.sodium_mg) + " mg sodium, " +
-                Math.round(res.totals.kcal) + " kcal and " + Math.round(res.totals.potassium_mg) + " mg potassium across the day (USDA FNDDS values).</div>";
-      }
-      html += sourcesFor(res.text || "", res.sources);
+      html += '<div id="planBody">' + bodyHtml(res) + "</div>";
+      html += '<div class="plan-meta"><button type="button" class="btn" id="revBtn">Check for clinician-reviewed version</button></div><div id="revOut"></div>';
       html += '<div class="chatlog" id="chatLog"></div>' +
         '<div class="chatform" id="chatForm"><input id="chatMsg" maxlength="500" placeholder="Ask why, or say: give me a South Indian vegetarian version">' +
         '<button type="button" class="btn primary" id="chatSend">Send</button></div>' +
@@ -902,6 +995,23 @@
       document.getElementById("chatSend").addEventListener("click", onChat);
       document.getElementById("chatMsg").addEventListener("keydown", function(e){ if (e.key === "Enter"){ onChat(e); } });
       document.getElementById("rateBtn").addEventListener("click", onRate);
+      document.getElementById("revBtn").addEventListener("click", onReview);
+    }
+
+    function onReview(){
+      var box = document.getElementById("revOut"), b = document.getElementById("revBtn");
+      b.disabled = true; box.innerHTML = '<div class="plan-meta">Checking…</div>';
+      fetch(BACKEND_URL + "/plan/" + planId).then(function(r){
+        if (!r.ok) throw new Error("Server error " + r.status);
+        return r.json();
+      }).then(function(p){
+        var st = p.review_status, note = p.reviewer_note ? "<p><b>Reviewer note:</b> " + escapeHtml(p.reviewer_note) + "</p>" : "";
+        if (st === "edited") box.innerHTML = '<div class="plan-flag"><b>A dietitian or clinician edited this plan.</b>' + note + '<div class="plan-text">' + escapeHtml(p.text) + "</div></div>";
+        else if (st === "approved") box.innerHTML = '<div class="plan-flag"><b>A dietitian or clinician reviewed and approved this plan as written.</b>' + note + "</div>";
+        else if (st === "rejected") box.innerHTML = '<div class="plan-err"><b>A reviewer did not approve this plan.</b> Please do not follow it; ask a doctor or dietitian instead.' + note + "</div>";
+        else box.innerHTML = '<div class="plan-meta">No clinician has reviewed this plan yet. Please check again later.</div>';
+      }).catch(function(err){ box.innerHTML = '<div class="plan-err">Could not check: ' + escapeHtml(err.message) + "</div>"; })
+        .finally(function(){ b.disabled = false; });
     }
 
     function rateSel(id, label){
@@ -936,8 +1046,7 @@
 
     function showPlanKeepChat(r){
       planId = r.plan_id;
-      var box = out.querySelector(".plan-text"); if (box) box.textContent = r.text;
-      var meta = out.querySelector(".plan-meta"); if (meta) meta.remove();
+      var box = document.getElementById("planBody"); if (box) box.innerHTML = bodyHtml(r);
     }
 
     function onRate(){
@@ -950,7 +1059,7 @@
     }
 
     btn.addEventListener("click", function(){
-      btn.disabled = true; btn.textContent = "Writing and checking your plan… (up to 30 seconds)";
+      btn.disabled = true; btn.textContent = "Writing and checking your plan… (up to a minute)";
       out.innerHTML = "";
       postJson("/plan", {assessment_id: assessmentId}).then(function(res){
         btn.style.display = "none"; showPlan(res);
