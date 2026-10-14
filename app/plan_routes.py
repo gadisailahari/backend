@@ -50,6 +50,9 @@ def _llm(messages, **kw):
 
 def fallback_text(structured):
     t = structured["TARGETS"]
+    if structured.get("needs_clinician"):
+        return ("Because you are pregnant or breastfeeding, this tool does not create an eating or exercise plan. "
+                "Please ask your doctor, midwife or a registered dietitian for a plan that fits you. This is education, not a diagnosis.")
     lines = ["We could not produce a personalised plan that passes our nutrient and safety checks, so here is general guidance only.",
              f"- Keep sodium under {t['sodium_max_mg']} mg per day: choose fresh foods, check labels and limit processed foods.",
              "- Follow the DASH eating pattern: plenty of vegetables, fruits, whole grains, low-fat dairy, beans and nuts.",
@@ -67,8 +70,8 @@ def _inputs(a):
 
 def _store(structured, res, assessment_id, parent=None):
     if res["status"] == "approved_by_checker":
-        text = pipeline.render_plan_text(res["plan"])
-        return plan_db.save_plan(assessment_id, parent, "rag_checker", res["status"], structured, res["plan"], text, res["totals"], res["sources"], res["attempts"]), text
+        text = pipeline.render_plan_text(res["view"])
+        return plan_db.save_plan(assessment_id, parent, "rag_checker", res["status"], structured, {"obj": res["plan"], "view": res["view"]}, text, res["totals"], res["sources"], res["attempts"]), text
     text = fallback_text(structured)
     return plan_db.save_plan(assessment_id, parent, "rag_checker", "rejected_fallback", structured, None, text, None, None, res["attempts"]), text
 
@@ -99,7 +102,7 @@ def make_plan(req: PlanRequest):
         import traceback; traceback.print_exc()          # full detail goes to the Railway logs
         raise HTTPException(500, f"Plan error: {type(e).__name__}: {str(e)[:200]}")
     print("PLAN", res["status"], "attempts", res["attempts"], "history", json.dumps(res.get("history"))[:1500], flush=True)   # visible in Railway logs
-    return {"plan_id": pid, "status": res["status"], "attempts": res["attempts"], "text": text, "sources": res.get("sources"),
+    return {"plan_id": pid, "status": res["status"], "attempts": res["attempts"], "text": text, "view": res.get("view"), "sources": res.get("sources"),
             "history": res.get("history"), "foods_matched": res.get("foods_matched"), "totals": res.get("totals"), "kidney_safe_mode": structured["kidney_safe_mode"], "kidney_note": structured["kidney_note"],
             "disclaimer": "Education only. Not a diagnosis. Review any change with a clinician or dietitian."}
 
@@ -121,11 +124,12 @@ def chat(req: ChatRequest):
         ans = pipeline.answer_why(req.message, structured, get_retriever(), _llm)
         plan_db.save_feedback(req.plan_id, "why", req.message, ans["status"])
         return {"mode": "why", **ans}
-    previous = json.loads(p["plan_json"]) if p["plan_json"] else None
+    stored = json.loads(p["plan_json"]) if p["plan_json"] else None
+    previous = stored.get("obj") if isinstance(stored, dict) else None
     res = pipeline.generate_plan(structured, get_retriever(), _llm, feedback=req.message, previous=previous)
     pid, text = _store(structured, res, p["assessment_id"], parent=req.plan_id)
     plan_db.save_feedback(req.plan_id, "revise", req.message, res["status"], pid)
-    return {"mode": "revise", "plan_id": pid, "status": res["status"], "attempts": res["attempts"], "text": text, "sources": res.get("sources"),
+    return {"mode": "revise", "plan_id": pid, "status": res["status"], "attempts": res["attempts"], "text": text, "view": res.get("view"), "sources": res.get("sources"),
             "note": None if res["status"] == "approved_by_checker" else "Your request could not be applied safely; the standard guidance is shown."}
 
 
@@ -180,7 +184,7 @@ def _code():
 def _person(structured, label):
     f = ", ".join(x["factor"] + " (" + x["direction"] + ")" for x in structured["top_factors"])
     extra = " Kidney function is low, so kidney-safe rules apply." if structured["kidney_safe_mode"] else ""
-    return f"{label}. Risk: {structured['risk_tier']}. Top factors: {f}. Cuisine: {structured['cuisine'] or 'any'}; diet type: {structured['diet_type'] or 'any'}.{extra}"
+    return f"{label}. Risk: {structured['risk_tier']}. Top factors: {f}. Cuisine: {structured['cuisine'] or 'any'}; diet type: {structured['diet_type'] or 'any'}. Health conditions: {', '.join(structured['conditions']) or 'none'}. Preferred activities: {', '.join(structured['activities']) or 'any'}.{extra}"
 
 
 def _generate_study():
@@ -203,13 +207,13 @@ def _generate_study():
             try:
                 b = pipeline.llm_alone(st, paced)
                 plan_db.save_study_item(_code(), s["label"], person, "llm_alone", pipeline.render_plan_text(b["plan"]), b["totals"],
-                                        b["totals"]["sodium_mg"] <= cap, "unchecked", 1)
+                                        b["totals"]["sodium_mg_worst_case"] <= cap, "unchecked", 1)
             except Exception as e:
                 plan_db.save_study_item(_code(), s["label"], person, "llm_alone", f"[generation failed: {type(e).__name__}]", None, None, "failed", 0)
             res = pipeline.generate_plan(st, R, paced)
             if res["status"] == "approved_by_checker":
-                plan_db.save_study_item(_code(), s["label"], person, "rag_checker", pipeline.render_plan_text(res["plan"]), res["totals"],
-                                        res["totals"]["sodium_mg"] <= cap, res["status"], res["attempts"])
+                plan_db.save_study_item(_code(), s["label"], person, "rag_checker", pipeline.render_plan_text(res["view"]), res["totals"],
+                                        res["totals"]["sodium_mg_worst_case"] <= cap, res["status"], res["attempts"])
             else:
                 plan_db.save_study_item(_code(), s["label"], person, "rag_checker", fallback_text(st), None, None, "rejected_fallback", res["attempts"])
             _study["done"] += 1

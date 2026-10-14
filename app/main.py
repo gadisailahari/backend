@@ -98,6 +98,9 @@ class Preferences(BaseModel):
     cuisine: Optional[str] = None
     constraint: Optional[str] = None
     dislikes: Optional[list] = None
+    conditions: Optional[list] = None      # e.g. ["pcos", "diabetes", "cholesterol", "pregnant"]
+    activities: Optional[list] = None      # e.g. ["yoga", "home", "gym", "zumba", "walking", "swimming", "cycling"]
+    fitness: Optional[str] = None          # "beginner" or "active"
 
 
 class AssessRequest(BaseModel):
@@ -178,7 +181,7 @@ SCENARIOS = [
     },
     {
         "label": "Scenario 2: Middle-aged, sodium-driven risk",
-        "preferences": {"cuisine": "Mexican"},
+        "preferences": {"cuisine": "Mexican", "activities": ["walking", "cycling"], "fitness": "beginner"},
         "profile": {
             "RIAGENDR": 1, "RIDAGEYR": 55, "RIDRETH3": 4, "INDFMPIR": 1.8,
             "BMXBMI": 29.0, "BMXWAIST": 100.0, "DR1TKCAL": 2000, "DR1TSODI": 4800,
@@ -189,7 +192,7 @@ SCENARIOS = [
     },
     {
         "label": "Scenario 3: Older adult, high overall risk",
-        "preferences": {"constraint": "vegetarian"},
+        "preferences": {"constraint": "vegetarian", "activities": ["yoga"], "fitness": "beginner"},
         "profile": {
             "RIAGENDR": 2, "RIDAGEYR": 68, "RIDRETH3": 3, "INDFMPIR": 2.5,
             "BMXBMI": 33.0, "BMXWAIST": 108.0, "DR1TKCAL": 1800, "DR1TSODI": 3900,
@@ -200,7 +203,7 @@ SCENARIOS = [
     },
     {
         "label": "Scenario 4: Low income, diet-driven risk",
-        "preferences": {"cuisine": "South Asian"},
+        "preferences": {"cuisine": "South Asian", "constraint": "vegetarian", "conditions": ["pcos"], "activities": ["yoga", "home", "zumba"], "fitness": "beginner"},
         "profile": {
             "RIAGENDR": 2, "RIDAGEYR": 45, "RIDRETH3": 1, "INDFMPIR": 0.6,
             "BMXBMI": 27.5, "BMXWAIST": 95.0, "DR1TKCAL": 1700, "DR1TSODI": 4200,
@@ -211,7 +214,7 @@ SCENARIOS = [
     },
     {
         "label": "Scenario 5: Active lifestyle, borderline risk",
-        "preferences": {"dislikes": ["fish"]},
+        "preferences": {"cuisine": "American", "dislikes": ["fish"], "activities": ["gym"], "fitness": "active"},
         "profile": {
             "RIAGENDR": 1, "RIDAGEYR": 41, "RIDRETH3": 6, "INDFMPIR": 3.2,
             "BMXBMI": 26.0, "BMXWAIST": 90.0, "DR1TKCAL": 2400, "DR1TSODI": 3400,
