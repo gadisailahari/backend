@@ -46,5 +46,118 @@
   "title": "KDIGO 2024 Clinical Practice Guideline for Evaluation and Management of CKD",
   "page": 113,
   "ocr": false
+ },
+ {
+  "id": "exercise_rec",
+  "text": "Adults with or without hypertension: a program of aerobic exercise (at least 150 minutes of moderate physical activity per week) plus resistance exercise (at least 2 days per week) is recommended to prevent or treat elevated BP and hypertension.",
+  "source": "aha_acc_2025",
+  "title": "2025 AHA/ACC High Blood Pressure Guideline",
+  "page": 28,
+  "ocr": false
+ },
+ {
+  "id": "exercise_table",
+  "text": "AHA/ACC 2025 Table 12: aerobic exercise 90-150 min/week (65-75% heart rate reserve); dynamic resistance 90-150 min/week (about 6 exercises, 3 sets of 10).",
+  "source": "aha_acc_2025",
+  "title": "2025 AHA/ACC High Blood Pressure Guideline",
+  "page": 29,
+  "ocr": false
+ },
+ {
+  "id": "alcohol",
+  "text": "Optimal goal is no alcohol; if you drink, no more than 1 drink/day for women and 2 drinks/day for men.",
+  "source": "aha_acc_2025",
+  "title": "2025 AHA/ACC High Blood Pressure Guideline",
+  "page": 28,
+  "ocr": false
+ },
+ {
+  "id": "weight_loss",
+  "text": "For adults with overweight or obesity, aim for sustained weight loss of at least 5% of body weight.",
+  "source": "aha_acc_2025",
+  "title": "2025 AHA/ACC High Blood Pressure Guideline",
+  "page": 29,
+  "ocr": false
+ },
+ {
+  "id": "whole_grains",
+  "text": "At least half of total grains should be whole grains; choose 100% whole grain foods.",
+  "source": "dga_2020",
+  "title": "Dietary Guidelines for Americans 2020-2025",
+  "page": 45,
+  "ocr": false
+ },
+ {
+  "id": "satfat",
+  "text": "Limit saturated fat to less than 10 percent of calories per day.",
+  "source": "dga_2020",
+  "title": "Dietary Guidelines for Americans 2020-2025",
+  "page": 76,
+  "ocr": false
+ },
+ {
+  "id": "protein_amdr",
+  "text": "Protein: acceptable range is 10-35% of calories for adults.",
+  "source": "dga_2020",
+  "title": "Dietary Guidelines for Americans 2020-2025",
+  "page": 146,
+  "ocr": false
+ },
+ {
+  "id": "salty_foods",
+  "text": "Limit cured foods (bacon, ham); foods packed in brine (pickles, olives, sauerkraut); condiments (mustard, ketchup, barbecue sauce); salty seasonings like soy sauce; and instant or flavored rice, pasta and cereal mixes. Cook without salt and flavor with herbs, spices, lemon or vinegar.",
+  "source": "sodium_tips",
+  "title": "Sodium tips (heart-healthy eating)",
+  "page": 1,
+  "ocr": false
+ },
+ {
+  "id": "processed_meat",
+  "text": "Processed meats (bacon, sausage, hot dogs, deli meat) are high in salt and saturated fat; replacing red and processed meat with poultry, fish, nuts and legumes is linked to lower cardiovascular risk.",
+  "source": "aha_2021_diet",
+  "title": "2021 AHA Dietary Guidance to Improve Cardiovascular Health",
+  "page": 4,
+  "ocr": false
+ },
+ {
+  "id": "fish_twice",
+  "text": "Eat at least 2 fish meals per week; fried fish does not give the benefit.",
+  "source": "aha_2021_diet",
+  "title": "2021 AHA Dietary Guidance to Improve Cardiovascular Health",
+  "page": 4,
+  "ocr": false
+ },
+ {
+  "id": "salt_substitute_ckd",
+  "text": "Salt substitutes (such as Lo-Salt) contain a lot of potassium and are not always suitable for people with kidney disease.",
+  "source": "nhs_ckd_eating",
+  "title": "NHS: eating well with kidney disease",
+  "page": 4,
+  "ocr": false
+ },
+ {
+  "id": "ckd_dietitian",
+  "text": "Use renal dietitians or accredited nutrition providers to tailor sodium, phosphorus, potassium and protein intake to the person's CKD severity (KDIGO Practice Point 3.3.2).",
+  "source": "kdigo_ckd_2024",
+  "title": "KDIGO 2024 Clinical Practice Guideline for Evaluation and Management of CKD",
+  "page": 42,
+  "ocr": false
+ },
+ {
+  "id": "meditation",
+  "text": "Stress reduction through transcendental meditation may be reasonable as an add-on to lifestyle or medication treatment (class 2b).",
+  "source": "aha_acc_2025",
+  "title": "2025 AHA/ACC High Blood Pressure Guideline",
+  "page": 28,
+  "ocr": false
+ },
+ {
+  "id": "pcos",
+  "text": "PCOS (international guideline, as summarised by Victoria University): eat a balanced diet in line with general healthy-eating guidelines; at least 150-300 min/week moderate (or 75-150 vigorous) aerobic activity plus muscle strengthening on 2 non-consecutive days; 5-10% weight loss if weight loss is an agreed goal.",
+  "source": "external_pcos_summary",
+  "title": "Exercise in the management of polycystic ovary syndrome (Victoria University; summarises the international PCOS guideline)",
+  "page": 1,
+  "ocr": false,
+  "external": true
  }
 ]

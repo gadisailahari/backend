@@ -1,0 +1,1824 @@
+{
+ "note": "Nutrients per 100 g. FNDDS values describe foods as usually prepared, which includes normal cooking salt.",
+ "foods": [
+  {
+   "id": "oatmeal",
+   "label": "Oatmeal, cooked",
+   "kind": "plant",
+   "slots": "b",
+   "portion_g": 240,
+   "cuisines": [
+    "american",
+    "other"
+   ],
+   "gluten": true,
+   "source": "USDA FNDDS 2017-18 56203086 (Oatmeal, instant, plain, made with water, no added fat)",
+   "code": "56203086",
+   "per100": {
+    "kcal": 68.0,
+    "protein_g": 2.26,
+    "carb_g": 13.15,
+    "fiber_g": 1.9,
+    "fat_g": 1.3,
+    "satfat_g": 0.255,
+    "potassium_mg": 69.0,
+    "sodium_mg": 45.0
+   }
+  },
+  {
+   "id": "whole_wheat_cereal",
+   "label": "Whole wheat porridge (cooked cereal)",
+   "kind": "plant",
+   "slots": "b",
+   "portion_g": 240,
+   "cuisines": [
+    "american",
+    "other"
+   ],
+   "gluten": true,
+   "source": "USDA FNDDS 2017-18 56207200 (Whole wheat cereal, cooked, no added fat)",
+   "code": "56207200",
+   "per100": {
+    "kcal": 47.0,
+    "protein_g": 1.55,
+    "carb_g": 10.39,
+    "fiber_g": 1.3,
+    "fat_g": 0.28,
+    "satfat_g": 0.041,
+    "potassium_mg": 51.0,
+    "sodium_mg": 71.0
+   }
+  },
+  {
+   "id": "upma",
+   "label": "Upma (Indian semolina breakfast)",
+   "kind": "plant",
+   "slots": "b",
+   "portion_g": 200,
+   "cuisines": [
+    "south asian"
+   ],
+   "gluten": true,
+   "source": "USDA FNDDS 2017-18 58174000 (Upma, Indian breakfast dish)",
+   "code": "58174000",
+   "per100": {
+    "kcal": 86.0,
+    "protein_g": 1.98,
+    "carb_g": 13.81,
+    "fiber_g": 1.3,
+    "fat_g": 2.64,
+    "satfat_g": 0.367,
+    "potassium_mg": 111.0,
+    "sodium_mg": 98.0
+   }
+  },
+  {
+   "id": "dosa",
+   "label": "Dosa, plain (Indian)",
+   "kind": "plant",
+   "slots": "b",
+   "portion_g": 100,
+   "cuisines": [
+    "south asian"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 55702100 (Dosa (Indian), plain)",
+   "code": "55702100",
+   "per100": {
+    "kcal": 210.0,
+    "protein_g": 5.7,
+    "carb_g": 37.04,
+    "fiber_g": 1.8,
+    "fat_g": 4.05,
+    "satfat_g": 0.587,
+    "potassium_mg": 104.0,
+    "sodium_mg": 309.0
+   }
+  },
+  {
+   "id": "roti",
+   "label": "Roti / chapati, whole wheat",
+   "kind": "plant",
+   "slots": "bm",
+   "portion_g": 60,
+   "cuisines": [
+    "south asian"
+   ],
+   "gluten": true,
+   "source": "USDA FNDDS 2017-18 51300175 (Bread, chappatti or roti, wheat)",
+   "code": "51300175",
+   "per100": {
+    "kcal": 299.0,
+    "protein_g": 7.85,
+    "carb_g": 46.13,
+    "fiber_g": 9.7,
+    "fat_g": 9.2,
+    "satfat_g": 3.311,
+    "potassium_mg": 196.0,
+    "sodium_mg": 298.0
+   }
+  },
+  {
+   "id": "whole_wheat_bread",
+   "label": "Whole wheat bread",
+   "kind": "plant",
+   "slots": "b",
+   "portion_g": 60,
+   "cuisines": [
+    "american",
+    "mediterranean",
+    "other"
+   ],
+   "gluten": true,
+   "source": "USDA FNDDS 2017-18 51300110 (Bread, whole wheat)",
+   "code": "51300110",
+   "per100": {
+    "kcal": 254.0,
+    "protein_g": 12.3,
+    "carb_g": 43.1,
+    "fiber_g": 6.0,
+    "fat_g": 3.55,
+    "satfat_g": 0.732,
+    "potassium_mg": 250.0,
+    "sodium_mg": 450.0
+   }
+  },
+  {
+   "id": "corn_tortilla",
+   "label": "Corn tortilla",
+   "kind": "plant",
+   "slots": "bm",
+   "portion_g": 50,
+   "cuisines": [
+    "mexican"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 52215100 (Tortilla, corn)",
+   "code": "52215100",
+   "per100": {
+    "kcal": 218.0,
+    "protein_g": 5.7,
+    "carb_g": 44.64,
+    "fiber_g": 6.3,
+    "fat_g": 2.85,
+    "satfat_g": 0.453,
+    "potassium_mg": 186.0,
+    "sodium_mg": 45.0
+   }
+  },
+  {
+   "id": "brown_rice",
+   "label": "Brown rice, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 150,
+   "cuisines": [
+    "south asian",
+    "east asian",
+    "mexican",
+    "other"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 56205018 (Rice, brown, cooked, no added fat)",
+   "code": "56205018",
+   "per100": {
+    "kcal": 122.0,
+    "protein_g": 2.73,
+    "carb_g": 25.45,
+    "fiber_g": 1.6,
+    "fat_g": 0.96,
+    "satfat_g": 0.259,
+    "potassium_mg": 86.0,
+    "sodium_mg": 202.0
+   }
+  },
+  {
+   "id": "white_rice",
+   "label": "White rice, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 150,
+   "cuisines": [
+    "south asian",
+    "east asian",
+    "mexican",
+    "other"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 56205008 (Rice, white, cooked, no added fat)",
+   "code": "56205008",
+   "per100": {
+    "kcal": 129.0,
+    "protein_g": 2.67,
+    "carb_g": 27.99,
+    "fiber_g": 0.4,
+    "fat_g": 0.28,
+    "satfat_g": 0.077,
+    "potassium_mg": 35.0,
+    "sodium_mg": 245.0
+   }
+  },
+  {
+   "id": "quinoa",
+   "label": "Quinoa, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 150,
+   "cuisines": [
+    "other",
+    "mediterranean"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 56204005 (Quinoa, no added fat)",
+   "code": "56204005",
+   "per100": {
+    "kcal": 120.0,
+    "protein_g": 4.38,
+    "carb_g": 21.21,
+    "fiber_g": 2.8,
+    "fat_g": 1.91,
+    "satfat_g": 0.23,
+    "potassium_mg": 171.0,
+    "sodium_mg": 163.0
+   }
+  },
+  {
+   "id": "whole_pasta",
+   "label": "Whole grain pasta, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 140,
+   "cuisines": [
+    "mediterranean",
+    "american"
+   ],
+   "gluten": true,
+   "source": "USDA FNDDS 2017-18 56132990 (Pasta, whole grain, cooked)",
+   "code": "56132990",
+   "per100": {
+    "kcal": 148.0,
+    "protein_g": 5.95,
+    "carb_g": 29.89,
+    "fiber_g": 3.9,
+    "fat_g": 1.7,
+    "satfat_g": 0.242,
+    "potassium_mg": 95.0,
+    "sodium_mg": 235.0
+   }
+  },
+  {
+   "id": "bulgur",
+   "label": "Bulgur, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 150,
+   "cuisines": [
+    "mediterranean"
+   ],
+   "gluten": true,
+   "source": "USDA FNDDS 2017-18 56207110 (Bulgur, no added fat)",
+   "code": "56207110",
+   "per100": {
+    "kcal": 83.0,
+    "protein_g": 3.06,
+    "carb_g": 18.48,
+    "fiber_g": 4.5,
+    "fat_g": 0.24,
+    "satfat_g": 0.042,
+    "potassium_mg": 68.0,
+    "sodium_mg": 219.0
+   }
+  },
+  {
+   "id": "barley",
+   "label": "Barley, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 150,
+   "cuisines": [
+    "mediterranean",
+    "other"
+   ],
+   "gluten": true,
+   "source": "USDA FNDDS 2017-18 56200400 (Barley, no added fat)",
+   "code": "56200400",
+   "per100": {
+    "kcal": 122.0,
+    "protein_g": 2.25,
+    "carb_g": 28.09,
+    "fiber_g": 3.8,
+    "fat_g": 0.44,
+    "satfat_g": 0.093,
+    "potassium_mg": 93.0,
+    "sodium_mg": 187.0
+   }
+  },
+  {
+   "id": "millet",
+   "label": "Millet, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 150,
+   "cuisines": [
+    "south asian",
+    "other"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 56202000 (Millet, no added fat)",
+   "code": "56202000",
+   "per100": {
+    "kcal": 118.0,
+    "protein_g": 3.5,
+    "carb_g": 23.57,
+    "fiber_g": 1.3,
+    "fat_g": 1.0,
+    "satfat_g": 0.171,
+    "potassium_mg": 62.0,
+    "sodium_mg": 168.0
+   }
+  },
+  {
+   "id": "couscous",
+   "label": "Couscous, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 140,
+   "cuisines": [
+    "mediterranean"
+   ],
+   "gluten": true,
+   "source": "USDA FNDDS 2017-18 56207160 (Couscous, plain, cooked)",
+   "code": "56207160",
+   "per100": {
+    "kcal": 111.0,
+    "protein_g": 3.77,
+    "carb_g": 23.11,
+    "fiber_g": 1.4,
+    "fat_g": 0.16,
+    "satfat_g": 0.029,
+    "potassium_mg": 58.0,
+    "sodium_mg": 189.0
+   }
+  },
+  {
+   "id": "popcorn",
+   "label": "Popcorn, air-popped, unbuttered",
+   "kind": "plant",
+   "slots": "s",
+   "portion_g": 25,
+   "cuisines": [
+    "american"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 54403010 (Popcorn, air-popped, unbuttered)",
+   "code": "54403010",
+   "per100": {
+    "kcal": 385.0,
+    "protein_g": 12.89,
+    "carb_g": 77.47,
+    "fiber_g": 14.4,
+    "fat_g": 4.52,
+    "satfat_g": 0.634,
+    "potassium_mg": 328.0,
+    "sodium_mg": 162.0
+   }
+  },
+  {
+   "id": "sweet_potato",
+   "label": "Sweet potato, baked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 130,
+   "cuisines": [
+    "american",
+    "other"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 73402021 (Sweet potato, baked, peel eaten, made with oil)",
+   "code": "73402021",
+   "per100": {
+    "kcal": 131.0,
+    "protein_g": 2.02,
+    "carb_g": 20.84,
+    "fiber_g": 3.3,
+    "fat_g": 4.67,
+    "satfat_g": 0.668,
+    "potassium_mg": 456.0,
+    "sodium_mg": 174.0
+   }
+  },
+  {
+   "id": "lentils",
+   "label": "Lentils / dal, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 150,
+   "cuisines": [
+    "south asian",
+    "mediterranean"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 41305000 (Lentils, from dried, no added fat)",
+   "code": "41305000",
+   "per100": {
+    "kcal": 115.0,
+    "protein_g": 8.97,
+    "carb_g": 20.01,
+    "fiber_g": 7.9,
+    "fat_g": 0.38,
+    "satfat_g": 0.053,
+    "potassium_mg": 367.0,
+    "sodium_mg": 233.0
+   }
+  },
+  {
+   "id": "chickpeas",
+   "label": "Chickpeas, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 130,
+   "cuisines": [
+    "south asian",
+    "mediterranean"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 41302020 (Chickpeas, from dried, no added fat)",
+   "code": "41302020",
+   "per100": {
+    "kcal": 163.0,
+    "protein_g": 8.81,
+    "carb_g": 27.26,
+    "fiber_g": 7.6,
+    "fat_g": 2.58,
+    "satfat_g": 0.267,
+    "potassium_mg": 289.0,
+    "sodium_mg": 238.0
+   }
+  },
+  {
+   "id": "kidney_beans",
+   "label": "Kidney beans (rajma), cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 130,
+   "cuisines": [
+    "south asian",
+    "mexican"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 41106020 (Kidney beans, from dried, no added fat)",
+   "code": "41106020",
+   "per100": {
+    "kcal": 126.0,
+    "protein_g": 8.62,
+    "carb_g": 22.66,
+    "fiber_g": 7.4,
+    "fat_g": 0.5,
+    "satfat_g": 0.072,
+    "potassium_mg": 401.0,
+    "sodium_mg": 233.0
+   }
+  },
+  {
+   "id": "black_beans",
+   "label": "Black beans, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 130,
+   "cuisines": [
+    "mexican"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 41102020 (Black beans, from dried, no added fat)",
+   "code": "41102020",
+   "per100": {
+    "kcal": 131.0,
+    "protein_g": 8.81,
+    "carb_g": 23.57,
+    "fiber_g": 8.6,
+    "fat_g": 0.54,
+    "satfat_g": 0.138,
+    "potassium_mg": 353.0,
+    "sodium_mg": 232.0
+   }
+  },
+  {
+   "id": "pinto_beans",
+   "label": "Pinto beans, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 130,
+   "cuisines": [
+    "mexican"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 41104020 (Pinto beans, from dried, no added fat)",
+   "code": "41104020",
+   "per100": {
+    "kcal": 142.0,
+    "protein_g": 8.96,
+    "carb_g": 26.06,
+    "fiber_g": 8.9,
+    "fat_g": 0.65,
+    "satfat_g": 0.135,
+    "potassium_mg": 433.0,
+    "sodium_mg": 232.0
+   }
+  },
+  {
+   "id": "tofu",
+   "label": "Tofu (soybean curd)",
+   "kind": "plant",
+   "slots": "bm",
+   "portion_g": 120,
+   "cuisines": [
+    "east asian",
+    "other",
+    "american"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 41420010 (Soybean curd)",
+   "code": "41420010",
+   "per100": {
+    "kcal": 61.0,
+    "protein_g": 7.17,
+    "carb_g": 1.18,
+    "fiber_g": 0.2,
+    "fat_g": 3.69,
+    "satfat_g": 0.533,
+    "potassium_mg": 120.0,
+    "sodium_mg": 8.0
+   }
+  },
+  {
+   "id": "edamame",
+   "label": "Edamame, cooked",
+   "kind": "plant",
+   "slots": "ms",
+   "portion_g": 100,
+   "cuisines": [
+    "east asian"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 41420020 (Edamame, cooked)",
+   "code": "41420020",
+   "per100": {
+    "kcal": 140.0,
+    "protein_g": 11.54,
+    "carb_g": 8.63,
+    "fiber_g": 5.0,
+    "fat_g": 7.57,
+    "satfat_g": 1.321,
+    "potassium_mg": 422.0,
+    "sodium_mg": 128.0
+   }
+  },
+  {
+   "id": "soy_milk",
+   "label": "Soy milk",
+   "kind": "plant",
+   "slots": "bs",
+   "portion_g": 240,
+   "cuisines": [
+    "east asian",
+    "other"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 11320000 (Soy milk)",
+   "code": "11320000",
+   "per100": {
+    "kcal": 43.0,
+    "protein_g": 2.6,
+    "carb_g": 4.92,
+    "fiber_g": 0.2,
+    "fat_g": 1.47,
+    "satfat_g": 0.205,
+    "potassium_mg": 122.0,
+    "sodium_mg": 47.0
+   }
+  },
+  {
+   "id": "peanut_butter",
+   "label": "Peanut butter, lower sodium",
+   "kind": "plant",
+   "slots": "bs",
+   "portion_g": 16,
+   "cuisines": [
+    "american"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 42202010 (Peanut butter, lower sodium)",
+   "code": "42202010",
+   "per100": {
+    "kcal": 598.0,
+    "protein_g": 22.21,
+    "carb_g": 22.31,
+    "fiber_g": 5.0,
+    "fat_g": 51.36,
+    "satfat_g": 10.325,
+    "potassium_mg": 558.0,
+    "sodium_mg": 17.0
+   }
+  },
+  {
+   "id": "peanuts",
+   "label": "Peanuts, unsalted",
+   "kind": "plant",
+   "slots": "s",
+   "portion_g": 28,
+   "cuisines": [
+    "south asian",
+    "american"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 42111110 (Peanuts, roasted, unsalted)",
+   "code": "42111110",
+   "per100": {
+    "kcal": 599.0,
+    "protein_g": 28.03,
+    "carb_g": 15.26,
+    "fiber_g": 9.4,
+    "fat_g": 52.5,
+    "satfat_g": 8.686,
+    "potassium_mg": 726.0,
+    "sodium_mg": 6.0
+   }
+  },
+  {
+   "id": "almonds",
+   "label": "Almonds, unsalted",
+   "kind": "plant",
+   "slots": "bs",
+   "portion_g": 28,
+   "cuisines": [
+    "other"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 42101130 (Almonds, unsalted)",
+   "code": "42101130",
+   "per100": {
+    "kcal": 607.0,
+    "protein_g": 20.33,
+    "carb_g": 20.38,
+    "fiber_g": 10.6,
+    "fat_g": 53.96,
+    "satfat_g": 4.38,
+    "potassium_mg": 692.0,
+    "sodium_mg": 3.0
+   }
+  },
+  {
+   "id": "walnuts",
+   "label": "Walnuts",
+   "kind": "plant",
+   "slots": "bs",
+   "portion_g": 28,
+   "cuisines": [
+    "mediterranean",
+    "other"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 42116000 (Walnuts, excluding honey roasted)",
+   "code": "42116000",
+   "per100": {
+    "kcal": 654.0,
+    "protein_g": 15.23,
+    "carb_g": 13.71,
+    "fiber_g": 6.7,
+    "fat_g": 65.21,
+    "satfat_g": 6.126,
+    "potassium_mg": 441.0,
+    "sodium_mg": 2.0
+   }
+  },
+  {
+   "id": "chia",
+   "label": "Chia seeds",
+   "kind": "plant",
+   "slots": "bs",
+   "portion_g": 15,
+   "cuisines": [
+    "mexican",
+    "other"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 43108010 (Chia seeds)",
+   "code": "43108010",
+   "per100": {
+    "kcal": 534.0,
+    "protein_g": 18.29,
+    "carb_g": 28.88,
+    "fiber_g": 27.3,
+    "fat_g": 42.16,
+    "satfat_g": 3.663,
+    "potassium_mg": 813.0,
+    "sodium_mg": 30.0
+   }
+  },
+  {
+   "id": "pumpkin_seeds",
+   "label": "Pumpkin seeds, unsalted",
+   "kind": "plant",
+   "slots": "s",
+   "portion_g": 28,
+   "cuisines": [
+    "mexican",
+    "other"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 43101150 (Pumpkin seeds, unsalted)",
+   "code": "43101150",
+   "per100": {
+    "kcal": 574.0,
+    "protein_g": 29.84,
+    "carb_g": 14.71,
+    "fiber_g": 6.5,
+    "fat_g": 49.05,
+    "satfat_g": 8.544,
+    "potassium_mg": 788.0,
+    "sodium_mg": 18.0
+   }
+  },
+  {
+   "id": "yogurt",
+   "label": "Plain low-fat yogurt",
+   "kind": "dairy",
+   "slots": "bms",
+   "portion_g": 170,
+   "cuisines": [
+    "south asian",
+    "mediterranean",
+    "american"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 11411200 (Yogurt, low fat milk, plain)",
+   "code": "11411200",
+   "per100": {
+    "kcal": 63.0,
+    "protein_g": 5.25,
+    "carb_g": 7.04,
+    "fiber_g": 0.0,
+    "fat_g": 1.55,
+    "satfat_g": 1.0,
+    "potassium_mg": 234.0,
+    "sodium_mg": 70.0
+   }
+  },
+  {
+   "id": "greek_yogurt",
+   "label": "Greek yogurt, plain nonfat",
+   "kind": "dairy",
+   "slots": "bms",
+   "portion_g": 170,
+   "cuisines": [
+    "mediterranean",
+    "american"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 11411420 (Yogurt, Greek, nonfat milk, plain)",
+   "code": "11411420",
+   "per100": {
+    "kcal": 61.0,
+    "protein_g": 10.3,
+    "carb_g": 3.64,
+    "fiber_g": 0.0,
+    "fat_g": 0.37,
+    "satfat_g": 0.108,
+    "potassium_mg": 141.0,
+    "sodium_mg": 36.0
+   }
+  },
+  {
+   "id": "milk",
+   "label": "Low-fat milk (1%)",
+   "kind": "dairy",
+   "slots": "bs",
+   "portion_g": 240,
+   "cuisines": [
+    "american",
+    "other"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 11112210 (Milk, low fat (1%))",
+   "code": "11112210",
+   "per100": {
+    "kcal": 43.0,
+    "protein_g": 3.38,
+    "carb_g": 5.19,
+    "fiber_g": 0.0,
+    "fat_g": 0.95,
+    "satfat_g": 0.568,
+    "potassium_mg": 159.0,
+    "sodium_mg": 39.0
+   }
+  },
+  {
+   "id": "cottage_low_na",
+   "label": "Cottage cheese, low-sodium",
+   "kind": "dairy",
+   "slots": "bs",
+   "portion_g": 110,
+   "cuisines": [
+    "american"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 14206010 (Cheese, cottage, lowfat, low sodium)",
+   "code": "14206010",
+   "per100": {
+    "kcal": 72.0,
+    "protein_g": 12.4,
+    "carb_g": 2.7,
+    "fiber_g": 0.0,
+    "fat_g": 1.0,
+    "satfat_g": 0.632,
+    "potassium_mg": 86.0,
+    "sodium_mg": 13.0
+   }
+  },
+  {
+   "id": "egg",
+   "label": "Egg, boiled",
+   "kind": "egg",
+   "slots": "bm",
+   "portion_g": 50,
+   "cuisines": [
+    "american",
+    "mexican",
+    "other"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 31103010 (Egg, whole, boiled or poached)",
+   "code": "31103010",
+   "per100": {
+    "kcal": 143.0,
+    "protein_g": 12.56,
+    "carb_g": 0.72,
+    "fiber_g": 0.0,
+    "fat_g": 9.51,
+    "satfat_g": 3.126,
+    "potassium_mg": 138.0,
+    "sodium_mg": 142.0
+   }
+  },
+  {
+   "id": "salmon",
+   "label": "Salmon, baked",
+   "kind": "fish",
+   "slots": "m",
+   "portion_g": 110,
+   "cuisines": [
+    "american",
+    "mediterranean",
+    "east asian"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 26137123 (Salmon, baked or broiled, no added fat)",
+   "code": "26137123",
+   "per100": {
+    "kcal": 160.0,
+    "protein_g": 25.82,
+    "carb_g": 0.1,
+    "fiber_g": 0.0,
+    "fat_g": 5.54,
+    "satfat_g": 1.021,
+    "potassium_mg": 462.0,
+    "sodium_mg": 417.0
+   }
+  },
+  {
+   "id": "tilapia",
+   "label": "Tilapia, baked",
+   "kind": "fish",
+   "slots": "m",
+   "portion_g": 110,
+   "cuisines": [
+    "american",
+    "mexican",
+    "other"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 26158013 (Tilapia, baked or broiled, no added fat)",
+   "code": "26158013",
+   "per100": {
+    "kcal": 121.0,
+    "protein_g": 25.29,
+    "carb_g": 0.1,
+    "fiber_g": 0.0,
+    "fat_g": 2.14,
+    "satfat_g": 0.737,
+    "potassium_mg": 382.0,
+    "sodium_mg": 388.0
+   }
+  },
+  {
+   "id": "cod",
+   "label": "Cod, baked",
+   "kind": "fish",
+   "slots": "m",
+   "portion_g": 110,
+   "cuisines": [
+    "american",
+    "mediterranean"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 26109123 (Cod, baked or broiled, no added fat)",
+   "code": "26109123",
+   "per100": {
+    "kcal": 87.0,
+    "protein_g": 19.24,
+    "carb_g": 0.1,
+    "fiber_g": 0.0,
+    "fat_g": 0.52,
+    "satfat_g": 0.108,
+    "potassium_mg": 297.0,
+    "sodium_mg": 460.0
+   }
+  },
+  {
+   "id": "shrimp",
+   "label": "Shrimp, steamed",
+   "kind": "fish",
+   "slots": "m",
+   "portion_g": 100,
+   "cuisines": [
+    "east asian",
+    "mexican",
+    "american"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 26319130 (Shrimp, steamed or boiled)",
+   "code": "26319130",
+   "per100": {
+    "kcal": 91.0,
+    "protein_g": 17.37,
+    "carb_g": 1.16,
+    "fiber_g": 0.0,
+    "fat_g": 1.29,
+    "satfat_g": 0.333,
+    "potassium_mg": 101.0,
+    "sodium_mg": 347.0
+   }
+  },
+  {
+   "id": "chicken_breast",
+   "label": "Chicken breast, roasted, no skin",
+   "kind": "poultry",
+   "slots": "m",
+   "portion_g": 110,
+   "cuisines": [
+    "american",
+    "mexican",
+    "south asian",
+    "east asian",
+    "mediterranean"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 24122131 (Chicken breast, baked, broiled, or roasted, skin not eaten, )",
+   "code": "24122131",
+   "per100": {
+    "kcal": 161.0,
+    "protein_g": 30.22,
+    "carb_g": 0.0,
+    "fiber_g": 0.0,
+    "fat_g": 3.52,
+    "satfat_g": 0.756,
+    "potassium_mg": 359.0,
+    "sodium_mg": 360.0
+   }
+  },
+  {
+   "id": "turkey",
+   "label": "Ground turkey, cooked",
+   "kind": "poultry",
+   "slots": "m",
+   "portion_g": 100,
+   "cuisines": [
+    "american"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 24207000 (Turkey, ground)",
+   "code": "24207000",
+   "per100": {
+    "kcal": 201.0,
+    "protein_g": 27.14,
+    "carb_g": 0.0,
+    "fiber_g": 0.0,
+    "fat_g": 10.31,
+    "satfat_g": 2.647,
+    "potassium_mg": 292.0,
+    "sodium_mg": 400.0
+   }
+  },
+  {
+   "id": "beef_lean",
+   "label": "Lean beef, cooked",
+   "kind": "beef",
+   "slots": "m",
+   "portion_g": 100,
+   "cuisines": [
+    "american",
+    "mexican"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 21417120 (Beef brisket, cooked, lean only eaten)",
+   "code": "21417120",
+   "per100": {
+    "kcal": 216.0,
+    "protein_g": 29.5,
+    "carb_g": 0.0,
+    "fiber_g": 0.0,
+    "fat_g": 10.0,
+    "satfat_g": 3.6,
+    "potassium_mg": 283.0,
+    "sodium_mg": 392.0
+   }
+  },
+  {
+   "id": "pork_loin",
+   "label": "Pork loin roast, lean",
+   "kind": "pork",
+   "slots": "m",
+   "portion_g": 100,
+   "cuisines": [
+    "american"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 22401020 (Pork roast, loin, cooked, lean only eaten)",
+   "code": "22401020",
+   "per100": {
+    "kcal": 207.0,
+    "protein_g": 28.38,
+    "carb_g": 0.0,
+    "fiber_g": 0.0,
+    "fat_g": 9.55,
+    "satfat_g": 3.481,
+    "potassium_mg": 421.0,
+    "sodium_mg": 380.0
+   }
+  },
+  {
+   "id": "spinach",
+   "label": "Spinach, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 90,
+   "cuisines": [
+    "south asian",
+    "mediterranean"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 72125211 (Spinach, fresh, cooked, no added fat)",
+   "code": "72125211",
+   "per100": {
+    "kcal": 27.0,
+    "protein_g": 3.36,
+    "carb_g": 4.26,
+    "fiber_g": 2.6,
+    "fat_g": 0.46,
+    "satfat_g": 0.074,
+    "potassium_mg": 655.0,
+    "sodium_mg": 229.0
+   }
+  },
+  {
+   "id": "broccoli",
+   "label": "Broccoli, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 90,
+   "cuisines": [
+    "american",
+    "east asian"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 72201211 (Broccoli, fresh, cooked, no added fat)",
+   "code": "72201211",
+   "per100": {
+    "kcal": 35.0,
+    "protein_g": 2.93,
+    "carb_g": 6.9,
+    "fiber_g": 2.7,
+    "fat_g": 0.38,
+    "satfat_g": 0.118,
+    "potassium_mg": 328.0,
+    "sodium_mg": 155.0
+   }
+  },
+  {
+   "id": "cauliflower",
+   "label": "Cauliflower, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 90,
+   "cuisines": [
+    "south asian",
+    "american"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 75214011 (Cauliflower, fresh, cooked, no added fat)",
+   "code": "75214011",
+   "per100": {
+    "kcal": 26.0,
+    "protein_g": 1.99,
+    "carb_g": 5.16,
+    "fiber_g": 2.1,
+    "fat_g": 0.29,
+    "satfat_g": 0.135,
+    "potassium_mg": 311.0,
+    "sodium_mg": 152.0
+   }
+  },
+  {
+   "id": "carrots",
+   "label": "Carrots, raw",
+   "kind": "plant",
+   "slots": "ms",
+   "portion_g": 80,
+   "cuisines": [
+    "american",
+    "south asian"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 73101010 (Carrots, raw)",
+   "code": "73101010",
+   "per100": {
+    "kcal": 41.0,
+    "protein_g": 0.93,
+    "carb_g": 9.58,
+    "fiber_g": 2.8,
+    "fat_g": 0.24,
+    "satfat_g": 0.032,
+    "potassium_mg": 320.0,
+    "sodium_mg": 69.0
+   }
+  },
+  {
+   "id": "cabbage",
+   "label": "Cabbage, green, raw",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 70,
+   "cuisines": [
+    "mexican",
+    "east asian",
+    "american"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 75103000 (Cabbage, green, raw)",
+   "code": "75103000",
+   "per100": {
+    "kcal": 25.0,
+    "protein_g": 1.28,
+    "carb_g": 5.8,
+    "fiber_g": 2.5,
+    "fat_g": 0.1,
+    "satfat_g": 0.034,
+    "potassium_mg": 170.0,
+    "sodium_mg": 18.0
+   }
+  },
+  {
+   "id": "green_beans",
+   "label": "Green beans, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 90,
+   "cuisines": [
+    "american",
+    "south asian"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 75205021 (Green beans, fresh, cooked, no added fat)",
+   "code": "75205021",
+   "per100": {
+    "kcal": 32.0,
+    "protein_g": 1.9,
+    "carb_g": 7.24,
+    "fiber_g": 2.8,
+    "fat_g": 0.23,
+    "satfat_g": 0.052,
+    "potassium_mg": 219.0,
+    "sodium_mg": 127.0
+   }
+  },
+  {
+   "id": "bell_pepper",
+   "label": "Sweet bell pepper, raw",
+   "kind": "plant",
+   "slots": "ms",
+   "portion_g": 80,
+   "cuisines": [
+    "mexican",
+    "mediterranean",
+    "american"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 75122200 (Pepper, sweet, red, raw)",
+   "code": "75122200",
+   "per100": {
+    "kcal": 26.0,
+    "protein_g": 0.99,
+    "carb_g": 6.03,
+    "fiber_g": 2.1,
+    "fat_g": 0.3,
+    "satfat_g": 0.059,
+    "potassium_mg": 211.0,
+    "sodium_mg": 4.0
+   }
+  },
+  {
+   "id": "tomato",
+   "label": "Tomato, raw",
+   "kind": "plant",
+   "slots": "ms",
+   "portion_g": 100,
+   "cuisines": [
+    "mexican",
+    "mediterranean",
+    "south asian"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 74101000 (Tomatoes, raw)",
+   "code": "74101000",
+   "per100": {
+    "kcal": 18.0,
+    "protein_g": 0.88,
+    "carb_g": 3.89,
+    "fiber_g": 1.2,
+    "fat_g": 0.2,
+    "satfat_g": 0.028,
+    "potassium_mg": 237.0,
+    "sodium_mg": 5.0
+   }
+  },
+  {
+   "id": "cucumber",
+   "label": "Cucumber, raw",
+   "kind": "plant",
+   "slots": "ms",
+   "portion_g": 80,
+   "cuisines": [
+    "south asian",
+    "mediterranean"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 75111000 (Cucumber, raw)",
+   "code": "75111000",
+   "per100": {
+    "kcal": 15.0,
+    "protein_g": 0.65,
+    "carb_g": 3.63,
+    "fiber_g": 0.5,
+    "fat_g": 0.11,
+    "satfat_g": 0.037,
+    "potassium_mg": 147.0,
+    "sodium_mg": 2.0
+   }
+  },
+  {
+   "id": "onion",
+   "label": "Onion, raw",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 40,
+   "cuisines": [
+    "south asian",
+    "mexican"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 75117020 (Onions, raw)",
+   "code": "75117020",
+   "per100": {
+    "kcal": 40.0,
+    "protein_g": 1.1,
+    "carb_g": 9.34,
+    "fiber_g": 1.7,
+    "fat_g": 0.1,
+    "satfat_g": 0.042,
+    "potassium_mg": 146.0,
+    "sodium_mg": 4.0
+   }
+  },
+  {
+   "id": "eggplant",
+   "label": "Eggplant, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 100,
+   "cuisines": [
+    "south asian",
+    "mediterranean"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 75217010 (Eggplant, cooked, no added fat)",
+   "code": "75217010",
+   "per100": {
+    "kcal": 27.0,
+    "protein_g": 1.05,
+    "carb_g": 6.3,
+    "fiber_g": 3.2,
+    "fat_g": 0.19,
+    "satfat_g": 0.036,
+    "potassium_mg": 246.0,
+    "sodium_mg": 127.0
+   }
+  },
+  {
+   "id": "okra",
+   "label": "Okra, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 90,
+   "cuisines": [
+    "south asian"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 75220011 (Okra, fresh, cooked, no added fat)",
+   "code": "75220011",
+   "per100": {
+    "kcal": 35.0,
+    "protein_g": 2.07,
+    "carb_g": 7.99,
+    "fiber_g": 3.4,
+    "fat_g": 0.2,
+    "satfat_g": 0.028,
+    "potassium_mg": 321.0,
+    "sodium_mg": 132.0
+   }
+  },
+  {
+   "id": "lettuce",
+   "label": "Lettuce, raw",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 50,
+   "cuisines": [
+    "american",
+    "mediterranean"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 75113000 (Lettuce, raw)",
+   "code": "75113000",
+   "per100": {
+    "kcal": 14.0,
+    "protein_g": 1.13,
+    "carb_g": 2.92,
+    "fiber_g": 1.2,
+    "fat_g": 0.14,
+    "satfat_g": 0.019,
+    "potassium_mg": 168.0,
+    "sodium_mg": 19.0
+   }
+  },
+  {
+   "id": "kale",
+   "label": "Kale, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 80,
+   "cuisines": [
+    "american",
+    "other"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 72119211 (Kale, fresh, cooked, no added fat)",
+   "code": "72119211",
+   "per100": {
+    "kcal": 38.0,
+    "protein_g": 3.13,
+    "carb_g": 4.74,
+    "fiber_g": 4.4,
+    "fat_g": 1.6,
+    "satfat_g": 0.191,
+    "potassium_mg": 373.0,
+    "sodium_mg": 181.0
+   }
+  },
+  {
+   "id": "zucchini_squash",
+   "label": "Winter squash, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 100,
+   "cuisines": [
+    "mexican",
+    "american"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 73303010 (Winter squash, cooked, no added fat)",
+   "code": "73303010",
+   "per100": {
+    "kcal": 37.0,
+    "protein_g": 0.89,
+    "carb_g": 8.82,
+    "fiber_g": 2.8,
+    "fat_g": 0.35,
+    "satfat_g": 0.072,
+    "potassium_mg": 240.0,
+    "sodium_mg": 117.0
+   }
+  },
+  {
+   "id": "peas",
+   "label": "Green peas, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 80,
+   "cuisines": [
+    "south asian",
+    "american"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 75224043 (Green peas, fresh, cooked with oil)",
+   "code": "75224043",
+   "per100": {
+    "kcal": 108.0,
+    "protein_g": 5.46,
+    "carb_g": 14.57,
+    "fiber_g": 5.7,
+    "fat_g": 3.43,
+    "satfat_g": 0.485,
+    "potassium_mg": 246.0,
+    "sodium_mg": 122.0
+   }
+  },
+  {
+   "id": "bean_sprouts",
+   "label": "Bean sprouts, raw",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 60,
+   "cuisines": [
+    "east asian"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 75101000 (Bean sprouts, raw)",
+   "code": "75101000",
+   "per100": {
+    "kcal": 30.0,
+    "protein_g": 3.04,
+    "carb_g": 5.94,
+    "fiber_g": 1.8,
+    "fat_g": 0.18,
+    "satfat_g": 0.046,
+    "potassium_mg": 149.0,
+    "sodium_mg": 6.0
+   }
+  },
+  {
+   "id": "apple",
+   "label": "Apple",
+   "kind": "plant",
+   "slots": "bs",
+   "portion_g": 150,
+   "cuisines": [
+    "american",
+    "other"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 63101000 (Apple, raw)",
+   "code": "63101000",
+   "per100": {
+    "kcal": 52.0,
+    "protein_g": 0.26,
+    "carb_g": 13.81,
+    "fiber_g": 2.4,
+    "fat_g": 0.17,
+    "satfat_g": 0.028,
+    "potassium_mg": 107.0,
+    "sodium_mg": 1.0
+   }
+  },
+  {
+   "id": "banana",
+   "label": "Banana",
+   "kind": "plant",
+   "slots": "bs",
+   "portion_g": 120,
+   "cuisines": [
+    "other"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 63107010 (Banana, raw)",
+   "code": "63107010",
+   "per100": {
+    "kcal": 89.0,
+    "protein_g": 1.09,
+    "carb_g": 22.84,
+    "fiber_g": 2.6,
+    "fat_g": 0.33,
+    "satfat_g": 0.112,
+    "potassium_mg": 358.0,
+    "sodium_mg": 1.0
+   }
+  },
+  {
+   "id": "orange",
+   "label": "Orange",
+   "kind": "plant",
+   "slots": "bs",
+   "portion_g": 130,
+   "cuisines": [
+    "other"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 61119010 (Orange, raw)",
+   "code": "61119010",
+   "per100": {
+    "kcal": 47.0,
+    "protein_g": 0.94,
+    "carb_g": 11.75,
+    "fiber_g": 2.4,
+    "fat_g": 0.12,
+    "satfat_g": 0.015,
+    "potassium_mg": 181.0,
+    "sodium_mg": 0.0
+   }
+  },
+  {
+   "id": "berries",
+   "label": "Strawberries",
+   "kind": "plant",
+   "slots": "bs",
+   "portion_g": 120,
+   "cuisines": [
+    "american",
+    "mediterranean"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 63223020 (Strawberries, raw)",
+   "code": "63223020",
+   "per100": {
+    "kcal": 32.0,
+    "protein_g": 0.67,
+    "carb_g": 7.68,
+    "fiber_g": 2.0,
+    "fat_g": 0.3,
+    "satfat_g": 0.015,
+    "potassium_mg": 153.0,
+    "sodium_mg": 1.0
+   }
+  },
+  {
+   "id": "blueberries",
+   "label": "Blueberries",
+   "kind": "plant",
+   "slots": "bs",
+   "portion_g": 100,
+   "cuisines": [
+    "american"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 63203010 (Blueberries, raw)",
+   "code": "63203010",
+   "per100": {
+    "kcal": 57.0,
+    "protein_g": 0.74,
+    "carb_g": 14.49,
+    "fiber_g": 2.4,
+    "fat_g": 0.33,
+    "satfat_g": 0.028,
+    "potassium_mg": 77.0,
+    "sodium_mg": 1.0
+   }
+  },
+  {
+   "id": "papaya",
+   "label": "Papaya",
+   "kind": "plant",
+   "slots": "bs",
+   "portion_g": 140,
+   "cuisines": [
+    "south asian",
+    "mexican"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 63133010 (Papaya, raw)",
+   "code": "63133010",
+   "per100": {
+    "kcal": 43.0,
+    "protein_g": 0.47,
+    "carb_g": 10.82,
+    "fiber_g": 1.7,
+    "fat_g": 0.26,
+    "satfat_g": 0.081,
+    "potassium_mg": 182.0,
+    "sodium_mg": 8.0
+   }
+  },
+  {
+   "id": "mango",
+   "label": "Mango",
+   "kind": "plant",
+   "slots": "bs",
+   "portion_g": 140,
+   "cuisines": [
+    "south asian",
+    "mexican"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 63129010 (Mango, raw)",
+   "code": "63129010",
+   "per100": {
+    "kcal": 60.0,
+    "protein_g": 0.82,
+    "carb_g": 14.98,
+    "fiber_g": 1.6,
+    "fat_g": 0.38,
+    "satfat_g": 0.092,
+    "potassium_mg": 168.0,
+    "sodium_mg": 1.0
+   }
+  },
+  {
+   "id": "guava",
+   "label": "Guava",
+   "kind": "plant",
+   "slots": "bs",
+   "portion_g": 100,
+   "cuisines": [
+    "south asian",
+    "mexican"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 63125010 (Guava, raw)",
+   "code": "63125010",
+   "per100": {
+    "kcal": 68.0,
+    "protein_g": 2.55,
+    "carb_g": 14.32,
+    "fiber_g": 5.4,
+    "fat_g": 0.95,
+    "satfat_g": 0.272,
+    "potassium_mg": 417.0,
+    "sodium_mg": 2.0
+   }
+  },
+  {
+   "id": "pear",
+   "label": "Pear",
+   "kind": "plant",
+   "slots": "bs",
+   "portion_g": 150,
+   "cuisines": [
+    "mediterranean",
+    "other"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 63137010 (Pear, raw)",
+   "code": "63137010",
+   "per100": {
+    "kcal": 57.0,
+    "protein_g": 0.36,
+    "carb_g": 15.23,
+    "fiber_g": 3.1,
+    "fat_g": 0.14,
+    "satfat_g": 0.022,
+    "potassium_mg": 116.0,
+    "sodium_mg": 1.0
+   }
+  },
+  {
+   "id": "grapes",
+   "label": "Grapes",
+   "kind": "plant",
+   "slots": "s",
+   "portion_g": 100,
+   "cuisines": [
+    "mediterranean"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 63123000 (Grapes, raw)",
+   "code": "63123000",
+   "per100": {
+    "kcal": 69.0,
+    "protein_g": 0.72,
+    "carb_g": 18.1,
+    "fiber_g": 0.9,
+    "fat_g": 0.16,
+    "satfat_g": 0.054,
+    "potassium_mg": 191.0,
+    "sodium_mg": 2.0
+   }
+  },
+  {
+   "id": "watermelon",
+   "label": "Watermelon",
+   "kind": "plant",
+   "slots": "s",
+   "portion_g": 150,
+   "cuisines": [
+    "mexican",
+    "south asian"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 63149010 (Watermelon, raw)",
+   "code": "63149010",
+   "per100": {
+    "kcal": 30.0,
+    "protein_g": 0.61,
+    "carb_g": 7.55,
+    "fiber_g": 0.4,
+    "fat_g": 0.15,
+    "satfat_g": 0.016,
+    "potassium_mg": 112.0,
+    "sodium_mg": 1.0
+   }
+  },
+  {
+   "id": "avocado",
+   "label": "Avocado",
+   "kind": "plant",
+   "slots": "bm",
+   "portion_g": 70,
+   "cuisines": [
+    "mexican",
+    "american"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 63105010 (Avocado, raw)",
+   "code": "63105010",
+   "per100": {
+    "kcal": 160.0,
+    "protein_g": 2.0,
+    "carb_g": 8.53,
+    "fiber_g": 6.7,
+    "fat_g": 14.66,
+    "satfat_g": 2.126,
+    "potassium_mg": 485.0,
+    "sodium_mg": 7.0
+   }
+  },
+  {
+   "id": "olive_oil",
+   "label": "Olive oil (1 tsp)",
+   "kind": "plant",
+   "slots": "bm",
+   "portion_g": 5,
+   "cuisines": [
+    "mediterranean",
+    "american"
+   ],
+   "gluten": false,
+   "source": "USDA FNDDS 2017-18 82104000 (Olive oil)",
+   "code": "82104000",
+   "per100": {
+    "kcal": 884.0,
+    "protein_g": 0.0,
+    "carb_g": 0.0,
+    "fiber_g": 0.0,
+    "fat_g": 100.0,
+    "satfat_g": 13.808,
+    "potassium_mg": 1.0,
+    "sodium_mg": 2.0
+   }
+  },
+  {
+   "id": "tempeh",
+   "label": "Tempeh, cooked",
+   "kind": "plant",
+   "slots": "m",
+   "portion_g": 85,
+   "cuisines": [
+    "east asian",
+    "other"
+   ],
+   "gluten": false,
+   "source": "USDA FoodData Central SR Legacy 172467 (Tempeh, cooked)",
+   "code": "SR172467",
+   "per100": {
+    "kcal": 195,
+    "protein_g": 19.9,
+    "carb_g": 7.62,
+    "fiber_g": 0,
+    "fat_g": 11.4,
+    "satfat_g": 3.4,
+    "potassium_mg": 401,
+    "sodium_mg": 14
+   }
+  },
+  {
+   "id": "paneer",
+   "label": "Paneer (Indian cottage cheese)",
+   "kind": "dairy",
+   "slots": "bm",
+   "portion_g": 60,
+   "cuisines": [
+    "south asian"
+   ],
+   "gluten": false,
+   "source": "USDA FoodData Central branded entry 2705740 (paneer) - approximate, brands vary",
+   "code": "FDC2705740",
+   "per100": {
+    "kcal": 299,
+    "protein_g": 15.86,
+    "carb_g": 22.46,
+    "fiber_g": 0,
+    "fat_g": 15.52,
+    "satfat_g": 9.02,
+    "potassium_mg": 728,
+    "sodium_mg": 185
+   }
+  }
+ ]
+}
