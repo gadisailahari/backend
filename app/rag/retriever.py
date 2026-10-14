@@ -56,6 +56,22 @@ class Retriever:
         return [{**self.docs[i], "score": round(ranks[i], 4)} for i in top]
 
 
+def plan_facts(structured):
+    """The cited facts the plan writer sees (kept to about 8 to save tokens). Chosen by the user's situation."""
+    facts = {f["id"]: f for f in json.load(open(HERE / "data/key_facts.json"))}
+    ckd = structured.get("kidney_safe_mode")
+    ids = ["sodium_ckd" if ckd else "sodium_general", "dash_servings_2000kcal", "exercise_rec", "exercise_table", "whole_grains"]
+    if ckd: ids += ["ckd_dietitian", "salt_substitute_ckd"]
+    else: ids += ["protein_amdr"]
+    conds = set(structured.get("conditions") or [])
+    if "pcos" in conds: ids.append("pcos")
+    if "cholesterol" in conds: ids.append("satfat")
+    if "yoga" in set(structured.get("activities") or []): ids.append("meditation")
+    d = (structured.get("diet_type") or "").lower()
+    if not ("vegan" in d or ("vegetarian" in d and "non" not in d)): ids.append("fish_twice")
+    return [facts[i] for i in ids if i in facts][:9]
+
+
 def pinned_facts(ckd_mode):
     """Numeric targets that are always shown to the LLM (and used by the checker), each with a real citation."""
     facts = json.load(open(HERE / "data/key_facts.json"))

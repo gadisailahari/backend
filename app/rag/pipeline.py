@@ -1,16 +1,17 @@
-"""Grounded, checked dietary guidance pipeline.
+"""Grounded, checked eating-and-exercise plan pipeline.
 
-profile + risk + SHAP factors  ->  structured input (risk tier, top-3 factors, intake gaps, diet type)
+profile + risk + SHAP factors + preferences  ->  structured input
+  -> vetted FOOD MENU (filtered for diet, cuisine, conditions, dislikes, kidney rules) + EXERCISE MENU
   -> retrieve guideline passages (RAG) + pinned cited facts
-  -> LLM drafts JSON plan
-  -> checks: JSON valid, citations real, text screen (no medication advice / kidney rules),
-             foods resolved to USDA FNDDS, nutrients recomputed, targets enforced
-  -> on failure the checker's reasons go back to the LLM (up to max_tries); if it still fails the plan is
-     REJECTED and the caller must show the safe fallback, never the failed plan.
+  -> LLM drafts a JSON plan (meal options, exercise, tips)
+  -> checks: valid JSON, only menu foods, amounts plausible, sodium worst case under the limit, protein and calorie ranges,
+             exercise targets, citations real, no medication advice / kidney rules (text screen)
+  -> on failure the reasons go back to the LLM (up to max_tries); if it still fails the plan is REJECTED and the caller shows safe fallback text.
+Foods the AI picks are looked up by id in the menu, so the numbers shown to the user are data, not AI claims.
 """
 import json, re
-import safety, checker
-from retriever import pinned_facts
+import safety, checker, menu, plan_check
+from retriever import plan_facts
 
 LABEL = {"RIDAGEYR": "age", "BMXBMI": "body mass index", "BMXWAIST": "waist circumference", "DR1TSODI": "sodium intake",
          "DR1TPOTA": "potassium intake", "DR1TKCAL": "calorie intake", "DR1TALCO": "alcohol intake", "LBXSCR": "serum creatinine",
@@ -19,23 +20,33 @@ LABEL = {"RIDAGEYR": "age", "BMXBMI": "body mass index", "BMXWAIST": "waist circ
          "PAQ665": "moderate activity", "ALQ121": "drinking frequency"}
 CUISINE_REGION = {"south asian": ["India", "Bangladesh"], "indian": ["India"], "bangladeshi": ["Bangladesh"], "japanese": ["Japan"],
                   "brazilian": ["Brazil"], "latin american": ["Brazil"], "malaysian": ["Malaysia"]}
+CONDITIONS = {"pcos", "diabetes", "cholesterol", "pregnant"}
+SODIUM_NOTE = ("Sodium numbers use USDA values for foods as usually prepared, which include normal cooking salt. "
+               "Cooking without added salt makes them lower.")
 
-SYSTEM = """You write dietary guidance for a hypertension education tool. You are not a doctor.
+SYSTEM = """You write a short, practical eating and exercise plan for a hypertension-education tool. You are not a doctor. Be brief: no stories, no filler.
 RULES
-1. For any guideline claim or number, use ONLY the TARGETS and PASSAGES provided, and cite them like [P1] or [F2].
-2. NEVER give medication advice. Never tell the user to start, stop or change any medicine or dose.
-3. If kidney_safe_mode is true: do NOT recommend increasing potassium, potassium-rich foods, salt substitutes or potassium supplements; say to discuss diet with a kidney dietitian.
-4. This is education, not a diagnosis.
-5. Respect the user's cuisine, diet type and dislikes. Evidence stays the same; only the food examples change.
-6. Reply with JSON only, in exactly this shape:
-{"summary": "2-3 plain sentences on why risk is as it is, based on the top factors",
- "tips": [{"text": "...", "cite": ["P1"]}],
- "meal_plan": {"meals": [{"name": "Breakfast", "items": [{"food": "common food name", "grams": 150}]}]}}
-Give 3-5 tips and a one-day plan (3 meals + 1 snack). Total sodium for the day must stay under TARGETS.sodium_max_mg."""
+1. Build meals ONLY from the FOOD MENU: use the id and grams. Each option has 2 to 6 items, amounts near the listed portion. Use foods marked * first (they fit the user's cuisine). The menu is already filtered for the user's diet, conditions and dislikes.
+2. Give 2 options each for breakfast, lunch and dinner, and 1 or 2 for snack. Option names are short, like "Masala oats with banana".
+3. Sodium: take the highest-sodium option of each meal and add them. The total must stay under TARGETS.sodium_max_mg. Budget per meal (mg): SLOT_BUDGET_MG. The Na column is mg per listed portion, so pick low-Na foods and keep salty items small.
+4. Protein: aim for PROTEIN_TARGET_G per day if it is given (spread over meals). Vegetarian and vegan plans use the plant and dairy protein foods on the menu; non-vegetarian plans may use meat and fish on the menu.
+5. Exercise: choose 3 to 6 items from the EXERCISE MENU with minutes and days per week. Meet EXERCISE_TARGETS (aerobic minutes per week = sum of minutes x days over aerobic items; strength days = days over resistance items). Put the user's preferred activities (*) first. Do not guess interests from sex.
+6. Tips: 2 to 4 tips, each under 20 words, each with cite labels from the FACTS and PASSAGES (like F1 or P2). Cite only labels that exist.
+7. NEVER give medication advice. If kidney_safe_mode is true: do not recommend potassium, potassium-rich foods, salt substitutes or supplements; say to ask a kidney dietitian.
+8. This is education, not a diagnosis.
+Reply with ONE JSON object only, nothing before or after it:
+{"summary": "max 2 short sentences", "meals": {"breakfast": [{"name": "...", "items": [{"id": "oatmeal", "g": 240}]}], "lunch": [...], "dinner": [...], "snack": [...]},
+ "exercise": [{"id": "brisk_walk", "minutes": 30, "days": 5}], "tips": [{"text": "...", "cite": ["F1"]}]}"""
 
 
 def risk_tier(p):
     return "high" if p >= 0.5 else "moderate" if p >= 0.33 else "lower"
+
+
+def _clean_list(x, allowed=None):
+    if isinstance(x, str): x = re.split(r"[,;]", x)
+    out = [str(t).strip().lower() for t in (x or []) if str(t).strip()]
+    return [t for t in out if (allowed is None or t in allowed)]
 
 
 def build_structured_input(profile, risk_probability, top_factors, prefs=None):
@@ -52,17 +63,26 @@ def build_structured_input(profile, risk_probability, top_factors, prefs=None):
         gaps.append({"nutrient": "potassium", "intake_mg": round(profile["DR1TPOTA"]), "target_mg": t["potassium_target_mg"],
                      "status": f"{d:.0f} mg below the target" if d > 0 else "meets the target"})
     top3 = [{"factor": LABEL.get(f, f), "shap": round(s, 3), "direction": "raises risk" if s > 0 else "lowers risk"} for f, s in top_factors[:3]]
-    return {"risk_tier": risk_tier(risk_probability), "risk_probability": round(risk_probability, 3), "top_factors": top3,
-            "intake_gaps": gaps, "cuisine": prefs.get("cuisine"), "diet_type": prefs.get("constraint"), "dislikes": prefs.get("dislikes") or [],
-            "kidney_safe_mode": k["ckd_mode"], "kidney_note": k["reason"], "egfr": k["egfr"], "TARGETS": t}
+    conds = _clean_list(prefs.get("conditions"), CONDITIONS)
+    fit = str(prefs.get("fitness") or "").strip().lower()
+    st = {"risk_tier": risk_tier(risk_probability), "risk_probability": round(risk_probability, 3), "top_factors": top3,
+          "intake_gaps": gaps, "cuisine": prefs.get("cuisine"), "diet_type": prefs.get("constraint"), "dislikes": prefs.get("dislikes") or [],
+          "conditions": conds, "activities": _clean_list(prefs.get("activities"), set(menu.ACTIVITY_KEYS)),
+          "fitness": fit if fit in ("beginner", "active") else "beginner",
+          "kcal_reference": profile.get("DR1TKCAL"),
+          "kidney_safe_mode": k["ckd_mode"], "kidney_note": k["reason"], "egfr": k["egfr"], "TARGETS": t,
+          "needs_clinician": "pregnant" in conds}
+    st["PROTEIN_TARGET_G"] = menu.protein_target(st)
+    st["EXERCISE_TARGETS"] = menu.exercise_targets(st)
+    st["SLOT_BUDGET_MG"] = menu.SLOT_BUDGET_MG[bool(k["ckd_mode"])]
+    return st
 
 
-def retrieve(structured, retriever, k_per=2, max_passages=6):
+def retrieve(structured, retriever, k_per=2, max_passages=4):
     qs = ["daily sodium limit hypertension diet", "DASH eating plan servings food groups"]
     qs += [f"{f['factor']} blood pressure diet" for f in structured["top_factors"] if f["direction"] == "raises risk"]
     if structured["kidney_safe_mode"]:
         qs += ["chronic kidney disease sodium potassium diet", "kidney disease healthy eating"]
-    roles = None
     regions = CUISINE_REGION.get((structured.get("cuisine") or "").lower())
     seen, out = set(), []
     for q in qs:
@@ -73,68 +93,83 @@ def retrieve(structured, retriever, k_per=2, max_passages=6):
             if r["id"] not in seen: seen.add(r["id"]); out.append(r)
     out = out[:max_passages]
     labelled = {f"P{i+1}": p for i, p in enumerate(out)}
-    facts = pinned_facts(structured["kidney_safe_mode"])
-    for i, f in enumerate(facts): labelled[f"F{i+1}"] = {**f, "text": f["text"]}
+    for i, f in enumerate(plan_facts(structured)): labelled[f"F{i+1}"] = {**f, "text": f["text"]}
     return labelled
 
 
-def _passage_block(labelled):
-    lines = []
-    for lab, p in labelled.items():
-        txt = " ".join(p["text"].split()[:110])
-        lines.append(f"[{lab}] ({p['title']}, p{p['page']}) {txt}")
-    return "\n".join(lines)
+def _passage_block(labelled, words=70):
+    return "\n".join(f"[{lab}] ({p['title']}, p{p['page']}) " + " ".join(p["text"].split()[:words]) for lab, p in labelled.items())
 
 
 def _parse_json(raw):
-    m = re.search(r"\{.*\}", raw, re.S)
-    if not m: raise ValueError("no JSON object found")
-    obj = json.loads(m.group(0))
-    for key in ("summary", "tips", "meal_plan"):
+    """Take the FIRST JSON object in the reply (models sometimes add text or a second object)."""
+    s = str(raw).strip()
+    s = re.sub(r"^```(?:json)?", "", s).strip()
+    i = s.find("{")
+    if i < 0: raise ValueError("no JSON object found")
+    obj, _ = json.JSONDecoder().raw_decode(s[i:])
+    for key in ("summary", "meals", "exercise", "tips"):
         if key not in obj: raise ValueError(f"missing key '{key}'")
     return obj
 
 
-def _resolve_foods(obj):
-    """Map each LLM food name to a USDA FNDDS code. Returns plan in checker format + resolution log."""
-    meals, log = [], []
-    for m in obj["meal_plan"].get("meals", []):
-        items = []
-        for it in m.get("items", []):
-            name, g = str(it.get("food", "")), it.get("grams")
-            hit = checker.search_foods(name, k=1)
-            if hit:
-                items.append({"food_code": hit[0]["food_code"], "grams": g}); log.append({"asked": name, "matched": hit[0]["desc"], "grams": g})
-        meals.append({"name": m.get("name", "meal"), "items": items})
-    return {"meals": meals}, log
-
-
 def _text_of(obj):
-    return " ".join([str(obj.get("summary", ""))] + [str(t.get("text", "")) for t in obj.get("tips", [])])
+    names = [str(o.get("name", "")) for opts in (obj.get("meals") or {}).values() if isinstance(opts, list) for o in opts if isinstance(o, dict)]
+    return " ".join([str(obj.get("summary", ""))] + [str(t.get("text", "")) for t in obj.get("tips", []) if isinstance(t, dict)] + names)
 
 
-def check_draft(obj, labelled, structured, enforce=True):
-    """All the gates. Returns (violations, plan_for_checker, resolution_log, check_result)."""
+def check_draft(obj, labelled, structured, allowed):
     v = []
-    for t in obj.get("tips", []):
-        cites = t.get("cite") or []
+    tips = obj.get("tips") if isinstance(obj.get("tips"), list) else []
+    if not (2 <= len(tips) <= 5): v.append("Give 2 to 4 tips.")
+    for t in tips:
+        cites = (t.get("cite") if isinstance(t, dict) else None) or []
         if not cites: v.append(f"Tip without a citation: '{str(t.get('text',''))[:60]}'")
         for c in cites:
-            if c not in labelled: v.append(f"Citation [{c}] does not exist; cite only the labelled passages.")
+            if c not in labelled: v.append(f"Citation [{c}] does not exist; cite only labels that were provided.")
     for kind, snippet in safety.screen_text(_text_of(obj), structured["kidney_safe_mode"]):
         v.append(f"Not allowed ({kind}): '{snippet}'")
-    plan, log = _resolve_foods(obj)
-    res = checker.check_plan(plan, structured["TARGETS"], structured["kidney_safe_mode"])
-    v += res["violations"]
-    return v, plan, log, res
+    res = plan_check.check_plan_v2(obj, allowed, structured)
+    return v + res["violations"], res
+
+
+def build_view(obj, res, structured, labelled):
+    """What the website shows. Numbers come from the menu data; sources come from the labels the AI cited."""
+    pt = structured.get("PROTEIN_TARGET_G")
+    meals = {s: [{"name": o["name"], "items": [{"label": menu.FOODS[i["id"]]["label"], "grams": round(i["g"])} for i in o["items"]],
+                  "kcal": round(o["kcal"]), "protein_g": round(o["protein_g"]), "sodium_mg": round(o["sodium_mg"])} for o in opts]
+             for s, opts in res["options"].items()}
+    facts = {f["id"]: f for f in json.load(open(__import__("pathlib").Path(__file__).parent / "data/key_facts.json"))}
+    avoid = [{"text": t, "source": {"title": facts[f]["title"], "page": facts[f]["page"]}} for t, f in menu.avoid_list(structured) if f in facts]
+    cited = {c for t in obj.get("tips", []) for c in (t.get("cite") or []) if c in labelled}
+    return {"summary": str(obj.get("summary", "")),
+            "protein": ({"low_g": pt["low_g"], "high_g": pt["high_g"],
+                         "text": f"Aim for about {pt['low_g']}-{pt['high_g']} g of protein a day (15-25% of calories, inside the 10-35% guideline range)."}
+                        if pt else {"text": "Kidney-safe mode: no protein number is given. Ask a kidney dietitian how much protein is right for you."}),
+            "meals": meals, "avoid": avoid,
+            "exercise": res["exercise"]["items"], "exercise_note": menu.SAFETY_EXERCISE,
+            "exercise_summary": {"aerobic_min_per_week": res["exercise"]["aerobic_min"], "strength_days_per_week": res["exercise"]["resistance_days"]},
+            "tips": [{"text": str(t.get("text", "")), "cite": [c for c in (t.get("cite") or []) if c in labelled]} for t in obj.get("tips", [])],
+            "totals": res["totals"], "sodium_note": SODIUM_NOTE,
+            "sources": {c: {"title": labelled[c]["title"], "page": labelled[c]["page"]} for c in sorted(cited)}}
 
 
 def generate_plan(structured, retriever, llm_fn, feedback=None, previous=None, max_tries=3):
+    if structured.get("needs_clinician"):
+        return {"status": "needs_clinician", "attempts": 0, "plan": None, "history": [],
+                "message": "Pregnant or breastfeeding: please get an eating plan from your doctor or a registered dietitian."}
+    allowed = menu.allowed_foods(structured)
+    if len(allowed) < 15:
+        return {"status": "rejected", "attempts": 0, "plan": None, "history": [{"attempt": 0, "violations": ["Too few allowed foods for these choices."]}]}
     labelled = retrieve(structured, retriever)
-    content = "INPUT:\n" + json.dumps({k: v for k, v in structured.items()}, indent=1) + "\n\nPASSAGES AND FACTS:\n" + _passage_block(labelled)
+    compact = {k: structured[k] for k in ("risk_tier", "top_factors", "intake_gaps", "cuisine", "diet_type", "dislikes", "conditions", "activities", "fitness",
+                                          "kidney_safe_mode", "TARGETS", "PROTEIN_TARGET_G", "EXERCISE_TARGETS", "SLOT_BUDGET_MG")}
+    content = ("INPUT:\n" + json.dumps(compact) + "\n\nFOOD MENU:\n" + menu.menu_for_prompt(allowed, structured.get("cuisine")) +
+               "\n\nEXERCISE MENU:\n" + menu.exercise_for_prompt(structured.get("activities")) +
+               "\n\nFACTS AND PASSAGES:\n" + _passage_block(labelled))
     if feedback:
         content += f"\n\nUSER FEEDBACK ON THE PREVIOUS PLAN (apply it only if it does not break the rules): {feedback}"
-        if previous: content += "\nPREVIOUS SUMMARY: " + str(previous.get("summary", ""))[:400]
+        if previous: content += "\nPREVIOUS PLAN: " + json.dumps({"meals": previous.get("meals"), "exercise": previous.get("exercise")})[:1800]
     messages = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": content}]
     history = []
     for attempt in range(1, max_tries + 1):
@@ -143,31 +178,32 @@ def generate_plan(structured, retriever, llm_fn, feedback=None, previous=None, m
             obj = _parse_json(raw)
         except Exception as e:
             history.append({"attempt": attempt, "violations": [f"Invalid JSON: {e}"]})
-            messages += [{"role": "assistant", "content": raw}, {"role": "user", "content": "Your reply was not valid JSON in the required shape. Return JSON only."}]
+            messages += [{"role": "assistant", "content": str(raw)[:1500]}, {"role": "user", "content": "Your reply was not one valid JSON object in the required shape. Return ONE JSON object only."}]
             continue
-        viol, plan, log, res = check_draft(obj, labelled, structured)
+        viol, res = check_draft(obj, labelled, structured, allowed)
         if not viol:
-            return {"status": "approved_by_checker", "attempts": attempt, "plan": obj, "foods_matched": log, "totals": res["totals"],
-                    "per_item": res["per_item"], "sources": {k: {"title": p["title"], "page": p["page"]} for k, p in labelled.items()},
-                    "history": history}
-        history.append({"attempt": attempt, "violations": viol})
-        messages += [{"role": "assistant", "content": raw}, {"role": "user", "content": checker.retry_hint({"violations": viol}) +
-                     "\nFoods were matched to USDA entries as: " + "; ".join(f"{l['asked']} -> {l['matched']}" for l in log[:12])}]
+            return {"status": "approved_by_checker", "attempts": attempt, "plan": obj, "view": build_view(obj, res, structured, labelled),
+                    "totals": res["totals"], "sources": {c: {"title": p["title"], "page": p["page"]} for c, p in labelled.items()}, "history": history}
+        history.append({"attempt": attempt, "violations": viol[:8]})
+        messages += [{"role": "assistant", "content": json.dumps(obj)[:2500]},
+                     {"role": "user", "content": "The checker rejected your plan:\n- " + "\n- ".join(viol[:8]) + "\nFix ONLY these problems and return ONE JSON object."}]
     return {"status": "rejected", "attempts": max_tries, "plan": None, "history": history,
             "message": "The system could not produce a plan that passes the nutrient and safety checks. Showing standard guidance instead."}
 
 
 def answer_why(question, structured, retriever, llm_fn, max_tries=2):
     labelled = retrieve(structured, retriever)
-    sys = ("You answer a user's 'why' question about their hypertension risk guidance. Use ONLY the INPUT and the cited PASSAGES. "
-           "Cite like [P1]. Never give medication advice. Not a diagnosis. If kidney_safe_mode is true, never advise more potassium. "
-           'Reply JSON: {"answer": "...", "cite": ["P1"]}')
-    content = "INPUT:\n" + json.dumps(structured, indent=1) + "\n\nPASSAGES AND FACTS:\n" + _passage_block(labelled) + "\n\nQUESTION: " + question
-    messages = [{"role": "system", "content": sys}, {"role": "user", "content": content}]
+    sys_ = ("You answer a user's 'why' question about their hypertension risk guidance. Be brief (3 sentences at most). Use ONLY the INPUT and the cited PASSAGES. "
+            "Cite like [P1]. Never give medication advice. Not a diagnosis. If kidney_safe_mode is true, never advise more potassium. "
+            'Reply with ONE JSON object: {"answer": "...", "cite": ["P1"]}')
+    compact = {k: structured[k] for k in ("risk_tier", "top_factors", "intake_gaps", "kidney_safe_mode", "TARGETS", "conditions", "diet_type")}
+    content = "INPUT:\n" + json.dumps(compact) + "\n\nPASSAGES AND FACTS:\n" + _passage_block(labelled) + "\n\nQUESTION: " + question
+    messages = [{"role": "system", "content": sys_}, {"role": "user", "content": content}]
     for attempt in range(1, max_tries + 1):
         raw = llm_fn(messages)
         try:
-            obj = json.loads(re.search(r"\{.*\}", raw, re.S).group(0)); ans = str(obj["answer"]); cites = obj.get("cite") or []
+            i = str(raw).find("{"); obj, _ = json.JSONDecoder().raw_decode(str(raw)[i:])
+            ans = str(obj["answer"]); cites = obj.get("cite") or []
             v = [f"Citation [{c}] does not exist." for c in cites if c not in labelled]
             if not cites: v.append("Answer has no citation.")
             v += [f"Not allowed ({k}): '{s}'" for k, s in safety.screen_text(ans, structured["kidney_safe_mode"])]
@@ -175,26 +211,63 @@ def answer_why(question, structured, retriever, llm_fn, max_tries=2):
             v, ans = [f"Invalid JSON: {e}"], ""
         if not v:
             return {"status": "ok", "answer": ans, "sources": {c: {"title": labelled[c]["title"], "page": labelled[c]["page"]} for c in cites}}
-        messages += [{"role": "assistant", "content": raw}, {"role": "user", "content": "Rejected: " + "; ".join(v) + ". Fix and return JSON only."}]
+        messages += [{"role": "assistant", "content": str(raw)[:1500]}, {"role": "user", "content": "Rejected: " + "; ".join(v) + ". Fix and return ONE JSON object."}]
     return {"status": "refused", "answer": "I can't answer that safely from the approved guidance. Please ask a clinician or dietitian."}
 
 
+# ---------------- study baseline: same AI, no menu, no passages, no checker ----------------
 def llm_alone(structured, llm_fn):
-    """Study baseline: same LLM, no passages, no targets, no checker, no safety screen. Nutrients are still measured afterwards."""
-    basic = {k: structured[k] for k in ("risk_tier", "top_factors", "cuisine", "diet_type", "dislikes")}
-    msg = [{"role": "system", "content": "You write dietary advice for people at risk of hypertension. Reply with JSON only in this shape: "
-            '{"summary": "...", "tips": [{"text": "..."}], "meal_plan": {"meals": [{"name": "Breakfast", "items": [{"food": "...", "grams": 150}]}]}}'},
-           {"role": "user", "content": "Write dietary advice and a one-day meal plan for this person with hypertension risk:\n" + json.dumps(basic)}]
-    obj = _parse_json(llm_fn(msg))
-    plan, log = _resolve_foods(obj)
-    res = checker.check_plan(plan, structured["TARGETS"], structured["kidney_safe_mode"])   # measured, not enforced
-    return {"plan": obj, "foods_matched": log, "totals": res["totals"], "violations_if_checked": res["violations"]}
+    """Same LLM, same person, but no food menu, no guideline passages, no targets, no checker, no safety screen.
+    Free-text foods are looked up in USDA FNDDS afterwards so sodium can be MEASURED (not enforced)."""
+    basic = {k: structured[k] for k in ("risk_tier", "top_factors", "cuisine", "diet_type", "dislikes", "conditions", "activities", "fitness")}
+    shape = ('{"summary": "...", "protein_note": "...", "meals": {"breakfast": [{"name": "...", "items": [{"food": "...", "grams": 150}]}], "lunch": [...], "dinner": [...], "snack": [...]}, '
+             '"avoid": ["..."], "exercise": [{"activity": "...", "minutes": 30, "days": 5}], "tips": [{"text": "..."}]}')
+    msg = [{"role": "system", "content": "You write short eating and exercise advice for people at risk of hypertension. Be brief. Give 2 options each for breakfast, lunch and dinner and 1 snack option. Reply with ONE JSON object only in this shape: " + shape},
+           {"role": "user", "content": "Write the plan for this person:\n" + json.dumps(basic)}]
+    raw = str(llm_fn(msg)); obj, _ = json.JSONDecoder().raw_decode(raw[raw.find("{"):])
+    meals, worst, kcal, prot = {}, 0.0, 0.0, 0.0
+    for slot in plan_check.SLOTS:
+        rows, slot_worst, slot_k, slot_p = [], 0.0, [], []
+        for o in (obj.get("meals") or {}).get(slot, [])[:3]:
+            na = k_ = p_ = 0.0; its = []
+            for it in o.get("items", []):
+                hit = checker.search_foods(str(it.get("food", "")), k=1)
+                g = it.get("grams") if isinstance(it.get("grams"), (int, float)) else 100
+                its.append({"label": str(it.get("food", "")), "grams": round(g)})
+                if hit:
+                    n = checker._NUT[hit[0]["food_code"]]; f = g / 100.0
+                    na += n["sodium_mg"] * f; k_ += n["kcal"] * f; p_ += n["protein_g"] * f
+            rows.append({"name": str(o.get("name", "")), "items": its, "kcal": round(k_), "protein_g": round(p_), "sodium_mg": round(na)})
+            slot_worst = max(slot_worst, na); slot_k.append(k_); slot_p.append(p_)
+        meals[slot] = rows
+        worst += slot_worst
+        if slot_k: kcal += sum(slot_k) / len(slot_k); prot += sum(slot_p) / len(slot_p)
+    view = {"summary": str(obj.get("summary", "")), "protein": {"text": str(obj.get("protein_note", ""))}, "meals": meals,
+            "avoid": [{"text": str(a), "source": None} for a in obj.get("avoid", [])],
+            "exercise": [{"label": str(e.get("activity", "")), "minutes": e.get("minutes"), "days": e.get("days")} for e in obj.get("exercise", []) if isinstance(e, dict)],
+            "exercise_note": "", "tips": [{"text": str(t.get("text", "")), "cite": []} for t in obj.get("tips", []) if isinstance(t, dict)]}
+    totals = {"sodium_mg_worst_case": round(worst), "kcal": round(kcal), "protein_g": round(prot)}
+    return {"plan": view, "totals": totals}
 
 
-def render_plan_text(obj):
-    lines = [obj.get("summary", ""), ""]
-    for t in obj.get("tips", []): lines.append("- " + str(t.get("text", "")) + (" [" + ", ".join(t.get("cite", [])) + "]" if t.get("cite") else ""))
-    lines.append("")
-    for m in obj.get("meal_plan", {}).get("meals", []):
-        lines.append(f"{m.get('name','Meal')}: " + "; ".join(f"{i.get('food')} ({i.get('grams')} g)" for i in m.get("items", [])))
-    return "\n".join(lines).strip()
+def render_plan_text(view):
+    """Plain-text version of a plan view (used for the rating study and for storage)."""
+    L = [view.get("summary", ""), ""]
+    if view.get("protein", {}).get("text"): L += ["PROTEIN", view["protein"]["text"], ""]
+    L.append("MEALS (pick one option for each meal)")
+    for slot in plan_check.SLOTS:
+        opts = (view.get("meals") or {}).get(slot) or []
+        if not opts: continue
+        L.append(slot.capitalize())
+        for n, o in enumerate(opts):
+            L.append(f"  {chr(65+n)}) {o.get('name','')}: " + "; ".join(f"{i['label']} {i['grams']} g" for i in o["items"]) +
+                     f"  (about {o['kcal']} kcal, {o['protein_g']} g protein)")
+    if view.get("avoid"):
+        L += ["", "FOODS TO AVOID OR LIMIT"] + ["- " + a["text"] for a in view["avoid"]]
+    if view.get("exercise"):
+        L += ["", "EXERCISE (per week)"]
+        for e in view["exercise"]: L.append(f"- {e['label']}: {e.get('minutes')} min x {e.get('days')} days")
+        if view.get("exercise_note"): L.append(view["exercise_note"])
+    if view.get("tips"):
+        L += ["", "TIPS"] + ["- " + t["text"] + (" [" + ", ".join(t["cite"]) + "]" if t.get("cite") else "") for t in view["tips"]]
+    return "\n".join(L).strip()
