@@ -58,7 +58,7 @@
 
   /* ---------- Top bar ---------- */
   .topbar{
-    padding:22px 0 0;
+    padding:22px 20px 0;
   }
   .brand{
     display:flex; align-items:center; gap:9px;
@@ -290,10 +290,32 @@
   .ratebox{margin-top:16px; padding-top:14px; border-top:1px solid var(--rule); font-size:0.92rem;}
   .ratebox label{display:inline-flex; align-items:center; gap:6px; margin:4px 12px 4px 0;}
   .ratebox select,.ratebox input[type=text]{padding:6px 8px; border:1px solid var(--rule-strong); border-radius:8px; font:inherit;}
+
+  /* ---------- Playful layer ---------- */
+  body{background:linear-gradient(180deg,#FFF8EC 0%,#EAF7F2 55%,#F4F8F7 100%) fixed;}
+  .floaties{position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0;}
+  .floaties span{position:absolute; font-size:2rem; opacity:.22; animation:floaty 9s ease-in-out infinite;}
+  @keyframes floaty{0%,100%{transform:translateY(0) rotate(-6deg);}50%{transform:translateY(-18px) rotate(8deg);}}
+  .topbar,main,footer{position:relative; z-index:1;}
+  .intro{display:flex; gap:18px; align-items:center; flex-wrap:wrap;}
+  .intro .mascot{width:112px; height:112px; flex:none; animation:bob 3.2s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+  .intro .copy{flex:1; min-width:240px;}
+  .card{border-radius:24px; border:2px solid #fff; box-shadow:0 10px 34px rgba(15,118,110,.14);}
+  .step h2 .em{display:inline-block; margin-right:8px; animation:wiggle 2.6s ease-in-out infinite; transform-origin:70% 80%;}
+  @keyframes wiggle{0%,100%{transform:rotate(0);}8%{transform:rotate(14deg);}16%{transform:rotate(-10deg);}24%{transform:rotate(0);}}
+  .btn.primary{border-radius:999px; box-shadow:0 4px 0 rgba(11,84,78,.35); transition:transform .12s;}
+  .btn.primary:hover{transform:translateY(-2px);}
+  .btn.primary:active{transform:translateY(2px); box-shadow:none;}
+  .chip{border-radius:999px;}
+  .results-mascot{font-size:3.4rem; line-height:1; margin-bottom:6px; animation:bob 2.4s ease-in-out infinite;}
+  .confetti{position:fixed; top:-20px; font-size:1.6rem; pointer-events:none; z-index:5; animation:fall 3.4s linear forwards;}
+  @keyframes fall{to{transform:translateY(108vh) rotate(540deg); opacity:.9;}}
 </style>
 </head>
 <body>
 
+<div class="floaties" aria-hidden="true"><span style="left:4%;top:12%;animation-delay:0s">🥑</span><span style="left:90%;top:8%;animation-delay:1.2s">🍎</span><span style="left:8%;top:46%;animation-delay:2.1s">🥦</span><span style="left:92%;top:40%;animation-delay:0.6s">🥕</span><span style="left:5%;top:78%;animation-delay:1.7s">🍅</span><span style="left:88%;top:74%;animation-delay:2.6s">🫐</span><span style="left:48%;top:92%;animation-delay:0.9s">🥬</span><span style="left:70%;top:20%;animation-delay:3.1s">🍌</span><span style="left:24%;top:6%;animation-delay:2.4s">🌽</span><span style="left:78%;top:88%;animation-delay:0.3s">🍊</span></div>
 <div class="topbar wrap">
   <div class="brand">
     <span class="mark" aria-hidden="true">
@@ -308,8 +330,19 @@
 <main class="wrap">
 
   <div class="intro" id="introBlock">
-    <h1>A five-minute check on your blood pressure risk.</h1>
-    <p>Answer a few short questions about your body, your diet, and your habits. You'll get a personalized risk estimate, the factors behind it, and specific food guidance you can act on today.</p>
+    <svg class="mascot" viewBox="0 0 120 120" role="img" aria-label="Rosie, a friendly heart mascot">
+      <path d="M60 106 C16 76 8 46 28 30 C42 19 56 26 60 38 C64 26 78 19 92 30 C112 46 104 76 60 106Z" fill="#FF7A8A" stroke="#E5566B" stroke-width="3"/>
+      <ellipse cx="42" cy="48" rx="6" ry="8" fill="#fff"/><ellipse cx="78" cy="48" rx="6" ry="8" fill="#fff"/>
+      <circle cx="43" cy="50" r="3.6" fill="#123A36"/><circle cx="79" cy="50" r="3.6" fill="#123A36"/>
+      <ellipse cx="32" cy="64" rx="7" ry="4" fill="#FFB3BD"/><ellipse cx="88" cy="64" rx="7" ry="4" fill="#FFB3BD"/>
+      <path d="M48 66 Q60 80 72 66" fill="#fff" stroke="#123A36" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M60 22 C56 10 66 4 72 8" fill="none" stroke="#1F8F63" stroke-width="4" stroke-linecap="round"/>
+      <ellipse cx="74" cy="9" rx="8" ry="4.5" fill="#2FB77C" transform="rotate(-20 74 9)"/>
+    </svg>
+    <div class="copy">
+      <h1>Hi, I'm Rosie! Let's check on your heart 💚</h1>
+      <p>Answer a few quick, friendly questions. You'll get a personal blood pressure risk estimate, the reasons behind it, and tasty food ideas you can try today 🥗</p>
+    </div>
   </div>
 
   <div class="progress" id="progressBlock">
@@ -322,7 +355,7 @@
 
       <!-- Step 0: About you -->
       <section class="step active" data-step="0">
-        <h2>About you</h2>
+        <h2><span class="em" aria-hidden="true">🙋</span>About you</h2>
         <p class="step-hint">So we can account for how risk differs across age, sex and income.</p>
 
         <div class="examples" role="group" aria-label="Fill the form with an example">
@@ -370,7 +403,7 @@
 
       <!-- Step 1: Body measurements -->
       <section class="step" data-step="1">
-        <h2>Body measurements</h2>
+        <h2><span class="em" aria-hidden="true">📏</span>Body measurements</h2>
         <p class="step-hint">These feed directly into the risk model alongside your diet.</p>
         <div class="grid2">
           <div class="field">
@@ -391,7 +424,7 @@
 
       <!-- Step 2: Diet -->
       <section class="step" data-step="2">
-        <h2>What you ate yesterday</h2>
+        <h2><span class="em" aria-hidden="true">🍽️</span>What you ate yesterday</h2>
         <p class="step-hint">Rough estimates are fine — sodium and potassium matter most here.</p>
         <div class="grid2">
           <div class="field">
@@ -428,7 +461,7 @@
 
       <!-- Step 3: Lifestyle -->
       <section class="step" data-step="3">
-        <h2>Lifestyle</h2>
+        <h2><span class="em" aria-hidden="true">🏃</span>Lifestyle</h2>
         <p class="step-hint">Smoking and activity both shift cardiovascular risk independent of diet.</p>
         <div class="grid2">
           <div class="field">
@@ -473,7 +506,7 @@
 
       <!-- Step 4: Preferences -->
       <section class="step" data-step="4">
-        <h2>Food preferences</h2>
+        <h2><span class="em" aria-hidden="true">🌮</span>Food preferences</h2>
         <p class="step-hint">Optional — changes how guidance is worded, not what it recommends.</p>
         <div class="grid2">
           <div class="field">
@@ -509,7 +542,7 @@
 
       <!-- Step 5: Review -->
       <section class="step" data-step="5">
-        <h2>Review your answers</h2>
+        <h2><span class="em" aria-hidden="true">✅</span>Review your answers</h2>
         <p class="step-hint">Everything looks right? Submit to see your risk estimate.</p>
         <ul class="review-list" id="reviewList"></ul>
       </section>
@@ -537,7 +570,6 @@
 
 <footer class="wrap">
   <p><strong>Not a medical diagnosis.</strong> This estimate comes from a statistical model trained on population survey data (NHANES 2017–2018), explained with SHAP, paired with fixed, evidence-based DASH/AHA guidance. Confirm anything specific to you with a doctor or registered dietitian.</p>
-  <p>Built for a TECH646 group project — Human–Machine Intelligence for Hypertension Risk Assessment and Personalized Dietary Guidance.</p>
 </footer>
 
 <script>
@@ -744,6 +776,7 @@
     var tierText = tier === "high" ? "Higher-risk range" : tier === "mid" ? "Moderate-risk range" : "Lower-risk range";
     return (
       '<div class="results-head">' +
+        '<div class="results-mascot" aria-hidden="true">' + (tier === "high" ? "🥦💪" : tier === "mid" ? "🥗😊" : "🎉😄") + '</div>' +
         '<svg width="200" height="118" viewBox="0 0 200 118" role="img" aria-label="Estimated risk ' + pct + ' percent">' +
           '<path d="M20,100 A80,80 0 0 1 180,100" fill="none" stroke="var(--rule)" stroke-width="14" stroke-linecap="round"/>' +
           '<path d="M20,100 A80,80 0 0 1 180,100" fill="none" stroke="' + color + '" stroke-width="14" stroke-linecap="round" ' +
@@ -755,6 +788,16 @@
         '<p>Estimated likelihood of hypertension based on your answers, compared against the NHANES population.</p>' +
       '</div>'
     );
+  }
+
+  function confetti(){
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var bits = ["🥑","🍎","🥦","🥕","🍓","🍋","🫐","🌽"];
+    for (var i = 0; i < 22; i++){
+      var el = document.createElement("span"); el.className = "confetti"; el.textContent = bits[i % bits.length];
+      el.style.left = (Math.random() * 96) + "vw"; el.style.animationDelay = (Math.random() * 1.2) + "s";
+      document.body.appendChild(el); (function(x){ setTimeout(function(){ x.remove(); }, 5200); })(el);
+    }
   }
 
   function renderFactors(guidance){
@@ -791,7 +834,7 @@
       "These factors are statistical associations from population data, explained with SHAP — not a medical diagnosis. " +
       "The guidance above follows DASH/AHA recommendations broadly; confirm how it applies to you with a doctor or " +
       "registered dietitian, especially if you take blood pressure medication or have kidney disease.</div>";
-    resultsBody.insertAdjacentHTML("beforeend", planPanelHtml());
+    resultsBody.insertAdjacentHTML("beforeend", planPanelHtml()); confetti();
     wirePlan(data.id);
     current = 6;
     updateUI();
@@ -802,7 +845,7 @@
   // ---------- personalised plan, chat and feedback ----------
   function planPanelHtml(){
     return '<div class="plan" id="planPanel">' +
-      "<h3>Your personalised eating plan</h3>" +
+      "<h3>🍽️ Your personalised eating plan</h3>" +
       '<p class="plan-sub">Written from the DASH and AHA/ACC guidelines (and KDIGO if your kidney result is low), then checked by software for sodium limits and safety. Education only, not a diagnosis.</p>' +
       '<button type="button" class="btn primary" id="planBtn">Create my plan</button>' +
       '<div id="planOut"></div></div>';
@@ -838,8 +881,9 @@
       if (res.kidney_safe_mode){
         html += '<div class="plan-flag"><b>Kidney-safe mode.</b> Your kidney result is low or unknown, so this plan uses a stricter sodium limit and does not push potassium. Please talk to a kidney dietitian before changing potassium or protein.</div>';
       }
-      if (res.status !== "approved_by_checker"){
-        html += '<div class="plan-flag">We could not produce a personalised plan that passes our safety checks, so standard guidance is shown instead.</div>';
+      if (res.status !== "approved_by_checker" && res.history && res.history.length){
+        html += '<details class="plan-src"><summary>Technical details for the project team (why the checker rejected the AI draft)</summary>' +
+          res.history.map(function(h){ return "<p><b>Attempt " + h.attempt + ":</b><br>" + (h.violations || []).slice(0, 8).map(escapeHtml).join("<br>") + "</p>"; }).join("") + "</details>";
       }
       html += '<div class="plan-text">' + escapeHtml(res.text) + "</div>";
       if (res.totals){
