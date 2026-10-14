@@ -325,6 +325,19 @@ def _selftest_row(r, use_ai, delay):
 @router.get("/selftest")
 def selftest(use_ai: bool = False, limit: int = 20, _a: bool = Depends(require_admin_key)):
     """Runs the known test patients in data/test_cases.csv and checks each plan with independent rules. use_ai=false tests the software path (fast)."""
+    from fastapi.responses import HTMLResponse
+    try:
+        return _selftest_page(use_ai, limit)
+    except Exception as e:                       # show the real reason instead of a bare 500 (admin-only page)
+        import traceback
+        tb = traceback.format_exc()
+        print("SELFTEST ERROR", tb, flush=True)
+        return HTMLResponse("<html><body style='font-family:sans-serif;padding:16px'><h2>Self-test could not run</h2><p>" + html.escape(f"{type(e).__name__}: {e}") +
+                            "</p><p>Files seen in data folder: " + html.escape(", ".join(sorted(x.name for x in (RAG_DIR / "data").glob("*")))) +
+                            "</p><pre style='white-space:pre-wrap;font-size:12px'>" + html.escape(tb[-2500:]) + "</pre></body></html>", status_code=200)
+
+
+def _selftest_page(use_ai, limit):
     rows = list(csv.DictReader(open(RAG_DIR / "data/test_cases.csv", encoding="utf-8")))[: max(1, min(limit, 20))]
     out, total_ok, total = [], 0, 0
     for r in rows:
