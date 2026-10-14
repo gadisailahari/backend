@@ -1,7 +1,7 @@
 """LLM client. Reads GROQ_API_KEY from the environment (set it in Railway Variables, never in code)."""
 import json, os, time, urllib.request, urllib.error
 
-MODEL = os.environ.get("LLM_MODEL", "llama-3.3-70b-versatile")
+MODEL = os.environ.get("LLM_MODEL", "openai/gpt-oss-120b")   # llama-3.3-70b-versatile was retired by Groq on 2026-08-16
 
 
 def groq_llm(messages, json_mode=True, max_tokens=1200, temperature=0.2):
@@ -9,6 +9,8 @@ def groq_llm(messages, json_mode=True, max_tokens=1200, temperature=0.2):
     if not key:
         raise RuntimeError("GROQ_API_KEY is not set in this environment.")
     body = {"model": MODEL, "messages": messages, "temperature": temperature, "max_tokens": max_tokens}
+    if MODEL.startswith("openai/gpt-oss"):                 # reasoning model: keep thinking short, leave room for the JSON answer
+        body["reasoning_effort"] = "low"; body["max_tokens"] = max(max_tokens, 4000)
     if json_mode:
         body["response_format"] = {"type": "json_object"}
     req = urllib.request.Request("https://api.groq.com/openai/v1/chat/completions", data=json.dumps(body).encode(),
