@@ -10,7 +10,7 @@ profile + risk + SHAP factors + preferences  ->  structured input
 Foods the AI picks are looked up by id in the menu, so the numbers shown to the user are data, not AI claims.
 """
 import json, re
-import safety, checker, menu, plan_check
+import safety, checker, menu, plan_check, rule_plan
 from retriever import plan_facts
 
 LABEL = {"RIDAGEYR": "age", "BMXBMI": "body mass index", "BMXWAIST": "waist circumference", "DR1TSODI": "sodium intake",
@@ -154,7 +154,7 @@ def build_view(obj, res, structured, labelled):
             "sources": {c: {"title": labelled[c]["title"], "page": labelled[c]["page"]} for c in sorted(cited)}}
 
 
-def generate_plan(structured, retriever, llm_fn, feedback=None, previous=None, max_tries=3):
+def generate_plan(structured, retriever, llm_fn, feedback=None, previous=None, max_tries=3, allow_rules=False):
     if structured.get("needs_clinician"):
         return {"status": "needs_clinician", "attempts": 0, "plan": None, "history": [],
                 "message": "Pregnant or breastfeeding: please get an eating plan from your doctor or a registered dietitian."}
@@ -173,7 +173,12 @@ def generate_plan(structured, retriever, llm_fn, feedback=None, previous=None, m
     messages = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": content}]
     history = []
     for attempt in range(1, max_tries + 1):
-        raw = llm_fn(messages)
+        try:
+            raw = llm_fn(messages)
+        except Exception as e:
+            if not allow_rules: raise
+            history.append({"attempt": attempt, "violations": [f"AI service error: {str(getattr(e, 'detail', e))[:160]}"]})
+            break
         try:
             obj = _parse_json(raw)
         except Exception as e:
@@ -187,6 +192,20 @@ def generate_plan(structured, retriever, llm_fn, feedback=None, previous=None, m
         history.append({"attempt": attempt, "violations": viol[:8]})
         messages += [{"role": "assistant", "content": json.dumps(obj)[:2500]},
                      {"role": "user", "content": "The checker rejected your plan:\n- " + "\n- ".join(viol[:8]) + "\nFix ONLY these problems and return ONE JSON object."}]
+    if allow_rules:
+        obj = rule_plan.build_plan(structured, allowed, labelled)
+        if obj:
+            viol, res = check_draft(obj, labelled, structured, allowed)
+            if not viol:
+                view = build_view(obj, res, structured, labelled)
+                view["built_by"] = "rules"
+                down = any("AI service error" in v for h in history for v in h["violations"])
+                view["built_note"] = ("The AI writer was not available, so this plan was built by software from the vetted food list. It follows the same limits." if down else
+                                      "The AI draft did not pass our safety checks, so this plan was built by software from the vetted food list. It follows the same limits.")
+                history.append({"attempt": "rules", "violations": ["Software-built plan used (passed all checks)."]})
+                return {"status": "approved_by_checker", "attempts": max_tries, "built_by": "rules", "plan": obj, "view": view, "totals": res["totals"],
+                        "sources": {c: {"title": p["title"], "page": p["page"]} for c, p in labelled.items()}, "history": history}
+            history.append({"attempt": "rules", "violations": ["Software-built plan failed: " + "; ".join(v[:100] for v in viol[:3])]})
     return {"status": "rejected", "attempts": max_tries, "plan": None, "history": history,
             "message": "The system could not produce a plan that passes the nutrient and safety checks. Showing standard guidance instead."}
 

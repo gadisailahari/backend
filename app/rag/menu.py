@@ -48,7 +48,8 @@ def diet_key(constraint):
 
 def _dislike_tokens(dislikes):
     if isinstance(dislikes, str): dislikes = re.split(r"[,;/]", dislikes)
-    return [t.strip().lower() for t in (dislikes or []) if t and t.strip()]
+    toks = [t.strip().lower() for t in (dislikes or []) if t and t.strip()]
+    return [t[:-1] if len(t) > 3 and t.endswith("s") and not t.endswith("ss") else t for t in toks]   # "beans" -> "bean", "mushrooms" -> "mushroom"
 
 
 def allowed_foods(structured):
