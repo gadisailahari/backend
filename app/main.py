@@ -34,6 +34,13 @@ except Exception as _e:          # a problem in the new plan feature must never 
     plan_router, init_plan_tables = None, None
     _PLAN_ERR = f"{type(_e).__name__}: {_e}"
 
+try:
+    from app.care import router as care_router, init_care_tables
+    _CARE_ERR = None
+except Exception as _e:
+    care_router, init_care_tables = None, None
+    _CARE_ERR = f"{type(_e).__name__}: {_e}"
+
 app = FastAPI(title="Hypertension Risk Assessment API", version="1.0")
 
 app.add_middleware(
@@ -55,6 +62,13 @@ def require_admin_key(key: Optional[str] = Query(default=None)):
     return True
 
 
+if care_router is not None:
+    app.include_router(care_router)
+else:
+    @app.get("/care/status")
+    def care_status_disabled():
+        return {"care_feature": "disabled", "error": _CARE_ERR}
+
 if plan_router is not None:
     app.include_router(plan_router)
 else:
@@ -71,6 +85,11 @@ def startup():
             init_plan_tables()
         except Exception as e:
             print('plan tables not created:', e)
+    if init_care_tables is not None:
+        try:
+            init_care_tables()
+        except Exception as e:
+            print('care tables not created:', e)
 
 
 class Profile(BaseModel):

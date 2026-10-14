@@ -1,7 +1,7 @@
 """Grounded plan, feedback chat, clinician review and rating-study endpoints.
 Included from main.py with:   from app.plan_routes import router, init_plan_tables ; app.include_router(router)
 """
-import os, sys, re, json, random, string, threading, time
+import os, sys, re, json, random, string, threading, time, csv, html
 from pathlib import Path
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Query, Depends
@@ -94,7 +94,7 @@ def make_plan(req: PlanRequest):
     if not a: raise HTTPException(404, "Assessment not found")
     try:
         _, _, structured = _inputs(a)
-        res = pipeline.generate_plan(structured, get_retriever(), _llm)
+        res = pipeline.generate_plan(structured, get_retriever(), _llm, allow_rules=True)
         pid, text = _store(structured, res, req.assessment_id)
     except HTTPException:
         raise
@@ -264,3 +264,82 @@ def ratings(req: RatingRequest):
 @router.get("/study/summary")
 def study_summary(_a: bool = Depends(require_admin_key)):
     return {**plan_db.study_summary(), "feedback": plan_db.feedback_summary()}
+
+
+# ---------- self-test: known test patients (CSV) checked by independent rules ----------
+def _split(s):
+    return [x.strip().lower() for x in re.split(r"[|;]", s or "") if x.strip()]
+
+
+def _selftest_row(r, use_ai, delay):
+    import menu as M
+    num = lambda k: float(r[k]) if r.get(k) not in (None, "") else None
+    profile = {k: num(k) for k in ("RIAGENDR", "RIDAGEYR", "RIDRETH3", "INDFMPIR", "BMXBMI", "BMXWAIST", "DR1TKCAL", "DR1TSODI", "DR1TPOTA", "DR1TPROT",
+                                    "DR1TCARB", "DR1TTFAT", "DR1TALCO", "LBXSCR", "SMQ020", "PAQ650", "PAQ665", "ALQ121")}
+    prefs = {"cuisine": r["cuisine"] or None, "constraint": r["diet"] or None, "dislikes": _split(r["dislikes"]), "conditions": _split(r["conditions"]),
+             "activities": _split(r["activities"]), "fitness": r["fitness"] or "beginner"}
+    from app.ml.risk_model import run_risk_prediction, run_explainability
+    rk = run_risk_prediction(profile); ex = run_explainability(profile)
+    st = pipeline.build_structured_input(profile, rk["risk_probability"], ex["top_factors"], prefs)
+
+    def paced(m, **kw):
+        time.sleep(delay); return LLM_FN(m, **kw) if kw else LLM_FN(m)
+
+    def no_ai(m, **kw):
+        raise RuntimeError("AI switched off for this self-test")
+    res = pipeline.generate_plan(st, get_retriever(), paced if use_ai else no_ai, allow_rules=True)
+    checks = []
+
+    def chk(name, ok, detail=""):
+        checks.append((name, bool(ok), detail))
+    expect_status = r["expect_status"]
+    got = "needs_clinician" if res["status"] == "needs_clinician" else ("plan" if res["status"] == "approved_by_checker" else "rejected")
+    chk("status is " + expect_status, got == expect_status, f"got {got}")
+    chk("kidney mode is " + r["expect_kidney_mode"], st["kidney_safe_mode"] == (r["expect_kidney_mode"] == "yes"), f"egfr {st['egfr']}")
+    if res["status"] == "approved_by_checker":
+        obj, view = res["plan"], res["view"]
+        ids = [i["id"] for s in obj["meals"].values() for o in s for i in o["items"]]
+        chk("every food is on the vetted menu (no invented foods)", all(i in M.FOODS for i in ids), "")
+        kinds = {M.FOODS[i]["kind"] for i in ids if i in M.FOODS}
+        bad = kinds & set(_split(r["expect_no_kinds"]))
+        chk("no forbidden food kinds", not bad, ", ".join(sorted(bad)))
+        words = _split(r["expect_no_words"]); labels = " ".join(M.FOODS[i]["label"].lower() for i in ids if i in M.FOODS)
+        hit = [w for w in words if w in labels]
+        chk("no disliked or excluded foods", not hit, ", ".join(hit))
+        if r["expect_gluten_free"] == "yes":
+            chk("gluten-free", not any(M.FOODS[i]["gluten"] for i in ids if i in M.FOODS), "")
+        cap = st["TARGETS"]["sodium_max_mg"]; wc = view["totals"]["sodium_mg_worst_case"]
+        chk(f"worst-case sodium within {cap} mg", wc <= cap, f"{wc} mg")
+        lo, hi = st["EXERCISE_TARGETS"]["aerobic_min_per_week"]; am = view["exercise_summary"]["aerobic_min_per_week"]
+        chk(f"aerobic minutes within {lo}-{hi}", lo <= am <= hi, f"{am} min")
+        chk("strength days 2 or more", view["exercise_summary"]["strength_days_per_week"] >= 2, "")
+        acts = set(st["activities"]); used = set()
+        for e in view["exercise"]: used |= set(M.EXERCISES[e["id"]]["keys"])
+        chk("preferred activity included", (not acts) or bool(acts & used), ", ".join(sorted(acts)))
+        chk("protein target shown (or kidney message)", bool(view["protein"].get("text")), "")
+        chk("foods-to-avoid list present", bool(view["avoid"]), "")
+        chk("tips have sources", all(t["cite"] for t in view["tips"]) and bool(view["tips"]), "")
+    return res, checks
+
+
+@router.get("/selftest")
+def selftest(use_ai: bool = False, limit: int = 20, _a: bool = Depends(require_admin_key)):
+    """Runs the known test patients in data/test_cases.csv and checks each plan with independent rules. use_ai=false tests the software path (fast)."""
+    rows = list(csv.DictReader(open(RAG_DIR / "data/test_cases.csv", encoding="utf-8")))[: max(1, min(limit, 20))]
+    out, total_ok, total = [], 0, 0
+    for r in rows:
+        try:
+            res, checks = _selftest_row(r, use_ai, STUDY_DELAY_S)
+            built = res.get("built_by") or ("ai" if res["status"] == "approved_by_checker" else res["status"])
+        except Exception as e:
+            checks, built = [("ran without error", False, f"{type(e).__name__}: {e}")], "error"
+        ok = sum(1 for c in checks if c[1]); total_ok += ok; total += len(checks)
+        out.append((r, built, checks, ok))
+    rows_html = "".join(
+        f"<tr><td>{html.escape(r['case_id'])}</td><td>{html.escape(r['name'])}</td><td>{html.escape(r['expect_note'])}</td><td>{html.escape(str(b))}</td>"
+        f"<td style='color:{'#0a7' if ok == len(c) else '#c30'}'><b>{ok}/{len(c)}</b></td>"
+        f"<td>{html.escape('; '.join(n + ' (' + d + ')' for n, g, d in c if not g)) or 'all passed'}</td></tr>" for r, b, c, ok in out)
+    page = ("<html><body style='font-family:sans-serif;padding:16px'><h2>Self-test: " + str(total_ok) + "/" + str(total) + " checks passed (" + ("AI + rules" if use_ai else "software path, AI off") +
+            ")</h2><table border=1 cellpadding=6 style='border-collapse:collapse;font-size:14px'><tr><th>Case</th><th>Patient</th><th>What we expect</th><th>Built by</th><th>Passed</th><th>Failed checks</th></tr>" + rows_html + "</table></body></html>")
+    from fastapi.responses import HTMLResponse
+    return HTMLResponse(page)
