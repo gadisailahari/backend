@@ -80,7 +80,7 @@ def plan_status():
     r = None
     try: r = get_retriever()
     except Exception as e: return {"retriever": f"error: {type(e).__name__}", "llm_key_present": bool(os.environ.get("GROQ_API_KEY"))}
-    return {"retriever": r.mode, "passages": len(r.docs), "llm_key_present": bool(os.environ.get("GROQ_API_KEY")), "model": os.environ.get("LLM_MODEL", "llama-3.3-70b-versatile")}
+    return {"retriever": r.mode, "passages": len(r.docs), "llm_key_present": bool(os.environ.get("GROQ_API_KEY")), "model": os.environ.get("LLM_MODEL", "openai/gpt-oss-120b")}
 
 
 @router.post("/plan")
