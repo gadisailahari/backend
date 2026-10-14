@@ -17,7 +17,7 @@ button.ghost{background:#fff;color:var(--primary);border:1px solid var(--primary
 <main class="wrap">
 <section class="card" id="gate"><h2>Admin key</h2><p class="muted">Enter the admin key (stored only in this browser).</p><label for="k">Key</label><input type="password" id="k" autocomplete="off"><div class="row"><button id="unlock">Unlock</button></div><div class="err" id="gerr"></div></section>
 <div id="app" hidden>
-<div class="tabs"><button id="t1" class="on">Plans to review</button><button id="t2">Rating study</button><button class="ghost" id="lock" style="margin-left:auto">Lock</button></div>
+<div class="tabs"><a href="clinician.html" style="align-self:center;margin-right:8px">Care team (patients, questions)</a><button id="t1" class="on">Plans to review</button><button id="t2">Rating study</button><button class="ghost" id="lock" style="margin-left:auto">Lock</button></div>
 <section id="p1"><div class="muted" id="pcount"></div><div id="plist"></div></section>
 <section id="p2" hidden><div class="card"><h2>Generate study plans</h2><p class="muted">Creates plans for each test scenario with all three systems (template, LLM alone, LLM + RAG + checker). This replaces any existing study plans and takes a few minutes.</p>
 <div class="row"><button id="gen" class="danger">Generate / regenerate</button><button class="ghost" id="stat">Refresh status</button></div><pre id="sstat" class="plantext"></pre></div>

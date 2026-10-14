@@ -1,0 +1,71 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Pulse &amp; Plate — Care Team</title><meta name="robots" content="noindex"><link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><style>:root{--paper:#F4F8F7;--surface:#fff;--ink:#123A36;--ink-soft:#4C6864;--rule:#D8E6E3;--primary:#0F766E;--primary-dark:#0B544E;--primary-soft:#E3F2EF;--risk-high:#C8432D;--risk-high-soft:#FBEAE6;--risk-low:#1F8F63;--radius:12px;--shadow:0 1px 2px rgba(18,58,54,.05),0 8px 28px rgba(18,58,54,.07);--focus:#1C5FAE}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,system-ui,sans-serif;font-size:15.5px;line-height:1.5}
+h1,h2{font-family:Literata,Georgia,serif;font-weight:600;margin:0}:focus-visible{outline:2.5px solid var(--focus);outline-offset:2px}
+.wrap{max-width:860px;margin:0 auto;padding:0 20px}header{border-bottom:1px solid var(--rule);padding:22px 0}header h1{font-size:1.5rem}header p{margin:6px 0 0;color:var(--ink-soft)}
+main{padding:22px 0 60px}.card{background:var(--surface);border:1px solid var(--rule);border-radius:16px;box-shadow:var(--shadow);padding:22px;margin-bottom:18px}
+input[type=text],input[type=password],textarea{width:100%;font:inherit;padding:10px 12px;border:1px solid #B9CFC9;border-radius:var(--radius);background:#fff;color:var(--ink)}
+textarea{min-height:90px;resize:vertical}label{font-weight:600;font-size:.9rem;display:block;margin:10px 0 4px}
+button{font:inherit;font-weight:600;border:0;border-radius:var(--radius);padding:10px 18px;cursor:pointer;background:var(--primary);color:#fff}button:hover{background:var(--primary-dark)}
+button.ghost{background:#fff;color:var(--primary);border:1px solid var(--primary)}button.danger{background:var(--risk-high)}button:disabled{opacity:.5;cursor:default}
+.muted{color:var(--ink-soft);font-size:.9rem}.err{color:var(--risk-high);font-weight:600;margin-top:8px}.ok{color:var(--risk-low);font-weight:600}
+.plantext{white-space:pre-wrap;background:#FAFCFB;border:1px solid var(--rule);border-radius:var(--radius);padding:14px;font-size:.95rem}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}table{border-collapse:collapse;width:100%;font-size:.88rem}th,td{border-bottom:1px solid var(--rule);padding:6px 8px;text-align:left}
+
+.tabs{display:flex;gap:8px;margin-bottom:16px}.tabs button{background:#fff;color:var(--primary);border:1px solid var(--primary)}.tabs button.on{background:var(--primary);color:#fff}
+.pill{display:inline-block;border-radius:99px;padding:1px 9px;font-size:.78rem;font-weight:700;background:#E6F0ED;color:var(--primary-dark)}.pill.red{background:#FBE3E0;color:var(--risk-high)}
+.thread{border-left:3px solid var(--rule);padding-left:12px;margin:10px 0}details{margin-top:8px}summary{cursor:pointer;font-weight:600}
+</style></head><body>
+<header><div class="wrap"><h1>Care Team</h1><p>Who got what advice, open patient questions, check-ins, and replies. Staff only.</p></div></header>
+<main class="wrap">
+<section class="card" id="gate"><h2>Admin key</h2><p class="muted">Enter the admin key (stored only in this browser).</p><label for="k">Key</label><input type="password" id="k" autocomplete="off"><div class="row"><button id="unlock">Unlock</button></div><div class="err" id="gerr"></div></section>
+<div id="app" hidden>
+<div class="tabs"><button id="t1" class="on">Open questions</button><button id="t2">Patients</button><button id="t3">Test the model (CSV)</button><a href="review.html" style="align-self:center;margin-left:8px">Plan review &amp; study</a><button class="ghost" id="lock" style="margin-left:auto">Lock</button></div>
+<section id="p1"><div class="row" style="margin-top:0"><button class="ghost" id="r1">Refresh</button><label style="margin:0"><input type="checkbox" id="showall"> show answered too</label></div><div id="qlist"></div></section>
+<section id="p2" hidden><div class="row" style="margin-top:0"><button class="ghost" id="r2">Refresh</button></div><div id="plist"></div><div id="pdetail"></div></section>
+<section id="p3" hidden><div class="card"><h2>Check the model against known values</h2><p class="muted">Choose a CSV with a known high-blood-pressure column. Column names can differ (for example age, Age_years, sodium_mg, htn_prob_known); the page shows how each was matched. Up to 6,000 rows. Blank cells are allowed.</p>
+<input type="file" id="csvf" accept=".csv"><div class="row"><label style="margin:0">Risk threshold <input type="text" id="thr" value="0.5" style="width:70px"></label><button id="runb">Run</button></div><div id="bout"></div></div></section>
+</div></main>
+<script>
+(function(){
+var BACKEND_URL="https://backend-production-b3eff.up.railway.app",SK="pp_admin_key",$=function(i){return document.getElementById(i)};
+function esc(s){var d=document.createElement("div");d.textContent=s==null?"":s;return d.innerHTML}
+function key(){try{return localStorage.getItem(SK)||""}catch(e){return window.__k||""}}
+function setKey(v){try{localStorage.setItem(SK,v)}catch(e){window.__k=v}}
+function api(path,opt){var sep=path.indexOf("?")>=0?"&":"?";return fetch(BACKEND_URL+path+sep+"key="+encodeURIComponent(key()),opt).then(function(r){if(r.status===401||r.status===403)throw new Error("auth");return r.json().then(function(j){if(!r.ok)throw new Error(typeof j.detail==="string"?j.detail:JSON.stringify(j.detail));return j})})}
+function lockOut(m){try{localStorage.removeItem(SK)}catch(e){}window.__k="";$("app").hidden=true;$("gate").hidden=false;$("gerr").textContent=m||""}
+function fail(e){if(e.message==="auth")lockOut("That key was not accepted.");else alert(e.message)}
+function tab(n){[1,2,3].forEach(function(i){$("p"+i).hidden=i!==n;$("t"+i).className=i===n?"on":""})}
+function dt(s){return esc(String(s||"").slice(0,16).replace("T"," "))}
+function loadQ(){var st=$("showall").checked?"all":"open";return api("/clinician/requests?status="+st).then(function(a){
+ $("qlist").innerHTML=a.length?a.map(function(q){return '<div class="card" data-id="'+q.id+'"><div>'+(q.urgent?'<span class="pill red">URGENT</span> ':'')+'<span class="pill">'+esc(q.kind)+'</span> <b>#'+q.id+'</b> '+esc(q.name||"unnamed")+' · plan #'+q.plan_id+' · '+dt(q.created_at)+(q.risk_probability!=null?' · model risk '+Math.round(q.risk_probability*100)+'%':'')+'</div><p style="margin:8px 0">'+esc(q.question)+'</p>'+
+  (q.status==="answered"?'<div class="thread"><b>Answered by '+esc(q.answered_by)+'</b> ('+dt(q.answered_at)+')<br>'+esc(q.answer)+'</div>':
+  '<label>Your answer to the patient</label><textarea class="ans"></textarea><label>Answered by (your name and role)</label><input type="text" class="by"><details><summary>Also change the patient\'s plan (optional)</summary><p class="muted">Paste the full corrected plan text. The patient will see it as the clinician-reviewed version.</p><textarea class="plan"></textarea></details><div class="row"><button data-send="1">Send answer</button><button class="ghost" data-view="'+q.assessment_id+'">See this patient</button></div>')+'</div>'}).join(""):'<p class="muted">Nothing here.</p>'}).catch(fail)}
+$("qlist").onclick=function(e){var b=e.target.closest("button");if(!b)return;var c=b.closest(".card");
+ if(b.getAttribute("data-view")){tab(2);viewPatientByAssessment(+b.getAttribute("data-view"));return}
+ var a=c.querySelector(".ans").value.trim(),by=c.querySelector(".by").value.trim(),p=c.querySelector(".plan").value.trim();if(!a||!by){alert("Please write an answer and your name.");return}
+ var body={answer:a,answered_by:by};if(p)body.revised_plan_text=p;
+ api("/clinician/requests/"+c.getAttribute("data-id")+"/answer",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).then(function(r){alert("Saved. Patient alert: "+JSON.stringify(r.patient_alert)+". If no email was set up, the patient will see the reply when they press 'Check for a reply'.");loadQ()}).catch(fail)};
+var PT=[];
+function loadP(){return api("/clinician/patients").then(function(a){PT=a;$("pdetail").innerHTML="";
+ $("plist").innerHTML='<div class="card" style="overflow-x:auto"><table><tr><th>Patient</th><th>Latest risk</th><th>Plans</th><th>Review</th><th>Check-ins</th><th>Red flags</th><th>Open Q</th><th>Last activity</th><th></th></tr>'+a.map(function(p){return '<tr><td>'+esc(p.name||"unnamed")+' <span class="muted">#'+p.patient_id+'</span></td><td>'+(p.latest_risk!=null?Math.round(p.latest_risk*100)+'%':'')+'</td><td>'+p.plans+'</td><td>'+esc(p.latest_review||"")+'</td><td>'+p.checkins+'</td><td>'+(p.red_flags?'<span class="pill red">'+p.red_flags+'</span>':'0')+'</td><td>'+(p.open_questions?'<span class="pill red">'+p.open_questions+'</span>':'0')+'</td><td>'+dt(p.last_activity)+'</td><td><button class="ghost" data-pid="'+p.patient_id+'">Open</button></td></tr>'}).join("")+'</table></div>'}).catch(fail)}
+function viewPatientByAssessment(aid){loadP().then(function(){var p=PT.filter(function(x){return x.assessments.indexOf(aid)>=0})[0];if(p)show(p.patient_id)})}
+$("plist").onclick=function(e){var b=e.target.closest("button[data-pid]");if(b)show(+b.getAttribute("data-pid"))};
+function show(id){api("/clinician/patient/"+id).then(function(d){var h='<div class="card"><h2>'+esc((d.assessments[0]||{}).name||"Patient")+' <span class="muted">#'+id+'</span></h2>';
+ h+='<h3>Timeline (oldest first)</h3>';
+ d.assessments.forEach(function(a){var pf=a.profile;h+='<div class="thread"><b>Assessment #'+a.id+'</b> · '+dt(a.created_at)+' · model risk <b>'+Math.round(a.risk_probability*100)+'%</b> ('+(a.risk_label?'higher risk':'lower risk')+')<br><span class="muted">Age '+pf.RIDAGEYR+', BMI '+pf.BMXBMI+', waist '+pf.BMXWAIST+' cm, sodium '+pf.DR1TSODI+' mg, creatinine '+pf.LBXSCR+'. Preferences: '+esc(JSON.stringify(a.preferences))+'</span><br><span class="muted">Top factors: '+a.top_factors.map(function(f){return esc(f[0])}).join(", ")+'</span>';
+  d.plans.filter(function(p){return p.assessment_id===a.id}).forEach(function(p){h+='<details><summary>Plan #'+p.id+' · '+esc(p.status)+' · review: <b>'+esc(p.review_status)+'</b>'+(p.parent_plan_id?' (follow-up of #'+p.parent_plan_id+')':'')+'</summary><pre class="plantext">'+esc(p.review_status==="edited"&&p.reviewed_text?p.reviewed_text:p.text)+'</pre>'+(p.reviewer_note?'<p class="muted">Reviewer note: '+esc(p.reviewer_note)+'</p>':'')+'</details>'});
+  d.checkins.filter(function(c){return c.assessment_id===a.id}).forEach(function(c){h+='<div class="thread"><b>Check-in #'+c.id+'</b> · '+dt(c.created_at)+(c.red_flag?' <span class="pill red">RED FLAG</span>':'')+'<br>Followed plan: '+esc(c.followed)+' · energy '+c.energy+'/5 · comfort '+c.comfort+'/5 · symptoms: '+esc((c.symptoms||[]).join(", ")||"none")+(c.note?'<br>Note: '+esc(c.note):'')+(c.updates&&Object.keys(c.updates).length?'<br>Reported changes: '+esc(JSON.stringify(c.updates)):'')+((c.adaptations||[]).length?'<br>Plan adapted: '+esc(c.adaptations.join(" ")):'')+'</div>'});
+  h+='</div>'});
+ h+='<h3>Questions to the care team</h3>'+(d.requests.length?d.requests.map(function(q){return '<div class="thread"><span class="pill">'+esc(q.kind)+'</span> '+(q.urgent?'<span class="pill red">URGENT</span> ':'')+'#'+q.id+' · '+dt(q.created_at)+' · <b>'+esc(q.status)+'</b><br>'+esc(q.question)+(q.answer?'<br><b>Reply ('+esc(q.answered_by)+'):</b> '+esc(q.answer)+(q.plan_changed?' <span class="pill">plan updated</span>':''):'')+'</div>'}).join(""):'<p class="muted">None.</p>');
+ $("pdetail").innerHTML=h+'</div>';$("pdetail").scrollIntoView()}).catch(fail)}
+$("runb").onclick=function(){var f=$("csvf").files[0];if(!f){alert("Choose a CSV file first.");return}var rd=new FileReader();rd.onload=function(){$("bout").innerHTML='<p class="muted">Running…</p>';
+ api("/benchmark",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({csv_text:rd.result,threshold:parseFloat($("thr").value)||0.5})}).then(function(r){
+  var h='<h3>Result</h3><p>Rows scored: <b>'+r.rows_scored+'</b> (skipped: '+r.rows_skipped_bad_values+'; blank inputs allowed: '+r.rows_with_blank_inputs_scored_anyway+')<br>Known-value column: <b>'+esc(r.known_value_column||"none found")+'</b><br>Mean model risk: '+r.mean_risk+'</p>';
+  if(r.true_positive!==undefined)h+='<table><tr><th></th><th>Model: high</th><th>Model: low</th></tr><tr><td>Known high</td><td>'+r.true_positive+'</td><td>'+r.false_negative+'</td></tr><tr><td>Known low</td><td>'+r.false_positive+'</td><td>'+r.true_negative+'</td></tr></table><p>Sensitivity (known high caught): <b>'+r.sensitivity+'</b> · Specificity: <b>'+r.specificity+'</b> · Accuracy: <b>'+r.accuracy+'</b> · AUC: <b>'+r.auc+'</b></p><p class="muted">'+esc(r.note||"")+'</p>';
+  h+='<h3>How your columns were matched</h3><table><tr><th>Model input</th><th>Your column</th><th>How</th></tr>'+Object.keys(r.column_mapping).map(function(k){return '<tr><td>'+k+'</td><td>'+esc(r.column_mapping[k].your_column)+'</td><td>'+esc(r.column_mapping[k].how)+'</td></tr>'}).join("")+'</table>';$("bout").innerHTML=h}).catch(function(e){$("bout").innerHTML='<div class="err">'+esc(e.message)+'</div>'})};rd.readAsText(f)};
+function unlock(){return api("/clinician/requests").then(function(){$("gate").hidden=true;$("app").hidden=false;return loadQ()}).catch(function(e){if(e.message==="auth")lockOut("That key was not accepted.");else $("gerr").textContent=e.message})}
+$("unlock").onclick=function(){setKey($("k").value.trim());unlock()};$("lock").onclick=function(){lockOut("")};
+$("t1").onclick=function(){tab(1);loadQ()};$("t2").onclick=function(){tab(2);loadP()};$("t3").onclick=function(){tab(3)};$("r1").onclick=loadQ;$("r2").onclick=loadP;$("showall").onchange=loadQ;
+if(key())unlock();
+})();
+</script></body></html>

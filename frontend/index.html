@@ -301,6 +301,13 @@
   .bubble.bot{align-self:flex-start; background:#fff; border:1px solid var(--rule);}
   .chatform{display:flex; gap:8px; margin-top:6px;}
   .chatform input{flex:1; padding:11px 12px; border:1px solid var(--rule-strong); border-radius:10px; font:inherit;}
+  .carebox{margin-top:16px; padding-top:14px; border-top:1px solid var(--rule); font-size:0.92rem;}
+  .carebox .row2{display:flex; gap:8px; flex-wrap:wrap; margin:8px 0;}
+  .carebox label{display:block; margin:8px 0 3px; font-weight:600;}
+  .carebox select,.carebox input[type=text],.carebox input[type=number],.carebox textarea{padding:7px 9px; border:1px solid var(--rule-strong); border-radius:8px; font:inherit; max-width:100%;}
+  .carebox textarea{width:100%; min-height:70px;}
+  .carebox .chk{display:block; font-weight:400; margin:3px 0;}
+  .carebox .redbox{background:#FBE3E0; border:1px solid #C0392B; border-radius:10px; padding:10px 12px; margin:8px 0;}
   .ratebox{margin-top:16px; padding-top:14px; border-top:1px solid var(--rule); font-size:0.92rem;}
   .ratebox label{display:inline-flex; align-items:center; gap:6px; margin:4px 12px 4px 0;}
   .ratebox select,.ratebox input[type=text]{padding:6px 8px; border:1px solid var(--rule-strong); border-radius:8px; font:inherit;}
@@ -903,6 +910,32 @@
       '<div id="planOut"></div></div>';
   }
 
+
+  function showReplies(box, extra){
+    var list = (extra ? [extra] : []).concat(getReqsG()), seen = {};
+    list = list.filter(function(x){ var k = x.id; if (seen[k]) return false; seen[k] = 1; return true; });
+    if (!list.length){ box.innerHTML = '<div class="plan-meta">You have not asked a question on this device yet.</div>'; return; }
+    box.innerHTML = '<div class="plan-meta">Checking…</div>';
+    Promise.all(list.map(function(x){
+      return fetch(BACKEND_URL + "/ask-clinician/" + x.id + "?token=" + encodeURIComponent(x.token)).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
+    })).then(function(rs){
+      rs = rs.filter(Boolean);
+      box.innerHTML = rs.length ? rs.map(function(r){
+        return '<div class="plan-flag"><b>Question #' + r.request_id + ":</b> " + escapeHtml(r.question) + "<br>" +
+          (r.status === "answered" ? "<b>Reply from " + escapeHtml(r.answered_by) + ":</b> " + escapeHtml(r.answer) + (r.plan_changed ? "<br><i>Your plan was updated by the clinician. Press 'Check for clinician-reviewed version' to see it.</i>" : "")
+           : "<i>Not answered yet. Please check again later.</i>") + "</div>";
+      }).join("") : '<div class="plan-meta">No requests found.</div>';
+    });
+  }
+  function getReqsG(){ try { return JSON.parse(localStorage.getItem("pp_reqs") || "[]"); } catch (e) { return []; } }
+  (function(){
+    var q = new URLSearchParams(location.search), id = q.get("req"), tk = q.get("token");
+    if (id && tk){
+      var d = document.createElement("div"); d.style.cssText = "max-width:760px;margin:12px auto;padding:0 16px"; document.body.insertBefore(d, document.body.firstChild);
+      showReplies(d, {id: +id, token: tk});
+    }
+  })();
+
   function postJson(path, body){
     return fetch(BACKEND_URL + path, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)})
       .then(function(res){
@@ -931,6 +964,7 @@
 
     function viewHtml(v){
       var o = '<div class="pv">';
+      if (v.built_note) o += '<div class="plan-flag">' + escapeHtml(v.built_note) + "</div>";
       if (v.summary) o += '<div class="sum">' + escapeHtml(v.summary) + "</div>";
       if (v.protein && v.protein.text) o += '<h4>💪 Protein</h4><div class="prot">' + escapeHtml(v.protein.text) + "</div>";
       o += "<h4>🍽️ What to eat (pick one option per meal)</h4>";
@@ -984,6 +1018,8 @@
       }
       html += '<div id="planBody">' + bodyHtml(res) + "</div>";
       html += '<div class="plan-meta"><button type="button" class="btn" id="revBtn">Check for clinician-reviewed version</button></div><div id="revOut"></div>';
+      html += '<div class="carebox"><b>Follow up with your care team</b><div class="muted" style="font-size:.85rem">If your health changes, tell us. Your plan will be updated, and a clinician can answer questions. This tool does not replace a doctor.</div>' +
+        '<div class="row2"><button type="button" class="btn" id="ciBtn">Weekly check-in</button><button type="button" class="btn" id="askBtn">Ask a clinician</button><button type="button" class="btn" id="repBtn">Check for a reply</button></div><div id="careForm"></div></div>';
       html += '<div class="chatlog" id="chatLog"></div>' +
         '<div class="chatform" id="chatForm"><input id="chatMsg" maxlength="500" placeholder="Ask why, or say: give me a South Indian vegetarian version">' +
         '<button type="button" class="btn primary" id="chatSend">Send</button></div>' +
@@ -996,7 +1032,72 @@
       document.getElementById("chatMsg").addEventListener("keydown", function(e){ if (e.key === "Enter"){ onChat(e); } });
       document.getElementById("rateBtn").addEventListener("click", onRate);
       document.getElementById("revBtn").addEventListener("click", onReview);
+      document.getElementById("ciBtn").addEventListener("click", onCheckinForm);
+      document.getElementById("askBtn").addEventListener("click", onAskForm);
+      document.getElementById("repBtn").addEventListener("click", onReplyCheck);
     }
+
+    var RED = {chest_pain:"Chest pain or pressure", fainting:"Fainting or passing out", severe_breathless:"Severe shortness of breath", stroke_signs:"Face drooping, arm weakness or trouble speaking", severe_headache:"Sudden severe headache"};
+    var AMBER = {dizzy:"Dizziness or light-headedness", palpitations:"Racing or irregular heartbeat", swelling:"Swelling in legs or feet", joint_pain:"Joint or muscle pain", very_tired:"Unusual tiredness"};
+    function sel15(id){ return '<select id="' + id + '">' + [1,2,3,4,5].map(function(n){ return '<option value="' + n + '"' + (n === 3 ? " selected" : "") + ">" + n + "</option>"; }).join("") + "</select>"; }
+    function chks(map){ return Object.keys(map).map(function(k){ return '<label class="chk"><input type="checkbox" class="sym" value="' + k + '"> ' + escapeHtml(map[k]) + "</label>"; }).join(""); }
+    function getReqs(){ try { return JSON.parse(localStorage.getItem("pp_reqs") || "[]"); } catch (e) { return []; } }
+    function saveReq(id, token){ try { var a = getReqs(); a.push({id:id, token:token}); localStorage.setItem("pp_reqs", JSON.stringify(a.slice(-20))); } catch (e) {} }
+
+    function onCheckinForm(){
+      document.getElementById("careForm").innerHTML = '<div class="plan-flag"><b>Weekly check-in</b>' +
+        "<label>How much of the plan did you follow?</label><select id=\"ciFol\"><option value=\"yes\">Most or all of it</option><option value=\"mostly\" selected>Some of it</option><option value=\"no\">Hardly any</option></select>" +
+        "<label>Energy this week (1 = very low, 5 = great)</label>" + sel15("ciEn") + "<label>Comfort during exercise (1 = very uncomfortable, 5 = easy)</label>" + sel15("ciCo") +
+        '<div class="redbox"><b>Any of these now? Tick them. They need medical attention.</b>' + chks(RED) + "</div>" +
+        "<label>Other symptoms</label>" + chks(AMBER) +
+        "<label>Changes since your last assessment (optional)</label>" +
+        'New BMI <input type="number" step="0.1" id="ciBmi" style="width:90px"> New waist (cm) <input type="number" step="0.5" id="ciWst" style="width:90px">' +
+        '<label>New health conditions (comma separated, e.g. diabetes, cholesterol)</label><input type="text" id="ciAdd" style="width:100%">' +
+        '<label>Anything else? (optional)</label><textarea id="ciNote" maxlength="500"></textarea>' +
+        '<label>Email for updates (optional)</label><input type="text" id="ciMail" style="width:100%" autocomplete="email">' +
+        '<div class="row2"><button type="button" class="btn primary" id="ciSend">Send check-in</button></div><div id="ciMsg"></div></div>';
+      document.getElementById("ciSend").addEventListener("click", onCheckinSend);
+    }
+
+    function onCheckinSend(){
+      var box = document.getElementById("ciMsg"), b = document.getElementById("ciSend"), v = function(i){ return document.getElementById(i).value; };
+      var syms = Array.prototype.map.call(document.querySelectorAll("#careForm .sym:checked"), function(x){ return x.value; });
+      var upd = {};
+      if (v("ciBmi")) upd.BMXBMI = parseFloat(v("ciBmi"));
+      if (v("ciWst")) upd.BMXWAIST = parseFloat(v("ciWst"));
+      if (v("ciAdd").trim()) upd.add_conditions = v("ciAdd").split(",").map(function(x){ return x.trim(); }).filter(Boolean);
+      b.disabled = true; box.innerHTML = '<div class="plan-meta">Updating your plan… this can take up to a minute.</div>';
+      postJson("/checkin", {plan_id: planId, followed: v("ciFol"), energy: +v("ciEn"), comfort: +v("ciCo"), symptoms: syms, note: v("ciNote"), updates: upd, email: v("ciMail") || null}).then(function(r){
+        if (r.urgent){
+          if (r.request_id) saveReq(r.request_id, r.token);
+          box.innerHTML = '<div class="plan-err"><b>' + escapeHtml(r.message) + "</b></div>"; return;
+        }
+        showPlan(r);
+        var top = document.getElementById("planBody");
+        top.insertAdjacentHTML("beforebegin", '<div class="plan-flag"><b>' + escapeHtml(r.message) + "</b><br>" + (r.adaptations || []).map(escapeHtml).join("<br>") +
+          (r.old_risk != null ? "<br>Model risk estimate: " + Math.round(r.old_risk * 100) + "% before, " + Math.round(r.new_risk * 100) + "% now (an estimate, not a diagnosis)." : "") + "</div>");
+        window.scrollTo({top: out.getBoundingClientRect().top + window.pageYOffset - 20, behavior: "smooth"});
+      }).catch(function(err){ box.innerHTML = '<div class="plan-err">Could not send: ' + escapeHtml(err.message) + "</div>"; b.disabled = false; });
+    }
+
+    function onAskForm(){
+      document.getElementById("careForm").innerHTML = '<div class="plan-flag"><b>Ask a clinician</b><div class="muted">A person on the care team will read this and reply. It is not instant. ' +
+        "If you think this is an emergency, call 911 (or your local emergency number) now.</div>" +
+        '<label>Your question</label><textarea id="qText" maxlength="1000"></textarea>' +
+        '<label>Email to be told when there is a reply (optional)</label><input type="text" id="qMail" style="width:100%">' +
+        '<label>Mobile number for a text alert (optional)</label><input type="text" id="qPhone" style="width:100%">' +
+        '<div class="row2"><button type="button" class="btn primary" id="qSend">Send question</button></div><div id="qMsg"></div></div>';
+      document.getElementById("qSend").addEventListener("click", function(){
+        var t = document.getElementById("qText").value.trim(), box = document.getElementById("qMsg");
+        if (t.length < 5){ box.innerHTML = '<div class="plan-err">Please write your question.</div>'; return; }
+        postJson("/ask-clinician", {plan_id: planId, question: t, email: document.getElementById("qMail").value || null, phone: document.getElementById("qPhone").value || null}).then(function(r){
+          saveReq(r.request_id, r.token);
+          box.innerHTML = '<div class="' + (r.urgent ? "plan-err" : "plan-meta") + '">' + escapeHtml(r.message) + " Your request number is " + r.request_id + ".</div>";
+        }).catch(function(err){ box.innerHTML = '<div class="plan-err">Could not send: ' + escapeHtml(err.message) + "</div>"; });
+      });
+    }
+
+    function onReplyCheck(){ showReplies(document.getElementById("careForm")); }
 
     function onReview(){
       var box = document.getElementById("revOut"), b = document.getElementById("revBtn");
