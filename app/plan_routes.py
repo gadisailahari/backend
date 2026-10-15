@@ -338,7 +338,10 @@ def selftest(use_ai: bool = False, limit: int = 20, _a: bool = Depends(require_a
 
 
 def _selftest_page(use_ai, limit):
-    rows = list(csv.DictReader(open(RAG_DIR / "data/test_cases.csv", encoding="utf-8")))[: max(1, min(limit, 20))]
+    import io, selftest_cases
+    _f = RAG_DIR / "data/test_cases.csv"
+    _txt = _f.read_text(encoding="utf-8") if _f.exists() else selftest_cases.CSV_TEXT
+    rows = list(csv.DictReader(io.StringIO(_txt)))[: max(1, min(limit, 20))]
     out, total_ok, total = [], 0, 0
     for r in rows:
         try:
