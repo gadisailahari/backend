@@ -120,6 +120,7 @@ class Preferences(BaseModel):
     conditions: Optional[list] = None      # e.g. ["pcos", "diabetes", "cholesterol", "pregnant"]
     activities: Optional[list] = None      # e.g. ["yoga", "home", "gym", "zumba", "walking", "swimming", "cycling"]
     fitness: Optional[str] = None          # "beginner" or "active"
+    weight_kg: Optional[float] = None      # optional; used only for the kidney-safe protein target
 
 
 class AssessRequest(BaseModel):
