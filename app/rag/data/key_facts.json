@@ -153,11 +153,26 @@
  },
  {
   "id": "pcos",
-  "text": "PCOS (international guideline, as summarised by Victoria University): eat a balanced diet in line with general healthy-eating guidelines; at least 150-300 min/week moderate (or 75-150 vigorous) aerobic activity plus muscle strengthening on 2 non-consecutive days; 5-10% weight loss if weight loss is an agreed goal.",
-  "source": "external_pcos_summary",
-  "title": "Exercise in the management of polycystic ovary syndrome (Victoria University; summarises the international PCOS guideline)",
-  "page": 1,
-  "ocr": false,
-  "external": true
+  "text": "PCOS (2023 international guideline): any diet consistent with general healthy-eating guidelines has benefits, and no one diet composition is better than another (Rec 3.3.1-3.3.2); for activity, adults do 150-300 min/week moderate (or 75-150 vigorous) aerobic activity plus muscle strengthening on two non-consecutive days (Rec 3.4.3).",
+  "source": "pcos_2023",
+  "title": "Recommendations from the 2023 International Evidence-based PCOS Guideline (Teede et al.)",
+  "page": 13,
+  "ocr": false
+ },
+ {
+  "id": "pag_adults",
+  "text": "Adults: 150-300 min/week of moderate-intensity (or 75-150 vigorous) aerobic activity, plus muscle-strengthening on 2 or more days a week; some activity is better than none.",
+  "source": "pag_2018",
+  "title": "Physical Activity Guidelines for Americans, 2nd edition",
+  "page": 8,
+  "ocr": false
+ },
+ {
+  "id": "kdoqi_potassium",
+  "text": "In adults with CKD stages 3-5D, it is reasonable to adjust dietary potassium intake to keep serum potassium in the normal range (KDOQI 2020, Rec 6.4.1, opinion). This is set by blood tests and a renal dietitian, not by a fixed food list.",
+  "source": "kdoqi_2020",
+  "title": "KDOQI Clinical Practice Guideline for Nutrition in CKD: 2020 Update",
+  "page": 23,
+  "ocr": false
  }
 ]

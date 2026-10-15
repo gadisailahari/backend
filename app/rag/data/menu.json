@@ -1807,17 +1807,17 @@
     "south asian"
    ],
    "gluten": false,
-   "source": "USDA FoodData Central branded entry 2705740 (paneer) - approximate, brands vary",
+   "source": "Indian Food Composition Tables 2017 (ICMR-NIN), L003 Paneer: PDF pages 57, 184, 259-260 (energy 1278 kJ = 305 kcal)",
    "code": "FDC2705740",
    "per100": {
-    "kcal": 299,
-    "protein_g": 15.86,
-    "carb_g": 22.46,
+    "kcal": 305,
+    "protein_g": 18.86,
+    "carb_g": 2.41,
     "fiber_g": 0,
-    "fat_g": 15.52,
-    "satfat_g": 9.02,
-    "potassium_mg": 728,
-    "sodium_mg": 185
+    "fat_g": 24.78,
+    "satfat_g": 8.85,
+    "potassium_mg": 63.5,
+    "sodium_mg": 18
    }
   }
  ]
