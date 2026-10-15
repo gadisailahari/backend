@@ -338,9 +338,18 @@ def selftest(use_ai: bool = False, limit: int = 20, _a: bool = Depends(require_a
 
 
 def _selftest_page(use_ai, limit):
-    import io, selftest_cases
+    import io
     _f = RAG_DIR / "data/test_cases.csv"
-    _txt = _f.read_text(encoding="utf-8") if _f.exists() else selftest_cases.CSV_TEXT
+    if _f.exists():
+        _txt = _f.read_text(encoding="utf-8")
+    else:
+        try:
+            import selftest_cases
+        except ImportError:                       # file was uploaded into the data folder by mistake: load it from there
+            import importlib.util
+            _sp = RAG_DIR / "data/selftest_cases.py"
+            _spec = importlib.util.spec_from_file_location("selftest_cases", _sp); selftest_cases = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(selftest_cases)
+        _txt = selftest_cases.CSV_TEXT
     rows = list(csv.DictReader(io.StringIO(_txt)))[: max(1, min(limit, 20))]
     out, total_ok, total = [], 0, 0
     for r in rows:
