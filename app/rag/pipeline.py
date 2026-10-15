@@ -91,7 +91,15 @@ def retrieve(structured, retriever, k_per=2, max_passages=4):
     if regions:
         for r in retriever.search(f"{structured['cuisine']} traditional foods healthy meals", k=2, regions=regions):
             if r["id"] not in seen: seen.add(r["id"]); out.append(r)
-    out = out[:max_passages]
+    cond_src = {"pcos": (["pcos_2023"], "PCOS healthy eating and physical activity recommendations"),
+                "cholesterol": (["dyslipidemia_2026", "aha_ldl_guide"], "dietary pattern and lifestyle to lower LDL cholesterol"),
+                "diabetes": (["ada_2026_s5"], "nutrition therapy and physical activity for people with diabetes")}
+    front = []
+    for c in structured.get("conditions") or []:
+        if c in cond_src:
+            for r in retriever.search(cond_src[c][1], k=1, sources=cond_src[c][0]):
+                if r["id"] not in seen: seen.add(r["id"]); front.append(r)
+    out = (front + out)[:max_passages]
     labelled = {f"P{i+1}": p for i, p in enumerate(out)}
     for i, f in enumerate(plan_facts(structured)): labelled[f"F{i+1}"] = {**f, "text": f["text"]}
     return labelled

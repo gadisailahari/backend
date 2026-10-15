@@ -10,7 +10,7 @@ from rank_bm25 import BM25Okapi
 
 HERE = pathlib.Path(__file__).parent
 _tok = lambda s: re.findall(r"[a-z0-9]+", s.lower())
-DEFAULT_EXCLUDE_ROLES = {"comparison"}          # e.g. Australian guidelines: only on request
+DEFAULT_EXCLUDE_ROLES = {"comparison", "condition"}   # condition guidelines (PCOS, lipids) are only searched when the person has that condition          # e.g. Australian guidelines: only on request
 
 
 class Retriever:
@@ -26,7 +26,8 @@ class Retriever:
                 self.emb = TextEmbedding("BAAI/bge-small-en-v1.5")
                 if cache.exists():
                     self.vecs = np.load(cache)
-                else:
+                    if len(self.vecs) != len(self.docs): self.vecs = None      # stale cache from an older corpus: rebuild
+                if self.vecs is None:
                     self.vecs = np.array(list(self.emb.embed([d["text"] for d in self.docs])))
                     np.save(cache, self.vecs)
                 self.vecs = self.vecs / np.linalg.norm(self.vecs, axis=1, keepdims=True)
@@ -37,6 +38,7 @@ class Retriever:
                 if use_embeddings is True: raise
 
     def search(self, query, k=5, roles=None, regions=None, sources=None, include_comparison=False):
+        if sources or (roles and ({"condition"} & set(roles))): include_comparison = True
         ok = []
         for i, d in enumerate(self.docs):
             if not include_comparison and d["role"] in DEFAULT_EXCLUDE_ROLES: continue
