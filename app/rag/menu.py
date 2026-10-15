@@ -99,10 +99,15 @@ def exercise_for_prompt(prefs):
 
 
 def protein_target(structured):
-    """Grams per day. None in kidney-safe mode (KDIGO ties protein to body weight; we do not know it, so no number)."""
-    if structured.get("kidney_safe_mode"): return None
+    """Grams per day.
+    Kidney-safe mode: KDIGO 2024 Rec 3.3.1.1 = 0.8 g per kg body weight per day (CKD G3-G5, not on dialysis). With a weight we show 0.7-0.9 g/kg;
+    without one we use a cautious cap of 10-15% of calories (about 0.8 g/kg for a 75-95 kg adult at 2,000 kcal)."""
     kcal = min(max(structured.get("kcal_reference") or 2000, 1600), 2600)
     r5 = lambda x: int(round(x / 5.0) * 5)
+    if structured.get("kidney_safe_mode"):
+        w = structured.get("weight_kg")
+        if w: return {"low_g": r5(0.7 * w), "high_g": r5(0.9 * w), "target_g": int(round(0.8 * w)), "weight_kg": w, "basis": "weight", "kcal_reference": kcal}
+        return {"low_g": r5(0.10 * kcal / 4), "high_g": r5(0.15 * kcal / 4), "basis": "calories", "kcal_reference": kcal}
     return {"low_g": r5(0.15 * kcal / 4), "high_g": r5(0.25 * kcal / 4), "kcal_reference": kcal}
 
 

@@ -14,7 +14,7 @@ import safety, checker, menu, plan_check, rule_plan
 from retriever import plan_facts
 
 LABEL = {"RIDAGEYR": "age", "BMXBMI": "body mass index", "BMXWAIST": "waist circumference", "DR1TSODI": "sodium intake",
-         "DR1TPOTA": "potassium intake", "DR1TKCAL": "calorie intake", "DR1TALCO": "alcohol intake", "LBXSCR": "serum creatinine",
+         "DR1TPOTA": "potassium intake", "DR1TKCAL": "calorie intake", "DR1TALCO": "alcohol intake", "LBXSCR": "serum creatinine (a kidney blood test)",
          "INDFMPIR": "income ratio", "RIAGENDR": "sex", "RIDRETH3": "ethnicity", "DR1TPROT": "protein intake",
          "DR1TCARB": "carbohydrate intake", "DR1TTFAT": "fat intake", "SMQ020": "smoking history", "PAQ650": "vigorous activity",
          "PAQ665": "moderate activity", "ALQ121": "drinking frequency"}
@@ -29,7 +29,7 @@ RULES
 1. Build meals ONLY from the FOOD MENU: use the id and grams. Each option has 2 to 6 items, amounts near the listed portion. Use foods marked * first (they fit the user's cuisine). The menu is already filtered for the user's diet, conditions and dislikes.
 2. Give 2 options each for breakfast, lunch and dinner, and 1 or 2 for snack. Option names are short, like "Masala oats with banana".
 3. Sodium: take the highest-sodium option of each meal and add them. The total must stay under TARGETS.sodium_max_mg. Budget per meal (mg): SLOT_BUDGET_MG. The Na column is mg per listed portion, so pick low-Na foods and keep salty items small.
-4. Protein: aim for PROTEIN_TARGET_G per day if it is given (spread over meals). Vegetarian and vegan plans use the plant and dairy protein foods on the menu; non-vegetarian plans may use meat and fish on the menu.
+4. Protein: aim for PROTEIN_TARGET_G per day if it is given (spread over meals). In kidney-safe mode PROTEIN_TARGET_G is a ceiling: stay at or below high_g and use small portions of protein foods. Vegetarian and vegan plans use the plant and dairy protein foods on the menu; non-vegetarian plans may use meat and fish on the menu.
 5. Exercise: choose 3 to 6 items from the EXERCISE MENU with minutes and days per week. Meet EXERCISE_TARGETS (aerobic minutes per week = sum of minutes x days over aerobic items; strength days = days over resistance items). Put the user's preferred activities (*) first. Do not guess interests from sex.
 6. Tips: 2 to 4 tips, each under 20 words, each with cite labels from the FACTS and PASSAGES (like F1 or P2). Cite only labels that exist.
 7. NEVER give medication advice. If kidney_safe_mode is true: do not recommend potassium, potassium-rich foods, salt substitutes or supplements; say to ask a kidney dietitian.
@@ -37,6 +37,12 @@ RULES
 Reply with ONE JSON object only, nothing before or after it:
 {"summary": "max 2 short sentences", "meals": {"breakfast": [{"name": "...", "items": [{"id": "oatmeal", "g": 240}]}], "lunch": [...], "dinner": [...], "snack": [...]},
  "exercise": [{"id": "brisk_walk", "minutes": 30, "days": 5}], "tips": [{"text": "...", "cite": ["F1"]}]}"""
+
+
+def _weight(x):
+    try: w = float(x)
+    except (TypeError, ValueError): return None
+    return round(w, 1) if 30 <= w <= 250 else None
 
 
 def risk_tier(p):
@@ -69,7 +75,7 @@ def build_structured_input(profile, risk_probability, top_factors, prefs=None):
           "intake_gaps": gaps, "cuisine": prefs.get("cuisine"), "diet_type": prefs.get("constraint"), "dislikes": prefs.get("dislikes") or [],
           "conditions": conds, "activities": _clean_list(prefs.get("activities"), set(menu.ACTIVITY_KEYS)),
           "fitness": fit if fit in ("beginner", "active") else "beginner",
-          "kcal_reference": profile.get("DR1TKCAL"),
+          "kcal_reference": profile.get("DR1TKCAL"), "weight_kg": _weight(prefs.get("weight_kg")),
           "kidney_safe_mode": k["ckd_mode"], "kidney_note": k["reason"], "egfr": k["egfr"], "TARGETS": t,
           "needs_clinician": "pregnant" in conds}
     st["PROTEIN_TARGET_G"] = menu.protein_target(st)
@@ -141,6 +147,20 @@ def check_draft(obj, labelled, structured, allowed):
     return v + res["violations"], res
 
 
+def _protein_view(pt, structured):
+    if not pt: return {"text": ""}
+    if not structured.get("kidney_safe_mode"):
+        return {"low_g": pt["low_g"], "high_g": pt["high_g"],
+                "text": f"Aim for about {pt['low_g']}-{pt['high_g']} g of protein a day (15-25% of calories, inside the 10-35% guideline range)."}
+    tail = (" This follows KDIGO 2024 (Recommendation 3.3.1.1: 0.8 g of protein per kg of body weight per day for adults with chronic kidney disease stages 3-5 who are not on dialysis). "
+            "Please have your doctor or kidney dietitian confirm your number. If you are on dialysis, your protein needs are higher, so follow your dialysis team.")
+    if pt.get("basis") == "weight":
+        return {"low_g": pt["low_g"], "high_g": pt["high_g"],
+                "text": f"Kidney-safe protein: about {pt['target_g']} g a day (0.8 g x your weight of {pt['weight_kg']:g} kg). Staying between {pt['low_g']} and {pt['high_g']} g is fine." + tail}
+    return {"low_g": pt["low_g"], "high_g": pt["high_g"],
+            "text": f"Kidney-safe protein: keep it to about {pt['low_g']}-{pt['high_g']} g a day (a cautious cap of 10-15% of calories, because we do not have your weight). Add your weight on the form to get your exact number." + tail}
+
+
 def build_view(obj, res, structured, labelled):
     """What the website shows. Numbers come from the menu data; sources come from the labels the AI cited."""
     pt = structured.get("PROTEIN_TARGET_G")
@@ -151,9 +171,7 @@ def build_view(obj, res, structured, labelled):
     avoid = [{"text": t, "source": {"title": facts[f]["title"], "page": facts[f]["page"]}} for t, f in menu.avoid_list(structured) if f in facts]
     cited = {c for t in obj.get("tips", []) for c in (t.get("cite") or []) if c in labelled}
     return {"summary": str(obj.get("summary", "")),
-            "protein": ({"low_g": pt["low_g"], "high_g": pt["high_g"],
-                         "text": f"Aim for about {pt['low_g']}-{pt['high_g']} g of protein a day (15-25% of calories, inside the 10-35% guideline range)."}
-                        if pt else {"text": "Kidney-safe mode: no protein number is given. Ask a kidney dietitian how much protein is right for you."}),
+            "protein": _protein_view(pt, structured),
             "meals": meals, "avoid": avoid,
             "exercise": res["exercise"]["items"], "exercise_note": menu.SAFETY_EXERCISE,
             "exercise_summary": {"aerobic_min_per_week": res["exercise"]["aerobic_min"], "strength_days_per_week": res["exercise"]["resistance_days"]},
@@ -208,8 +226,8 @@ def generate_plan(structured, retriever, llm_fn, feedback=None, previous=None, m
                 view = build_view(obj, res, structured, labelled)
                 view["built_by"] = "rules"
                 down = any("AI service error" in v for h in history for v in h["violations"])
-                view["built_note"] = ("The AI writer was not available, so this plan was built by software from the vetted food list. It follows the same limits." if down else
-                                      "The AI draft did not pass our safety checks, so this plan was built by software from the vetted food list. It follows the same limits.")
+                view["built_note"] = ("The AI writer was busy, so this plan was put together by our rule-based builder. It uses only the vetted food list and passes the same sodium, protein and safety checks. You can press Create plan again for an AI-written version." if down else
+                                      "The AI draft did not pass our safety checks, so we used our rule-based builder instead. It uses only the vetted food list and passes the same sodium, protein and safety checks.")
                 history.append({"attempt": "rules", "violations": ["Software-built plan used (passed all checks)."]})
                 return {"status": "approved_by_checker", "attempts": max_tries, "built_by": "rules", "plan": obj, "view": view, "totals": res["totals"],
                         "sources": {c: {"title": p["title"], "page": p["page"]} for c, p in labelled.items()}, "history": history}

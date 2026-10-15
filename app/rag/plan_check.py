@@ -74,7 +74,10 @@ def check_plan_v2(obj, allowed, structured):
         if not (KCAL_RANGE[0] <= totals["kcal"] <= KCAL_RANGE[1]):
             viol.append(f"Energy {totals['kcal']:.0f} kcal per day is outside {KCAL_RANGE[0]}-{KCAL_RANGE[1]}; adjust amounts.")
         pct = totals["protein_g"] * 4 / max(totals["kcal"], 1)
-        if pct < 0.10: viol.append(f"Protein is only {pct*100:.0f}% of calories; add protein foods (guideline range is 10-35%).")
+        if pct < (0.07 if ckd else 0.10): viol.append(f"Protein is only {pct*100:.0f}% of calories; add protein foods (guideline range is 10-35%).")
+        pt = structured.get("PROTEIN_TARGET_G")
+        if ckd and pt and totals["protein_g"] > pt["high_g"] * 1.15:
+            viol.append(f"Protein is {totals['protein_g']:.0f} g a day; the kidney-safe limit is about {pt['high_g']} g. Use smaller portions of meat, fish, eggs, dairy, beans and tofu.")
         if not ckd and pct > 0.35: viol.append(f"Protein is {pct*100:.0f}% of calories, above the 35% guideline limit.")
         if "cholesterol" in (structured.get("conditions") or []) and totals["satfat_g"] * 9 / max(totals["kcal"], 1) > 0.10:
             viol.append("Saturated fat is above 10% of calories; choose leaner or plant protein and low-fat dairy.")

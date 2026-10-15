@@ -143,9 +143,57 @@ def build_exercise(structured):
     return items
 
 
+def _mean_protein(meals):
+    tot = 0.0
+    for opts in meals.values():
+        ps = [sum(menu.FOODS[i["id"]]["per100"]["protein_g"] * i["g"] / 100.0 for i in o["items"]) for o in opts]
+        tot += sum(ps) / len(ps)
+    return tot
+
+
+def _trim_protein(meals, structured):
+    """Kidney-safe mode: shrink protein foods until daily protein is inside the KDIGO-based limit."""
+    pt = structured.get("PROTEIN_TARGET_G")
+    if not (structured.get("kidney_safe_mode") and pt): return
+    for _ in range(12):
+        if _mean_protein(meals) <= pt["high_g"]: return
+        for opts in meals.values():
+            for o in opts:
+                for i in o["items"]:
+                    f = menu.FOODS[i["id"]]
+                    floor = int(-(-0.45 * f["portion_g"] // 5) * 5)
+                    if _is_protein(f) and i["g"] > floor:
+                        i["g"] = max(floor, int(round(i["g"] * 0.85 / 5.0) * 5))
+
+
+def _mean_kcal(meals):
+    tot = 0.0
+    for opts in meals.values():
+        ks = [sum(menu.FOODS[i["id"]]["per100"]["kcal"] * i["g"] / 100.0 for i in o["items"]) for o in opts]
+        tot += sum(ks) / len(ks)
+    return tot
+
+
+def _refill_energy(meals, structured):
+    """After protein is trimmed, add energy back with grains / starch and fruit (low sodium) so the day is not under-fed."""
+    ref = min(max(structured.get("kcal_reference") or 2000, 1600), 2600)
+    for _ in range(8):
+        deficit = ref - _mean_kcal(meals)
+        if deficit < 0.05 * ref: return
+        grow = [i for opts in meals.values() for o in opts for i in o["items"] if i["id"] in STARCH or i["id"] in FRUIT]
+        base = sum(menu.FOODS[i["id"]]["per100"]["kcal"] * i["g"] / 100.0 for i in grow) / 4.0
+        f = min(1.4, 1 + deficit / max(base, 1))
+        for i in grow:
+            cap = int(1.6 * menu.FOODS[i["id"]]["portion_g"] // 5 * 5)
+            i["g"] = min(cap, int(round(i["g"] * f / 5.0) * 5))
+
+
 def build_plan(structured, allowed, labelled):
     meals = build_meals(structured, allowed)
     if not meals: return None
+    _trim_protein(meals, structured)
+    if structured.get("kidney_safe_mode") and structured.get("PROTEIN_TARGET_G"):
+        _refill_energy(meals, structured); _trim_protein(meals, structured)
     cites = {p.get("id"): lab for lab, p in labelled.items() if isinstance(p, dict) and p.get("id")}
     tips = []
     for fid, text in (("sodium_ckd", None), ("sodium_general", None), ("exercise_rec", None), ("whole_grains", None), ("protein_amdr", None)):
@@ -153,5 +201,7 @@ def build_plan(structured, allowed, labelled):
             tips.append({"text": labelled[cites[fid]]["text"], "cite": [cites[fid]]})
     tier = structured["risk_tier"]
     drivers = ", ".join(f["factor"] for f in structured["top_factors"] if f["direction"] == "raises risk")
-    summary = f"Your estimated risk is {tier}." + (f" Main drivers: {drivers}." if drivers else "") + " This plan was built from the vetted food list to stay within the sodium limit."
+    summary = (f"Your screening result: a {tier} chance of high blood pressure." +
+               (f" The numbers that raise it most: {drivers}." if drivers else "") +
+               " This is an estimate, not a diagnosis. The plan below keeps sodium within your limit.")
     return {"summary": summary, "meals": meals, "exercise": build_exercise(structured), "tips": tips}
