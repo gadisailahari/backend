@@ -7,21 +7,21 @@
 <meta name="description" content="A step-by-step hypertension risk check with personalized, DASH-based dietary guidance.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600;7..72,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#F4F8F7;
+    --paper:#FFFFFF;
     --surface:#FFFFFF;
-    --ink:#123A36;
-    --ink-soft:#4C6864;
-    --ink-faint:#7E948F;
-    --rule:#D8E6E3;
-    --rule-strong:#B9CFC9;
-    --primary:#0F766E;
-    --primary-dark:#0B544E;
-    --primary-soft:#E3F2EF;
-    --accent:#2A5C8A;
-    --accent-soft:#E7EEF5;
+    --ink:#1B2A41;
+    --ink-soft:#4A5870;
+    --ink-faint:#8190A5;
+    --rule:#DDE3EC;
+    --rule-strong:#B8C4D6;
+    --primary:#1F4E8C;
+    --primary-dark:#163A69;
+    --primary-soft:#E4ECF7;
+    --accent:#1F4E8C;
+    --accent-soft:#EAF0FA;
     --risk-high:#C8432D;
     --risk-high-soft:#FBEAE6;
     --risk-mid:#C47A1F;
@@ -30,8 +30,8 @@
     --risk-low-soft:#E6F5EE;
     --radius:12px;
     --radius-lg:20px;
-    --shadow:0 1px 2px rgba(18,58,54,0.05), 0 8px 28px rgba(18,58,54,0.07);
-    --focus:#1C5FAE;
+    --shadow:0 1px 2px rgba(27,42,65,0.05), 0 8px 28px rgba(27,42,65,0.07);
+    --focus:#1F4E8C;
     --maxw:760px;
   }
   *{box-sizing:border-box;}
@@ -40,12 +40,12 @@
     margin:0;
     background:var(--paper);
     color:var(--ink);
-    font-family:"Inter", system-ui, sans-serif;
-    font-size:16px;
+    font-family:"Amiri", Georgia, serif;
+    font-size:18px;
     line-height:1.55;
   }
   h1,h2,h3{
-    font-family:"Literata", Georgia, serif;
+    font-family:"Amiri", Georgia, serif;
     color:var(--ink);
     margin:0;
   }
@@ -70,7 +70,7 @@
     flex:none;
   }
   .brand span{
-    font-family:"Literata", serif;
+    font-family:"Amiri", Georgia, serif;
     font-weight:600;
     font-size:1.1rem;
   }
@@ -203,7 +203,7 @@
   /* ---------- Results ---------- */
   .results-head{display:flex; flex-direction:column; align-items:center; text-align:center; padding:6px 0 4px;}
   .gauge-num{
-    font-family:"Literata", serif; font-weight:600;
+    font-family:"Amiri", Georgia, serif; font-weight:600;
     font-size:2.7rem; margin-top:-56px;
   }
   .gauge-label{
@@ -244,7 +244,7 @@
     border-radius:var(--radius);
     font-size:0.86rem; color:var(--ink);
   }
-  .trust b{display:block; margin-bottom:4px; font-family:"Literata", serif; font-size:0.98rem;}
+  .trust b{display:block; margin-bottom:4px; font-family:"Amiri", Georgia, serif; font-size:0.98rem;}
 
   .error-box{
     margin-top:16px; padding:14px 16px;
@@ -271,11 +271,11 @@
     color:var(--ink-faint);
     font-size:0.84rem;
   }
-  footer p{max-width:62ch; margin:0 0 6px;}
+  footer p{max-width:none; margin:0 0 6px; padding-top:20px; color:var(--ink-soft);}
 
   /* ---- personalised plan panel ---- */
   .plan{margin-top:22px; padding:22px 20px; border:1px solid var(--rule); border-radius:16px; background:var(--surface);}
-  .plan h3{margin:0 0 4px; font-family:"Literata", serif; font-size:1.2rem;}
+  .plan h3{margin:0 0 4px; font-family:"Amiri", Georgia, serif; font-size:1.2rem;}
   .plan-sub{margin:0 0 14px; color:var(--ink-soft); font-size:0.92rem;}
   .plan-text{white-space:pre-wrap; background:var(--primary-soft); border-radius:12px; padding:16px; line-height:1.55; font-size:0.96rem; margin:14px 0 8px;}
   .plan-meta,.plan-src{font-size:0.85rem; color:var(--ink-soft); margin:6px 0;}
@@ -283,7 +283,7 @@
   .checks{display:flex; flex-wrap:wrap; gap:8px 14px; margin-top:6px;}
   .checks label{font-weight:500; font-size:0.94rem; display:flex; align-items:center; gap:6px; background:var(--primary-soft); padding:6px 12px; border-radius:999px; cursor:pointer;}
   .checks input{width:auto; margin:0;}
-  .pv h4{margin:18px 0 6px; font-family:"Literata", serif; font-size:1.05rem;}
+  .pv h4{margin:18px 0 6px; font-family:"Amiri", Georgia, serif; font-size:1.05rem;}
   .pv .sum{background:var(--primary-soft); border-radius:12px; padding:12px 14px; margin:12px 0;}
   .pv .prot{border-left:4px solid var(--primary); padding:6px 12px; margin:8px 0; font-size:0.95rem;}
   .pv .opts{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px;}
@@ -313,8 +313,8 @@
   .ratebox select,.ratebox input[type=text]{padding:6px 8px; border:1px solid var(--rule-strong); border-radius:8px; font:inherit;}
 
   /* ---------- Playful layer ---------- */
-  body{background:linear-gradient(180deg,#FFF8EC 0%,#EAF7F2 55%,#F4F8F7 100%) fixed;}
-  .floaties{position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0;}
+  body{background:#FFFFFF;}
+  .floaties{display:none; position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0;}
   .floaties span{position:absolute; font-size:2rem; opacity:.22; animation:floaty 9s ease-in-out infinite;}
   @keyframes floaty{0%,100%{transform:translateY(0) rotate(-6deg);}50%{transform:translateY(-18px) rotate(8deg);}}
   .topbar,main,footer{position:relative; z-index:1;}
@@ -322,16 +322,27 @@
   .intro .mascot{width:112px; height:112px; flex:none; animation:bob 3.2s ease-in-out infinite;}
   @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
   .intro .copy{flex:1; min-width:240px;}
-  .card{border-radius:24px; border:2px solid #fff; box-shadow:0 10px 34px rgba(15,118,110,.14);}
+  .card{border-radius:24px; border:2px solid #fff; box-shadow:0 10px 34px rgba(31,78,140,.14);}
   .step h2 .em{display:inline-block; margin-right:8px; animation:wiggle 2.6s ease-in-out infinite; transform-origin:70% 80%;}
   @keyframes wiggle{0%,100%{transform:rotate(0);}8%{transform:rotate(14deg);}16%{transform:rotate(-10deg);}24%{transform:rotate(0);}}
-  .btn.primary{border-radius:999px; box-shadow:0 4px 0 rgba(11,84,78,.35); transition:transform .12s;}
+  .btn.primary{border-radius:999px; box-shadow:0 4px 0 rgba(22,58,105,.35); transition:transform .12s;}
   .btn.primary:hover{transform:translateY(-2px);}
   .btn.primary:active{transform:translateY(2px); box-shadow:none;}
   .chip{border-radius:999px;}
   .results-mascot{font-size:3.4rem; line-height:1; margin-bottom:6px; animation:bob 2.4s ease-in-out infinite;}
   .confetti{position:fixed; top:-20px; font-size:1.6rem; pointer-events:none; z-index:5; animation:fall 3.4s linear forwards;}
   @keyframes fall{to{transform:translateY(108vh) rotate(540deg); opacity:.9;}}
+  /* blue card */
+  .card{background:#E6F0FC; border:2px solid #A9C7EC; box-shadow:0 8px 26px rgba(31,78,140,.16);}
+  .card .field input,.card .field select{background:#FFFFFF; border-color:#8FB3E0;}
+  .card hr,.card .rule{border-color:#B9D3F0;}
+  /* waiting screen */
+  .wait{margin-top:16px; padding:16px 18px; border-radius:16px; background:#fff; border:1.5px solid #A9C7EC; text-align:center;}
+  .wait-bar{height:8px; border-radius:99px; background:#DCE8F8; overflow:hidden; margin:0 0 12px;}
+  .wait-bar i{display:block; height:100%; width:38%; border-radius:99px; background:var(--primary); animation:waitslide 1.6s ease-in-out infinite;}
+  @keyframes waitslide{0%{transform:translateX(-110%);}100%{transform:translateX(280%);}}
+  .wait-step{font-weight:700; color:var(--primary-dark);}
+  .wait-tip{margin-top:10px; color:var(--ink-soft); font-size:0.97rem;}
 </style>
 </head>
 <body>
@@ -354,9 +365,9 @@
     <svg class="mascot" viewBox="0 0 120 120" role="img" aria-label="Rosie, a friendly heart mascot">
       <path d="M60 106 C16 76 8 46 28 30 C42 19 56 26 60 38 C64 26 78 19 92 30 C112 46 104 76 60 106Z" fill="#FF7A8A" stroke="#E5566B" stroke-width="3"/>
       <ellipse cx="42" cy="48" rx="6" ry="8" fill="#fff"/><ellipse cx="78" cy="48" rx="6" ry="8" fill="#fff"/>
-      <circle cx="43" cy="50" r="3.6" fill="#123A36"/><circle cx="79" cy="50" r="3.6" fill="#123A36"/>
+      <circle cx="43" cy="50" r="3.6" fill="#1B2A41"/><circle cx="79" cy="50" r="3.6" fill="#1B2A41"/>
       <ellipse cx="32" cy="64" rx="7" ry="4" fill="#FFB3BD"/><ellipse cx="88" cy="64" rx="7" ry="4" fill="#FFB3BD"/>
-      <path d="M48 66 Q60 80 72 66" fill="#fff" stroke="#123A36" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M48 66 Q60 80 72 66" fill="#fff" stroke="#1B2A41" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
       <path d="M60 22 C56 10 66 4 72 8" fill="none" stroke="#1F8F63" stroke-width="4" stroke-linecap="round"/>
       <ellipse cx="74" cy="9" rx="8" ry="4.5" fill="#2FB77C" transform="rotate(-20 74 9)"/>
     </svg>
@@ -951,6 +962,27 @@
       });
   }
 
+  var WAIT_STEPS = ["Reading your results…","Finding guidelines for you…","Writing your plan…","Checking sodium and safety…"];
+  var WAIT_TIPS = [
+    "The usual daily sodium limit, 2,300 mg, is about one teaspoon of table salt.",
+    "In a well-known trial, the DASH eating pattern lowered blood pressure (Appel et al., 1997).",
+    "US guidelines suggest about 150 minutes a week of moderate activity, such as brisk walking.",
+    "Every number in your plan is recalculated by software from a food list, not just guessed by the AI.",
+    "Many people with high blood pressure do not know they have it, so a regular check matters."
+  ];
+  function startWait(out){
+    out.innerHTML = '<div class="wait" role="status" aria-live="polite"><div class="wait-bar"><i></i></div>' +
+      '<div class="wait-step"></div><div class="wait-tip"></div></div>';
+    var st = out.querySelector(".wait-step"), tp = out.querySelector(".wait-tip"), n = 0, t = 0;
+    function tick(){
+      st.textContent = WAIT_STEPS[Math.min(n, WAIT_STEPS.length - 1)]; n++;
+      tp.textContent = "💡 " + WAIT_TIPS[t % WAIT_TIPS.length]; t++;
+    }
+    tick();
+    var id = setInterval(tick, 5000);
+    return function(){ clearInterval(id); out.innerHTML = ""; };
+  }
+
   function wirePlan(assessmentId){
     var btn = document.getElementById("planBtn");
     var out = document.getElementById("planOut");
@@ -1169,11 +1201,11 @@
 
     btn.addEventListener("click", function(){
       btn.disabled = true; btn.textContent = "Writing and checking your plan… (up to a minute)";
-      out.innerHTML = "";
+      var stopWait = startWait(out);
       postJson("/plan", {assessment_id: assessmentId}).then(function(res){
-        btn.style.display = "none"; showPlan(res);
+        stopWait(); btn.style.display = "none"; showPlan(res);
       }).catch(function(err){
-        btn.disabled = false; btn.textContent = "Create my plan";
+        stopWait(); btn.disabled = false; btn.textContent = "Create my plan";
         out.innerHTML = '<div class="plan-err">Could not create the plan: ' + escapeHtml(err.message) + "</div>";
       });
     });
