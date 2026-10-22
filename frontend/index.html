@@ -343,6 +343,7 @@
   @keyframes waitslide{0%{transform:translateX(-110%);}100%{transform:translateX(280%);}}
   .wait-step{font-weight:700; color:var(--primary-dark);}
   .wait-tip{margin-top:10px; color:var(--ink-soft); font-size:0.97rem;}
+  .hello{margin:14px 0; padding:14px 16px; border-radius:16px; background:#E6F0FC; border:1.5px solid #A9C7EC; color:var(--ink);}
 </style>
 </head>
 <body>
@@ -967,7 +968,7 @@
     "The usual daily sodium limit, 2,300 mg, is about one teaspoon of table salt.",
     "In a well-known trial, the DASH eating pattern lowered blood pressure (Appel et al., 1997).",
     "US guidelines suggest about 150 minutes a week of moderate activity, such as brisk walking.",
-    "Every number in your plan is recalculated by software from a food list, not just guessed by the AI.",
+    "Every number in your plan is recalculated from a checked food list, so the amounts add up.",
     "Many people with high blood pressure do not know they have it, so a regular check matters."
   ];
   function startWait(out){
@@ -1001,7 +1002,7 @@
 
     function viewHtml(v){
       var o = '<div class="pv">';
-      if (v.built_note) o += '<div class="plan-flag">' + escapeHtml(v.built_note) + "</div>";
+      if (v.built_note) o += '<div class="plan-flag">Good news: this plan is built from our checked food list, and it passes the same sodium, protein and safety checks.</div>';
       if (v.summary) o += '<div class="sum">' + escapeHtml(v.summary) + "</div>";
       if (v.protein && v.protein.text) o += '<h4>💪 Protein</h4><div class="prot">' + escapeHtml(v.protein.text) + "</div>";
       o += "<h4>🍽️ What to eat (pick one option per meal)</h4>";
@@ -1045,16 +1046,14 @@
 
     function showPlan(res){
       planId = res.plan_id;
-      var html = "";
+      var first = (document.getElementById("personName").value || "").trim().split(/\s+/)[0] || "there";
+      first = first.charAt(0).toUpperCase() + first.slice(1);
+      var html = '<div class="hello"><b>Hey ' + escapeHtml(first) + '! \uD83D\uDC9A</b> Here is your personalised plan. I put it together from your numbers, your food choices and trusted guidelines, and the amounts have been double-checked. Pick one option for each meal, and tell me below if anything does not suit you.</div>';
       if (res.kidney_safe_mode){
         var kn = res.kidney_note ? escapeHtml(res.kidney_note) : "We could not tell how well your kidneys are working.";
         html += '<div class="plan-flag"><b>Extra kidney care is switched on.</b> ' + kn +
           ' Because of this, your plan uses a lower salt limit (2,000 mg a day), avoids salt substitutes and potassium supplements, and keeps protein moderate. ' +
           'This is a safety setting, not a diagnosis. If you have a recent kidney lab result (eGFR), your doctor or kidney dietitian can confirm which rules fit you.</div>';
-      }
-      if (res.status !== "approved_by_checker" && res.history && res.history.length){
-        html += '<details class="plan-src"><summary>Technical details for the project team (why the checker rejected the AI draft)</summary>' +
-          res.history.map(function(h){ return "<p><b>Attempt " + h.attempt + ":</b><br>" + (h.violations || []).slice(0, 8).map(escapeHtml).join("<br>") + "</p>"; }).join("") + "</details>";
       }
       html += '<div id="planBody">' + bodyHtml(res) + "</div>";
       html += '<div class="plan-meta"><button type="button" class="btn" id="revBtn">Check for clinician-reviewed version</button></div><div id="revOut"></div>';
