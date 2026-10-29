@@ -35,6 +35,13 @@ except Exception as _e:          # a problem in the new plan feature must never 
     _PLAN_ERR = f"{type(_e).__name__}: {_e}"
 
 try:
+    from app.diet_text import router as diet_router
+    _DIET_ERR = None
+except Exception as _e:
+    diet_router = None
+    _DIET_ERR = f"{type(_e).__name__}: {_e}"
+
+try:
     from app.care import router as care_router, init_care_tables
     _CARE_ERR = None
 except Exception as _e:
@@ -68,6 +75,13 @@ else:
     @app.get("/care/status")
     def care_status_disabled():
         return {"care_feature": "disabled", "error": _CARE_ERR}
+
+if diet_router is not None:
+    app.include_router(diet_router)
+else:
+    @app.get("/diet/status")
+    def diet_status_disabled():
+        return {"diet_feature": "disabled", "error": _DIET_ERR}
 
 if plan_router is not None:
     app.include_router(plan_router)
