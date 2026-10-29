@@ -344,6 +344,41 @@
   .wait-step{font-weight:700; color:var(--primary-dark);}
   .wait-tip{margin-top:10px; color:var(--ink-soft); font-size:0.97rem;}
   .hello{margin:14px 0; padding:14px 16px; border-radius:16px; background:#E6F0FC; border:1.5px solid #A9C7EC; color:var(--ink);}
+
+  /* ---------- Tell us what you ate (free text) ---------- */
+  .diet-box{background:var(--primary-soft); border:1.5px solid #A9C7EC; border-radius:var(--radius-lg); padding:18px 18px 16px; margin:4px 0 22px;}
+  .diet-box h3{font-size:1.3rem; color:var(--primary); margin-bottom:4px;}
+  .diet-box p.sub{margin:0 0 10px; color:var(--ink-soft); font-size:0.95rem;}
+  .diet-box textarea{width:100%; min-height:110px; resize:vertical; font:inherit; font-size:1rem; padding:12px 14px; border:1.5px solid var(--rule-strong); border-radius:var(--radius); background:#fff; color:var(--ink);}
+  .diet-box textarea:focus{outline:none; border-color:var(--primary);}
+  .diet-row{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:10px;}
+  .btn-solid{background:var(--primary); color:#fff; border:0; border-radius:999px; padding:10px 22px; font:inherit; font-size:1.02rem; cursor:pointer;}
+  .btn-solid:disabled{opacity:.6; cursor:wait;}
+  .btn-line{background:#fff; color:var(--primary); border:1.5px solid var(--primary); border-radius:999px; padding:8px 18px; font:inherit; font-size:0.98rem; cursor:pointer;}
+  .diet-msg{font-size:0.95rem; color:var(--ink-soft);}
+  .diet-msg.err{color:var(--risk-high);}
+  .diet-result{margin-top:14px; background:#fff; border:1.5px solid #A9C7EC; border-radius:var(--radius-lg); padding:14px 14px 12px;}
+  .diet-result h4{margin:0 0 2px; font-size:1.15rem; color:var(--primary); font-family:"Amiri", Georgia, serif;}
+  .diet-result .lead{margin:0 0 10px; color:var(--ink-soft); font-size:0.93rem;}
+  .drow{display:grid; grid-template-columns:1fr auto; gap:6px 10px; padding:10px 0; border-top:1px solid var(--rule);}
+  .drow .fname{font-weight:700; font-size:1.02rem;}
+  .drow .said{color:var(--ink-faint); font-size:0.82rem; font-weight:400;}
+  .drow .amt{display:flex; align-items:center; gap:6px; flex-wrap:wrap; grid-column:1 / -1;}
+  .drow .amt input{width:92px; padding:6px 8px; font:inherit; font-size:0.95rem; border:1.5px solid var(--rule-strong); border-radius:10px;}
+  .drow .amt select{font:inherit; font-size:0.9rem; padding:6px 8px; border:1.5px solid var(--rule-strong); border-radius:10px; background:#fff; max-width:100%;}
+  .drow .amt .lab{color:var(--ink-soft); font-size:0.9rem;}
+  .badge{display:inline-block; font-family:Arial,sans-serif; font-size:0.7rem; padding:2px 8px; border-radius:999px; background:var(--risk-mid-soft); color:var(--risk-mid); margin-left:6px; vertical-align:middle;}
+  .badge.low{background:var(--risk-high-soft); color:var(--risk-high);}
+  .dq{grid-column:1 / -1; font-size:0.88rem; color:var(--ink-soft); font-style:italic;}
+  .dlink{background:none; border:0; color:var(--primary); text-decoration:underline; font:inherit; font-size:0.9rem; cursor:pointer; padding:0;}
+  .dsearch{grid-column:1 / -1; background:var(--primary-soft); border-radius:12px; padding:8px 10px;}
+  .dsearch input{width:100%; padding:7px 10px; font:inherit; font-size:0.95rem; border:1.5px solid var(--rule-strong); border-radius:10px;}
+  .dsearch ul{list-style:none; margin:6px 0 0; padding:0;}
+  .dsearch li button{width:100%; text-align:left; background:#fff; border:1px solid var(--rule); border-radius:8px; padding:6px 8px; margin-top:4px; font:inherit; font-size:0.92rem; cursor:pointer;}
+  .dtotals{display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; margin:12px 0 4px; padding-top:10px; border-top:2px solid var(--rule-strong);}
+  .dtotals div{background:var(--primary-soft); border-radius:12px; padding:8px 10px; font-size:0.9rem; color:var(--ink-soft);}
+  .dtotals b{display:block; font-size:1.15rem; color:var(--ink); font-family:"Amiri", Georgia, serif;}
+  .diet-or{margin:6px 0 14px; color:var(--ink-soft); font-size:0.95rem;}
 </style>
 </head>
 <body>
@@ -458,7 +493,19 @@
       <!-- Step 2: Diet -->
       <section class="step" data-step="2">
         <h2><span class="em" aria-hidden="true">🍽️</span>What you ate yesterday</h2>
-        <p class="step-hint">Rough estimates are fine — sodium and potassium matter most here.</p>
+        <p class="step-hint">Tell us in your own words, or type the numbers yourself. Rough estimates are fine.</p>
+        <div class="diet-box" id="dietBox">
+          <h3>Tell us what you ate and drank</h3>
+          <p class="sub">Write it the way you would tell a friend. We will work out the amounts for you, and you can check and change them.</p>
+          <label for="dietText" class="sr-only" style="position:absolute;left:-9999px">What you ate and drank yesterday</label>
+          <textarea id="dietText" maxlength="1200" placeholder="Example: For breakfast I had two eggs and toast. For lunch, chicken curry with a chapati. In the evening a cup of strawberries and a protein shake."></textarea>
+          <div class="diet-row">
+            <button type="button" class="btn-solid" id="dietBtn">Work out my numbers</button>
+            <span class="diet-msg" id="dietMsg" role="status" aria-live="polite"></span>
+          </div>
+          <div id="dietResult" hidden></div>
+        </div>
+        <p class="diet-or">Or type your numbers yourself below.</p>
         <div class="grid2">
           <div class="field">
             <label for="kcal">Calories</label>
@@ -1253,6 +1300,118 @@
   });
 
   updateUI();
+})();
+</script>
+
+
+<script>
+(function(){
+  "use strict";
+  var BACKEND = "https://backend-production-b3eff.up.railway.app";
+  var box = document.getElementById("dietBox");
+  if (!box) return;
+  var btn = document.getElementById("dietBtn"), msg = document.getElementById("dietMsg"), out = document.getElementById("dietResult"), ta = document.getElementById("dietText");
+  var items = [], notes = [];
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  function setMsg(t, err){ msg.textContent = t || ""; msg.className = "diet-msg" + (err ? " err" : ""); }
+  function post(path, body){
+    return fetch(BACKEND + path, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)}).then(function(r){
+      return r.json().catch(function(){ return {}; }).then(function(j){ if (!r.ok) throw new Error(typeof j.detail === "string" ? j.detail : "Something went wrong. Please try again."); return j; });
+    });
+  }
+  function totals(){
+    var t = {kcal:0, protein_g:0, carb_g:0, fat_g:0, potassium_mg:0, sodium_mg:0, alcohol_g:0};
+    items.forEach(function(it){ if (it.not_found || !it.per100) return; var f = (parseFloat(it.grams) || 0) / 100; Object.keys(t).forEach(function(k){ t[k] += (it.per100[k] || 0) * f; }); });
+    return t;
+  }
+  function fmt(n){ return Math.round(n).toLocaleString("en-US"); }
+  function renderTotals(){
+    var t = totals(), el = document.getElementById("dtot");
+    if (!el) return;
+    el.innerHTML = '<div>Calories<b>' + fmt(t.kcal) + '</b></div><div>Sodium<b>' + fmt(t.sodium_mg) + ' mg</b></div><div>Potassium<b>' + fmt(t.potassium_mg) + ' mg</b></div>' +
+      '<div>Protein<b>' + fmt(t.protein_g) + ' g</b></div><div>Carbs<b>' + fmt(t.carb_g) + ' g</b></div><div>Fat<b>' + fmt(t.fat_g) + ' g</b></div><div>Alcohol<b>' + fmt(t.alcohol_g) + ' g</b></div>';
+  }
+  function rowHtml(it, i){
+    if (it.not_found) {
+      return '<div class="drow" data-i="' + i + '"><div><div class="fname">We could not find “' + esc(it.said) + '”</div><div class="said">Search for a similar food, or remove this line.</div></div>' +
+        '<div><button type="button" class="dlink" data-act="change">Search</button> · <button type="button" class="dlink" data-act="remove">Remove</button></div></div>';
+    }
+    var opts = '<option value="">Pick a usual amount…</option>' + (it.portions || []).map(function(p, k){ return '<option value="' + p.grams + '">' + esc(p.label) + ' (' + Math.round(p.grams) + ' g)</option>'; }).join("");
+    var flag = it.confidence === "low" ? '<span class="badge low">Please check</span>' : (it.assumed ? '<span class="badge">Amount guessed</span>' : "");
+    return '<div class="drow" data-i="' + i + '"><div><div class="fname">' + esc(it.food) + flag + '</div><div class="said">You said: “' + esc(it.said) + '”</div></div>' +
+      '<div><button type="button" class="dlink" data-act="change">Change food</button> · <button type="button" class="dlink" data-act="remove">Remove</button></div>' +
+      '<div class="amt"><label class="lab" for="g' + i + '">Amount</label><input id="g' + i + '" type="number" min="0" max="3000" step="1" value="' + Math.round(it.grams) + '" data-act="grams"><span class="lab">grams</span>' +
+      '<select data-act="portion" aria-label="Choose a usual amount">' + opts + '</select></div>' +
+      (it.amount_text ? '<div class="dq" style="font-style:normal">We used: ' + esc(it.amount_text) + '</div>' : "") +
+      (it.question ? '<div class="dq">' + esc(it.question) + '</div>' : "") + '<div class="dsearch" hidden></div></div>';
+  }
+  function render(){
+    var h = '<h4>Here is what we understood</h4><p class="lead">Please check each line. You can change an amount, pick a different food, or remove a line. ' + esc(notes.join(" ")) + '</p>';
+    h += items.map(rowHtml).join("");
+    h += '<div class="drow" style="border-top:1px solid var(--rule)"><div><button type="button" class="dlink" data-act="add">+ Add something I forgot</button></div><div class="dsearch" id="addSearch" hidden style="grid-column:1/-1"></div></div>';
+    h += '<div class="dtotals" id="dtot"></div><p class="lead" style="margin:6px 0 10px">These are estimates, and real amounts will differ a little.</p>' +
+      '<div class="diet-row"><button type="button" class="btn-solid" id="dietUse">Use these numbers</button></div>';
+    out.innerHTML = h; out.hidden = false; renderTotals();
+  }
+  function searchUI(host, onPick){
+    host.hidden = false;
+    host.innerHTML = '<input type="text" placeholder="Type a food, e.g. rice, apple, naan" maxlength="80" aria-label="Search for a food"><ul></ul>';
+    var inp = host.querySelector("input"), ul = host.querySelector("ul"), timer = null;
+    inp.focus();
+    inp.addEventListener("input", function(){
+      clearTimeout(timer);
+      timer = setTimeout(function(){
+        var q = inp.value.trim(); if (q.length < 2) { ul.innerHTML = ""; return; }
+        fetch(BACKEND + "/diet/search?q=" + encodeURIComponent(q)).then(function(r){ return r.json(); }).then(function(j){
+          var rs = j.results || [];
+          ul.innerHTML = rs.map(function(r, k){ return '<li><button type="button" data-k="' + k + '">' + esc(r.food) + ' <span style="color:var(--ink-faint)">(' + esc(r.amount_text) + ')</span></button></li>'; }).join("") || "<li>No match. Try another word.</li>";
+          ul.onclick = function(e){ var b = e.target.closest("button[data-k]"); if (b) onPick(rs[parseInt(b.getAttribute("data-k"), 10)]); };
+        }).catch(function(){ ul.innerHTML = "<li>Could not search just now.</li>"; });
+      }, 300);
+    });
+  }
+  out.addEventListener("click", function(e){
+    var b = e.target.closest("[data-act]"); if (!b) return;
+    var act = b.getAttribute("data-act");
+    if (act === "add") { searchUI(document.getElementById("addSearch"), function(r){ r.said = r.said || r.food; items.push(r); render(); }); return; }
+    var row = b.closest(".drow"); if (!row) return; var i = parseInt(row.getAttribute("data-i"), 10);
+    if (act === "remove") { items.splice(i, 1); render(); }
+    else if (act === "change") { searchUI(row.querySelector(".dsearch"), function(r){ r.said = items[i].said; r.assumed = false; r.confidence = "medium"; r.question = null; items[i] = r; render(); }); }
+    else if (act === "use") {}
+  });
+  out.addEventListener("input", function(e){
+    var t = e.target; if (t.getAttribute("data-act") !== "grams") return;
+    var i = parseInt(t.closest(".drow").getAttribute("data-i"), 10); var v = parseFloat(t.value);
+    items[i].grams = isFinite(v) && v >= 0 ? Math.min(v, 3000) : 0; items[i].assumed = false; renderTotals();
+  });
+  out.addEventListener("change", function(e){
+    var t = e.target; if (t.getAttribute("data-act") !== "portion" || !t.value) return;
+    var i = parseInt(t.closest(".drow").getAttribute("data-i"), 10);
+    items[i].grams = parseFloat(t.value); items[i].assumed = false; render();
+  });
+  out.addEventListener("click", function(e){
+    if (e.target.id !== "dietUse") return;
+    var t = totals(), map = {kcal:t.kcal, sodium:t.sodium_mg, potassium:t.potassium_mg, protein:t.protein_g, carbs:t.carb_g, fat:t.fat_g, alcoholg:t.alcohol_g};
+    Object.keys(map).forEach(function(id){
+      var el = document.getElementById(id); if (!el) return;
+      el.value = (id === "kcal" || id === "sodium" || id === "potassium") ? Math.round(map[id] / 10) * 10 : Math.round(map[id]);
+      el.dispatchEvent(new Event("input", {bubbles:true})); el.dispatchEvent(new Event("change", {bubbles:true}));
+    });
+    setMsg("Done. We filled in your numbers below. You can still change them.", false);
+    var first = document.getElementById("kcal"); if (first && first.scrollIntoView) first.scrollIntoView({behavior:"smooth", block:"center"});
+  });
+  btn.addEventListener("click", function(){
+    var text = ta.value.trim();
+    if (text.length < 3) { setMsg("Please tell us what you ate or drank.", true); return; }
+    btn.disabled = true; btn.textContent = "Reading what you ate…"; setMsg("", false);
+    post("/diet/parse", {text:text}).then(function(j){
+      items = j.items || []; notes = j.notes || [];
+      if (!items.length) { setMsg("We could not find any food in that. Please try again with a few more details.", true); out.hidden = true; return; }
+      render(); setMsg("", false);
+    }).catch(function(err){
+      setMsg(err.message || "We could not read that just now. Please try again, or type your numbers below.", true);
+    }).finally(function(){ btn.disabled = false; btn.textContent = "Work out my numbers"; });
+  });
 })();
 </script>
 
