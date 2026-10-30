@@ -19,6 +19,7 @@ SLOT_BUDGET_MG = {False: {"breakfast": 450, "lunch": 750, "dinner": 750, "snack"
 EXERCISES = {
     "brisk_walk":    {"label": "Brisk walking (outdoors or treadmill)", "type": "aerobic", "where": "outdoors / gym", "keys": ["walking"]},
     "cycling":       {"label": "Cycling (outdoor or stationary bike)", "type": "aerobic", "where": "outdoors / gym / home", "keys": ["cycling", "gym"]},
+    "running":       {"label": "Running or jogging (new to running? Mix walking and jogging, such as 1 minute jogging, 2 minutes walking)", "type": "aerobic", "where": "outdoors / treadmill", "keys": ["running"]},
     "swimming":      {"label": "Swimming or water aerobics", "type": "aerobic", "where": "pool", "keys": ["swimming"]},
     "zumba":         {"label": "Zumba or dance workout", "type": "aerobic", "where": "home / class", "keys": ["zumba"]},
     "home_cardio":   {"label": "Home cardio circuit (marching, step-ups, low-impact moves)", "type": "aerobic", "where": "home", "keys": ["home"]},
@@ -29,7 +30,7 @@ EXERCISES = {
     "stretching":    {"label": "Stretching and mobility", "type": "mind", "where": "home", "keys": ["yoga", "home"]},
     "breathing":     {"label": "Slow breathing or meditation", "type": "mind", "where": "anywhere", "keys": ["yoga"]},
 }
-ACTIVITY_KEYS = ["yoga", "home", "gym", "zumba", "walking", "swimming", "cycling"]
+ACTIVITY_KEYS = ["yoga", "home", "gym", "zumba", "walking", "running", "swimming", "cycling"]
 
 SAFETY_EXERCISE = ("Start slowly if you are new to exercise and build up over weeks. Stop and get medical advice if you feel chest pain, "
                    "dizziness or unusual shortness of breath. Ask your doctor first if you have a heart condition or very high blood pressure.")

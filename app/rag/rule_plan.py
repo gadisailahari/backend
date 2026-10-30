@@ -127,6 +127,7 @@ def build_exercise(structured):
     prefs = set(structured.get("activities") or [])
     aer = []
     if "walking" in prefs: aer.append("brisk_walk")
+    if "running" in prefs: aer.append("running")
     if "zumba" in prefs: aer.append("zumba")
     if "swimming" in prefs: aer.append("swimming")
     if "cycling" in prefs: aer.append("cycling")
@@ -138,6 +139,14 @@ def build_exercise(structured):
     sessions = max(len(aer), round(target / minutes))
     days = [sessions // len(aer) + (1 if i < sessions % len(aer) else 0) for i in range(len(aer))]
     items = [{"id": a, "minutes": minutes, "days": min(7, max(1, d))} for a, d in zip(aer, days)]
+    # Running is hard on the body: at most 3 days a week for beginners and 4 for active people; the rest becomes brisk walking.
+    cap = 4 if structured.get("fitness") == "active" else 3
+    for it in list(items):
+        if it["id"] == "running" and it["days"] > cap:
+            extra = it["days"] - cap; it["days"] = cap
+            walk = next((x for x in items if x["id"] == "brisk_walk"), None)
+            if walk: walk["days"] = min(7, walk["days"] + extra)
+            else: items.append({"id": "brisk_walk", "minutes": minutes, "days": min(7, extra)})
     items.append({"id": "gym_strength" if "gym" in prefs else "home_strength", "minutes": 40 if "gym" in prefs else 25, "days": 2})
     items.append({"id": "yoga", "minutes": 30, "days": 2} if "yoga" in prefs else {"id": "stretching", "minutes": 15, "days": 3})
     return items
