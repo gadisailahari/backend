@@ -119,6 +119,12 @@
     <button class="refresh" id="refreshBtn" type="button">Refresh</button>
   </div>
 
+  <div id="loginBox" style="display:none;max-width:380px;margin:18px 0;padding:18px;border:1px solid #c9d9ee;border-radius:12px;background:#f3f7fd">
+    <label for="pw" style="display:block;font-weight:700;margin-bottom:8px">Enter the dashboard password</label>
+    <input id="pw" type="password" autocomplete="current-password" style="width:100%;padding:10px;border:1px solid #9db8dc;border-radius:8px;font-size:1rem">
+    <div id="pwMsg" style="color:#b3261e;margin:8px 0;min-height:1.2em"></div>
+    <button id="pwBtn" type="button" style="padding:10px 18px;border:0;border-radius:999px;background:#1d4f8a;color:#fff;font-weight:700;cursor:pointer">Open dashboard</button>
+  </div>
   <div id="tableWrap">
     <div class="empty">Loading results…</div>
   </div>
@@ -210,6 +216,20 @@
     renderTable(filtered);
   }
 
+  function showLogin(msg){
+    document.getElementById("loginBox").style.display = "block";
+    document.getElementById("pwMsg").textContent = msg || "";
+    document.getElementById("countChip").textContent = "Locked";
+    document.getElementById("tableWrap").innerHTML = "";
+    try { localStorage.removeItem("adminKey"); } catch(e){}
+  }
+  document.getElementById("pwBtn").addEventListener("click", function(){
+    var v = document.getElementById("pw").value.trim(); if (!v) return;
+    try { localStorage.setItem("adminKey", v); } catch(e){}
+    document.getElementById("pw").value = ""; document.getElementById("loginBox").style.display = "none"; load();
+  });
+  document.getElementById("pw").addEventListener("keydown", function(e){ if (e.key === "Enter") document.getElementById("pwBtn").click(); });
+
   function load(){
     document.getElementById("countChip").textContent = "Loading…";
     document.getElementById("tableWrap").innerHTML = '<div class="empty">Loading results…</div>';
@@ -218,9 +238,8 @@
     fetch(BACKEND_URL + "/assessments?limit=500&key=" + encodeURIComponent(key))
       .then(function(res){
         if (res.status === 401){
-          var k = window.prompt("Enter the admin key to view the dashboard:");
-          if (k){ try { localStorage.setItem("adminKey", k.trim()); } catch(e){} load(); }
-          throw new Error("Admin key needed or wrong. Click Refresh to try again.");
+          showLogin(key ? "That password did not work. Please try again." : "");
+          throw new Error("Password needed.");
         }
         if (!res.ok) throw new Error("Server returned " + res.status);
         return res.json();
@@ -230,6 +249,7 @@
         applyFilter();
       })
       .catch(function(err){
+        if (err.message === "Password needed.") return;
         document.getElementById("countChip").textContent = "Error";
         document.getElementById("tableWrap").innerHTML =
           '<div class="error">Could not load results: ' + escapeHtml(err.message) + '</div>';
