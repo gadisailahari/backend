@@ -109,7 +109,7 @@
 
 <header class="wrap">
   <h1>Results dashboard</h1>
-  <p>Every risk assessment submitted through Pulse &amp; Plate, newest first. This page has no password — don't share the link outside your team.</p>
+  <p>Every risk assessment submitted through Pulse &amp; Plate, newest first. This page needs the admin key. Don't share the key or the link outside your team.</p>
 </header>
 
 <main class="wrap">
@@ -213,8 +213,15 @@
   function load(){
     document.getElementById("countChip").textContent = "Loading…";
     document.getElementById("tableWrap").innerHTML = '<div class="empty">Loading results…</div>';
-    fetch(BACKEND_URL + "/assessments?limit=500")
+    var key = "";
+    try { key = new URLSearchParams(location.search).get("key") || localStorage.getItem("adminKey") || ""; } catch(e){}
+    fetch(BACKEND_URL + "/assessments?limit=500&key=" + encodeURIComponent(key))
       .then(function(res){
+        if (res.status === 401){
+          var k = window.prompt("Enter the admin key to view the dashboard:");
+          if (k){ try { localStorage.setItem("adminKey", k.trim()); } catch(e){} load(); }
+          throw new Error("Admin key needed or wrong. Click Refresh to try again.");
+        }
         if (!res.ok) throw new Error("Server returned " + res.status);
         return res.json();
       })
