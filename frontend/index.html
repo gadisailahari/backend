@@ -379,6 +379,12 @@
   .dtotals div{background:var(--primary-soft); border-radius:12px; padding:8px 10px; font-size:0.9rem; color:var(--ink-soft);}
   .dtotals b{display:block; font-size:1.15rem; color:var(--ink); font-family:"Amiri", Georgia, serif;}
   .diet-or{margin:6px 0 14px; color:var(--ink-soft); font-size:0.95rem;}
+.inline-check{display:flex;align-items:center;gap:8px;margin-top:8px;font-weight:600;font-size:.95rem}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.calc{background:#f3f7fd;border:1px solid #c9d9ee;border-radius:10px;padding:11px 13px;color:#17406e;font-size:.95rem}
+.calc b{font-size:1.1rem}
+.symnote{background:#f3f7fd;border:1px solid #c9d9ee;border-left:4px solid #1d4f8a;border-radius:10px;padding:12px 14px;margin:14px 0;color:#17406e;line-height:1.5}
+.symnote.warn{border-left-color:#b3261e;color:#7a1a14;background:#fdf3f2;border-color:#f0c9c6}
 </style>
 </head>
 <body>
@@ -424,7 +430,7 @@
       <!-- Step 0: About you -->
       <section class="step active" data-step="0">
         <h2><span class="em" aria-hidden="true">🙋</span>About you</h2>
-        <p class="step-hint">So we can account for how risk differs across age, sex and income.</p>
+        <p class="step-hint">So we can account for how risk differs across age and sex.</p>
 
         <div class="examples" role="group" aria-label="Fill the form with an example">
           <button type="button" class="chip" data-example="active">Try example: active, lower risk</button>
@@ -462,30 +468,74 @@
             </select>
           </div>
           <div class="field">
-            <label for="pir">Household income</label>
-            <input id="pir" type="number" min="0" max="5" step="0.1" required placeholder="2.5">
-            <span class="hint">Multiple of the federal poverty line.</span>
+            <label for="hhsize">People in your household</label>
+            <select id="hhsize" required>
+              <option value="" disabled selected>Choose one</option>
+              <option value="1">1 (just me)</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+              <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8 or more</option>
+            </select>
           </div>
+          <div class="field">
+            <label for="incomeBand">Monthly household income</label>
+            <select id="incomeBand" required>
+              <option value="" disabled selected>Choose one</option>
+              <option value="1000">Under $1,500</option>
+              <option value="2000">$1,500 to $2,499</option>
+              <option value="3250">$2,500 to $3,999</option>
+              <option value="5000">$4,000 to $5,999</option>
+              <option value="7500">$6,000 to $8,999</option>
+              <option value="10750">$9,000 to $12,499</option>
+              <option value="15000">$12,500 or more</option>
+              <option value="skip">Prefer not to say</option>
+            </select>
+            <span class="hint">A rough range is fine. You can skip this.</span>
+          </div>
+          <div class="field full">
+            <label for="grocery">Approximately how much do you spend on groceries each month?</label>
+            <select id="grocery">
+              <option value="">Not sure</option>
+              <option value="under200">Under $200</option>
+              <option value="200-400">$200 to $400</option>
+              <option value="400-600">$400 to $600</option>
+              <option value="600-800">$600 to $800</option>
+              <option value="800+">$800 or more</option>
+            </select>
+            <span class="hint">We use this to keep food ideas in your budget.</span>
+          </div>
+          <input type="hidden" id="pir" value="">
         </div>
       </section>
 
       <!-- Step 1: Body measurements -->
       <section class="step" data-step="1">
         <h2><span class="em" aria-hidden="true">📏</span>Body measurements</h2>
-        <p class="step-hint">These feed directly into the risk model alongside your diet.</p>
+        <p class="step-hint">Use feet, inches and pounds. A rough measurement is fine.</p>
         <div class="grid2">
           <div class="field">
-            <label for="bmi">Body mass index (BMI)</label>
-            <div class="unit"><input id="bmi" type="number" min="12" max="70" step="0.1" required placeholder="27.5"><span>kg/m&sup2;</span></div>
+            <label for="heightFt">Height</label>
+            <div class="pair">
+              <div class="unit"><input id="heightFt" type="number" min="3" max="7" step="1" required placeholder="5"><span>ft</span></div>
+              <div class="unit"><input id="heightIn" type="number" min="0" max="11" step="1" required placeholder="9"><span>in</span></div>
+            </div>
           </div>
           <div class="field">
-            <label for="waist">Waist circumference</label>
-            <div class="unit"><input id="waist" type="number" min="50" max="200" step="0.5" required placeholder="95"><span>cm</span></div>
+            <label for="weightLb">Weight</label>
+            <div class="unit"><input id="weightLb" type="number" min="66" max="550" step="1" required placeholder="180"><span>lb</span></div>
           </div>
+          <div class="field">
+            <label for="waistIn">Waist (around your belly button)</label>
+            <div class="unit"><input id="waistIn" type="number" min="20" max="80" step="0.5" required placeholder="36"><span>in</span></div>
+          </div>
+          <div class="field">
+            <label>Your BMI (we work this out)</label>
+            <div class="calc" id="bmiShow">Fill in height and weight</div>
+          </div>
+          <input type="hidden" id="bmi" value=""><input type="hidden" id="waist" value=""><input type="hidden" id="weightKg" value="">
           <div class="field full">
             <label for="creatinine">Serum creatinine</label>
             <div class="unit"><input id="creatinine" type="number" min="0.3" max="5" step="0.1" required placeholder="0.9"><span>mg/dL</span></div>
-            <span class="hint">From a recent blood test, if you have one. Otherwise 0.9 is a reasonable average.</span>
+            <label class="inline-check"><input type="checkbox" id="creatUnknown"> I don't know my creatinine</label>
+            <span class="hint">It comes from a kidney blood test. If you do not know it, tick the box. We will then use the careful (kidney-safe) food limits and a typical value for the risk estimate.</span>
           </div>
         </div>
       </section>
@@ -493,7 +543,7 @@
       <!-- Step 2: Diet -->
       <section class="step" data-step="2">
         <h2><span class="em" aria-hidden="true">🍽️</span>What you ate yesterday</h2>
-        <p class="step-hint">Tell us in your own words, or type the numbers yourself. Rough estimates are fine.</p>
+        <p class="step-hint">Tell us in your own words. Rough estimates are fine.</p>
         <div class="diet-box" id="dietBox">
           <h3>Tell us what you ate and drank</h3>
           <p class="sub">Write it the way you would tell a friend. We will work out the amounts for you, and you can check and change them.</p>
@@ -505,7 +555,8 @@
           </div>
           <div id="dietResult" hidden></div>
         </div>
-        <p class="diet-or">Or type your numbers yourself below.</p>
+        <p class="diet-or" id="tdeeCmp" style="margin-bottom:4px"></p>
+        <p class="diet-or">Your numbers for the day. They fill in by themselves from the box above, and you can also type or change them here.</p>
         <div class="grid2">
           <div class="field">
             <label for="kcal">Calories</label>
@@ -542,7 +593,7 @@
       <!-- Step 3: Lifestyle -->
       <section class="step" data-step="3">
         <h2><span class="em" aria-hidden="true">🏃</span>Lifestyle</h2>
-        <p class="step-hint">Smoking and activity both shift cardiovascular risk independent of diet.</p>
+        <p class="step-hint">Smoking and activity both affect blood pressure, apart from what you eat.</p>
         <div class="grid2">
           <div class="field">
             <label for="smoke">Smoked 100+ cigarettes in your life?</label>
@@ -552,22 +603,19 @@
               <option value="2">No</option>
             </select>
           </div>
-          <div class="field">
-            <label for="vigorous">Do vigorous exercise?</label>
-            <select id="vigorous" required>
+          <div class="field full">
+            <label for="activity">How active are you in a normal week?</label>
+            <select id="activity" required>
               <option value="" disabled selected>Choose one</option>
-              <option value="1">Yes</option>
-              <option value="2">No</option>
+              <option value="1.2">Sedentary: little or no exercise</option>
+              <option value="1.375">Lightly active: light exercise 1 to 3 days a week</option>
+              <option value="1.55">Moderately active: exercise 3 to 5 days a week</option>
+              <option value="1.725">Very active: hard exercise 6 to 7 days a week</option>
+              <option value="1.9">Extra active: very hard exercise or a physical job</option>
             </select>
+            <div class="calc" id="tdeeShow" style="margin-top:8px">Your daily calorie need shows here once you fill in the earlier steps.</div>
           </div>
-          <div class="field">
-            <label for="moderate">Do moderate exercise?</label>
-            <select id="moderate" required>
-              <option value="" disabled selected>Choose one</option>
-              <option value="1">Yes</option>
-              <option value="2">No</option>
-            </select>
-          </div>
+          <input type="hidden" id="vigorous" value=""><input type="hidden" id="moderate" value="">
           <div class="field">
             <label for="alcfreq">How often do you drink?</label>
             <select id="alcfreq" required>
@@ -586,7 +634,7 @@
 
       <!-- Step 4: Preferences -->
       <section class="step" data-step="4">
-        <h2><span class="em" aria-hidden="true">🌮</span>Food preferences</h2>
+        <h2><span class="em" aria-hidden="true">🌮</span>Health and food</h2>
         <p class="step-hint">Optional, but this is how Rosie builds meals and workouts that fit you.</p>
         <div class="grid2">
           <div class="field">
@@ -635,20 +683,21 @@
               <label><input type="checkbox" value="gym"> 🏋️ Gym</label>
               <label><input type="checkbox" value="zumba"> 💃 Zumba / dance</label>
               <label><input type="checkbox" value="walking"> 🚶 Walking</label>
+              <label><input type="checkbox" value="running"> 🏃 Running / jogging</label>
               <label><input type="checkbox" value="swimming"> 🏊 Swimming</label>
               <label><input type="checkbox" value="cycling"> 🚴 Cycling</label>
             </div>
           </div>
-          <div class="field">
-            <label for="fitness">Your fitness level</label>
-            <select id="fitness">
-              <option value="beginner">Beginner (new or restarting)</option>
-              <option value="active">Already active</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="weightKg">Your weight in kg <span class="hint">(optional; it lets us give an exact protein number if your kidney result is low)</span></label>
-            <input type="number" id="weightKg" min="30" max="250" step="0.1" placeholder="e.g. 72">
+          <div class="field full">
+            <label>Have you noticed any of these lately? (tick any, optional)</label>
+            <div class="checks" id="symChecks">
+              <label><input type="checkbox" value="headache"> Headaches</label>
+              <label><input type="checkbox" value="dizzy"> Dizziness</label>
+              <label><input type="checkbox" value="vision"> Blurred vision</label>
+              <label><input type="checkbox" value="nosebleed"> Nosebleeds</label>
+              <label><input type="checkbox" value="chest"> Chest pain or short of breath</label>
+              <label><input type="checkbox" value="palp"> Pounding heartbeat</label>
+            </div>
           </div>
         </div>
       </section>
@@ -693,11 +742,11 @@
   var BACKEND_URL = "https://backend-production-b3eff.up.railway.app";
 
   var STEPS = [
-    {label:"About you", fields:["personName","gender","age","ethnicity","pir"]},
-    {label:"Body", fields:["bmi","waist","creatinine"]},
+    {label:"About you", fields:["personName","gender","age","ethnicity","hhsize","incomeBand"]},
+    {label:"Body", fields:["heightFt","heightIn","weightLb","waistIn","creatinine"]},
     {label:"Diet", fields:["kcal","sodium","potassium","protein","carbs","fat","alcoholg"]},
-    {label:"Lifestyle", fields:["smoke","vigorous","moderate","alcfreq"]},
-    {label:"Preferences", fields:[]},
+    {label:"Lifestyle", fields:["smoke","activity","alcfreq"]},
+    {label:"Health & food", fields:[]},
     {label:"Review", fields:[]}
   ];
   // index 6 = results, not part of the rail
@@ -729,15 +778,15 @@
 
   var EXAMPLES = {
     active: {
-      personName:"Sample: Active profile", gender:"1", age:41, ethnicity:"6", pir:3.2, bmi:26.0, waist:90.0,
+      personName:"Sample: Active profile", gender:"1", age:41, ethnicity:"6", hhsize:"2", incomeBand:"7500", grocery:"600-800", heightFt:5, heightIn:10, weightLb:181, waistIn:35.5,
       creatinine:1.0, kcal:2400, sodium:3400, potassium:2600, protein:95,
-      carbs:270, fat:70, alcoholg:6, smoke:"2", vigorous:"1", moderate:"1",
+      carbs:270, fat:70, alcoholg:6, smoke:"2", activity:"1.725",
       alcfreq:"4", cuisine:"", constraint:"", dislikes:"fish"
     },
     sodium: {
-      personName:"Sample: Sodium-driven profile", gender:"1", age:55, ethnicity:"4", pir:1.8, bmi:29.0, waist:100.0,
+      personName:"Sample: Sodium-driven profile", gender:"1", age:55, ethnicity:"4", hhsize:"4", incomeBand:"3250", grocery:"400-600", heightFt:5, heightIn:9, weightLb:196, waistIn:39.5,
       creatinine:1.0, kcal:2000, sodium:4800, potassium:2300, protein:75,
-      carbs:250, fat:80, alcoholg:5, smoke:"2", vigorous:"2", moderate:"2",
+      carbs:250, fat:80, alcoholg:5, smoke:"2", activity:"1.2",
       alcfreq:"3", cuisine:"Mexican", constraint:"", dislikes:""
     }
   };
@@ -749,23 +798,71 @@
         var el = document.getElementById(key);
         if (el) el.value = ex[key];
       });
+      syncDerived();
     });
   });
 
   var FIELD_LABELS = {
-    personName:"Name", gender:"Sex", age:"Age", ethnicity:"Race / ethnicity", pir:"Household income",
+    personName:"Name", gender:"Sex", age:"Age", ethnicity:"Race / ethnicity", hhsize:"People in household", incomeBand:"Monthly household income", heightFt:"Height", heightIn:"", weightLb:"Weight", waistIn:"Waist", activity:"Activity level",
     bmi:"BMI", waist:"Waist", creatinine:"Serum creatinine",
     kcal:"Calories", sodium:"Sodium", potassium:"Potassium", protein:"Protein", carbs:"Carbohydrates", fat:"Fat", alcoholg:"Alcohol",
     smoke:"Smoked 100+ cigarettes", vigorous:"Vigorous exercise", moderate:"Moderate exercise", alcfreq:"Drinking frequency",
     cuisine:"Cuisine", constraint:"Dietary pattern", dislikes:"Foods to avoid"
   };
   var SELECT_DISPLAY = {
+    
     gender:{"1":"Male","2":"Female"},
     ethnicity:{"1":"Mexican American","2":"Other Hispanic","3":"Non-Hispanic White","4":"Non-Hispanic Black","6":"Non-Hispanic Asian","7":"Other / multiracial"},
     smoke:{"1":"Yes","2":"No"}, vigorous:{"1":"Yes","2":"No"}, moderate:{"1":"Yes","2":"No"},
     alcfreq:{"0":"Never in the past year","10":"A few times a year","7":"About once a month","5":"About once a week","4":"A couple times a week","3":"Most days","1":"Every day"}
   };
 
+
+  // ---- values worked out from friendly answers (keeps the model inputs unchanged)
+  var POVERTY_BASE = 12060, POVERTY_EXTRA = 4180; // 2017 US guideline (48 states), same year as the survey data the model learned from
+  var DEFAULT_PIR = 2.5; // used only when income is skipped
+  function setv(id, v){ var el = document.getElementById(id); if (el) el.value = v; }
+  function syncDerived(){
+    // income to poverty ratio
+    var band = val("incomeBand"), hh = parseInt(val("hhsize"), 10);
+    if (band && band !== "skip" && hh){
+      var line = POVERTY_BASE + POVERTY_EXTRA * (hh - 1);
+      setv("pir", Math.min(5, Math.round((parseFloat(band) * 12 / line) * 100) / 100));
+    } else if (band === "skip"){ setv("pir", DEFAULT_PIR); } else { setv("pir", ""); }
+    // body
+    var ft = parseFloat(val("heightFt")), inch = parseFloat(val("heightIn")) || 0, lb = parseFloat(val("weightLb")), wi = parseFloat(val("waistIn"));
+    var totalIn = ft * 12 + inch, show = document.getElementById("bmiShow");
+    if (totalIn > 0 && lb > 0){
+      var bmi = Math.round(lb * 703 / (totalIn * totalIn) * 10) / 10;
+      setv("bmi", bmi); setv("weightKg", Math.round(lb * 0.45359 * 10) / 10);
+      if (show) show.innerHTML = "<b>" + bmi.toFixed(1) + "</b> (worked out from your height and weight)";
+    } else { setv("bmi", ""); setv("weightKg", ""); if (show) show.textContent = "Fill in height and weight"; }
+    setv("waist", wi > 0 ? Math.round(wi * 2.54 * 10) / 10 : "");
+    // activity -> the two yes/no answers the model was trained on
+    var act = parseFloat(val("activity"));
+    if (act){ setv("vigorous", act >= 1.725 ? "1" : "2"); setv("moderate", act >= 1.375 ? "1" : "2"); } else { setv("vigorous", ""); setv("moderate", ""); }
+    // daily calorie need (Mifflin-St Jeor x activity), shown to the person
+    var t = document.getElementById("tdeeShow"), sex = val("gender"), age = parseFloat(val("age"));
+    if (t){
+      if (act && totalIn > 0 && lb > 0 && age > 0 && sex){
+        var kg = lb * 0.45359, cm = totalIn * 2.54;
+        var bmr = 10 * kg + 6.25 * cm - 5 * age + (sex === "1" ? 5 : -161);
+        window.__tdee = Math.round(bmr * act / 10) * 10;
+        t.innerHTML = "Your estimated daily calorie need: about <b>" + window.__tdee.toLocaleString("en-US") + " kcal</b> to stay at your weight.";
+      } else { window.__tdee = null; t.textContent = "Your daily calorie need shows here once you fill in the earlier steps."; }
+    }
+    var cmp = document.getElementById("tdeeCmp");
+    if (cmp){ var k = parseFloat(val("kcal")); cmp.textContent = (window.__tdee && k) ? ("For comparison, your estimated daily need is about " + window.__tdee.toLocaleString("en-US") + " kcal.") : ""; }
+  }
+  ["incomeBand","hhsize","heightFt","heightIn","weightLb","waistIn","activity","gender","age","kcal"].forEach(function(id){
+    var el = document.getElementById(id); if (el){ el.addEventListener("input", syncDerived); el.addEventListener("change", syncDerived); }
+  });
+
+  (function(){
+    var cb = document.getElementById("creatUnknown"), inp = document.getElementById("creatinine");
+    function t(){ inp.disabled = cb.checked; if (cb.checked) inp.value = ""; }
+    cb.addEventListener("change", t);
+  })();
   function val(id){ var el = document.getElementById(id); return el ? el.value : ""; }
   function num(id){ return parseFloat(val(id)); }
 
@@ -819,8 +916,15 @@
     }).join("");
     list.innerHTML = allFields.map(function(id){
       var raw = val(id);
-      if (!raw) return "";
+      if (id === "creatinine" && document.getElementById("creatUnknown").checked) raw = "x";
+      if (!raw || id === "heightIn") return "";
       var display = (SELECT_DISPLAY[id] && SELECT_DISPLAY[id][raw]) ? SELECT_DISPLAY[id][raw] : raw;
+      var elx = document.getElementById(id);
+      if (elx && elx.tagName === "SELECT" && !(SELECT_DISPLAY[id] && SELECT_DISPLAY[id][raw])) display = elx.options[elx.selectedIndex].text;
+      if (id === "creatinine" && document.getElementById("creatUnknown").checked) display = "Not known";
+      if (id === "heightFt") display = raw + " ft " + (val("heightIn") || 0) + " in";
+      if (id === "weightLb") display = raw + " lb";
+      if (id === "waistIn") display = raw + " in";
       return '<li><span class="rlabel">' + escapeHtml(FIELD_LABELS[id] || id) + '</span><span class="rval">' + escapeHtml(String(display)) + '</span></li>';
     }).join("") + extra;
   }
@@ -840,6 +944,7 @@
 
   document.getElementById("restartBtn").addEventListener("click", function(){
     form.reset();
+    document.getElementById("creatinine").disabled = false;
     current = 0;
     updateUI();
     window.scrollTo({top:0, behavior:"smooth"});
@@ -860,7 +965,7 @@
       DR1TCARB: num("carbs"),
       DR1TTFAT: num("fat"),
       DR1TALCO: num("alcoholg"),
-      LBXSCR: num("creatinine"),
+      LBXSCR: document.getElementById("creatUnknown").checked ? null : num("creatinine"),
       SMQ020: parseInt(val("smoke"), 10),
       PAQ650: parseInt(val("vigorous"), 10),
       PAQ665: parseInt(val("moderate"), 10),
@@ -876,13 +981,28 @@
     var acts = [].slice.call(document.querySelectorAll("#actChecks input:checked")).map(function(x){return x.value;});
     if (conds.length) preferences.conditions = conds;
     if (acts.length) preferences.activities = acts;
-    if (val("fitness")) preferences.fitness = val("fitness");
+    if (val("grocery")) preferences.grocery_budget = val("grocery");
+    if (val("activity")) preferences.fitness = parseFloat(val("activity")) >= 1.55 ? "active" : "beginner";
     if (val("weightKg") && Number(val("weightKg")) >= 30 && Number(val("weightKg")) <= 250) preferences.weight_kg = Number(val("weightKg"));
     var body = { name: val("personName").trim(), profile: profile };
     if (Object.keys(preferences).length) body.preferences = preferences;
     return body;
   }
 
+
+  function addHealthNote(){
+    var sym = [].slice.call(document.querySelectorAll("#symChecks input:checked")).map(function(x){return x.value;});
+    var html = "", warn = false;
+    if (sym.indexOf("chest") >= 0){
+      warn = true;
+      html += "<b>Please get medical help soon.</b> Chest pain or trouble breathing needs urgent care. If it is severe or sudden, call 911.";
+    } else if (sym.length){
+      html += "<b>You mentioned symptoms.</b> Headaches, dizziness, blurred vision, nosebleeds or a pounding heartbeat can have many causes. Please tell your doctor, and do not rely on this estimate alone.";
+    }
+    if (!html) return;
+    var box = document.createElement("div"); box.className = "symnote" + (warn ? " warn" : ""); box.innerHTML = html;
+    resultsBody.insertBefore(box, resultsBody.firstChild);
+  }
   function riskTier(p){
     if (p >= 0.5) return "high";
     if (p >= 0.33) return "mid";
@@ -1289,6 +1409,7 @@
       })
       .then(function(data){
         renderResults(data);
+        addHealthNote();
       })
       .catch(function(err){
         renderError("Couldn't reach the risk model. Check your connection and try again.", err.message);
@@ -1324,9 +1445,18 @@
     items.forEach(function(it){ if (it.not_found || !it.per100) return; var f = (parseFloat(it.grams) || 0) / 100; Object.keys(t).forEach(function(k){ t[k] += (it.per100[k] || 0) * f; }); });
     return t;
   }
+  function applyTotals(t){
+    var map = {kcal:t.kcal, sodium:t.sodium_mg, potassium:t.potassium_mg, protein:t.protein_g, carbs:t.carb_g, fat:t.fat_g, alcoholg:t.alcohol_g};
+    Object.keys(map).forEach(function(id){
+      var el = document.getElementById(id); if (!el) return;
+      el.value = (id === "kcal" || id === "sodium" || id === "potassium") ? Math.round(map[id] / 10) * 10 : Math.round(map[id]);
+      el.dispatchEvent(new Event("input", {bubbles:true}));
+    });
+  }
   function fmt(n){ return Math.round(n).toLocaleString("en-US"); }
   function renderTotals(){
     var t = totals(), el = document.getElementById("dtot");
+    applyTotals(t);
     if (!el) return;
     el.innerHTML = '<div>Calories<b>' + fmt(t.kcal) + '</b></div><div>Sodium<b>' + fmt(t.sodium_mg) + ' mg</b></div><div>Potassium<b>' + fmt(t.potassium_mg) + ' mg</b></div>' +
       '<div>Protein<b>' + fmt(t.protein_g) + ' g</b></div><div>Carbs<b>' + fmt(t.carb_g) + ' g</b></div><div>Fat<b>' + fmt(t.fat_g) + ' g</b></div><div>Alcohol<b>' + fmt(t.alcohol_g) + ' g</b></div>';
@@ -1350,7 +1480,7 @@
     h += items.map(rowHtml).join("");
     h += '<div class="drow" style="border-top:1px solid var(--rule)"><div><button type="button" class="dlink" data-act="add">+ Add something I forgot</button></div><div class="dsearch" id="addSearch" hidden style="grid-column:1/-1"></div></div>';
     h += '<div class="dtotals" id="dtot"></div><p class="lead" style="margin:6px 0 10px">These are estimates, and real amounts will differ a little.</p>' +
-      '<div class="diet-row"><button type="button" class="btn-solid" id="dietUse">Use these numbers</button></div>';
+      '<p class="lead" id="autoNote" style="color:#17406e;margin:0">Your numbers are filled in below automatically and update when you change a line.</p>';
     out.innerHTML = h; out.hidden = false; renderTotals();
   }
   function searchUI(host, onPick){
