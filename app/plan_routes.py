@@ -119,18 +119,25 @@ _WHY = re.compile(r"\b(why|how come|explain|what does|what is|what's|reason)\b",
 def chat(req: ChatRequest):
     p = plan_db.get_plan(req.plan_id)
     if not p: raise HTTPException(404, "Plan not found")
-    structured = json.loads(p["structured_json"])
-    if _WHY.search(req.message):
-        ans = pipeline.answer_why(req.message, structured, get_retriever(), _llm)
-        plan_db.save_feedback(req.plan_id, "why", req.message, ans["status"])
-        return {"mode": "why", **ans}
-    stored = json.loads(p["plan_json"]) if p["plan_json"] else None
-    previous = stored.get("obj") if isinstance(stored, dict) else None
-    res = pipeline.generate_plan(structured, get_retriever(), _llm, feedback=req.message, previous=previous)
-    pid, text = _store(structured, res, p["assessment_id"], parent=req.plan_id)
-    plan_db.save_feedback(req.plan_id, "revise", req.message, res["status"], pid)
-    return {"mode": "revise", "plan_id": pid, "status": res["status"], "attempts": res["attempts"], "text": text, "view": res.get("view"), "sources": res.get("sources"),
-            "note": None if res["status"] == "approved_by_checker" else "Your request could not be applied safely; the standard guidance is shown."}
+    try:
+        structured = json.loads(p["structured_json"])
+        if _WHY.search(req.message):
+            ans = pipeline.answer_why(req.message, structured, get_retriever(), _llm)
+            plan_db.save_feedback(req.plan_id, "why", req.message, ans["status"])
+            return {"mode": "why", **ans}
+        stored = json.loads(p["plan_json"]) if p["plan_json"] else None
+        previous = stored.get("obj") if isinstance(stored, dict) else None
+        res = pipeline.generate_plan(structured, get_retriever(), _llm, feedback=req.message, previous=previous)
+        pid, text = _store(structured, res, p["assessment_id"], parent=req.plan_id)
+        plan_db.save_feedback(req.plan_id, "revise", req.message, res["status"], pid)
+        return {"mode": "revise", "plan_id": pid, "status": res["status"], "attempts": res["attempts"], "text": text, "view": res.get("view"), "sources": res.get("sources"),
+                "note": None if res["status"] == "approved_by_checker" else "Your request could not be applied safely; the standard guidance is shown."}
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback; traceback.print_exc()          # full detail goes to the Railway logs
+        # A plain HTTPException keeps the CORS headers, so the browser shows this message instead of "Failed to fetch".
+        raise HTTPException(503, "The assistant is busy right now. Please try again in a minute.")
 
 
 class FeedbackRequest(BaseModel):

@@ -120,7 +120,7 @@ class Profile(BaseModel):
     DR1TCARB: float
     DR1TTFAT: float
     DR1TALCO: float
-    LBXSCR: float
+    LBXSCR: Optional[float] = None   # None = person does not know their creatinine
     SMQ020: int
     PAQ650: int
     PAQ665: int
@@ -134,6 +134,7 @@ class Preferences(BaseModel):
     conditions: Optional[list] = None      # e.g. ["pcos", "diabetes", "cholesterol", "pregnant"]
     activities: Optional[list] = None      # e.g. ["yoga", "home", "gym", "zumba", "walking", "swimming", "cycling"]
     fitness: Optional[str] = None          # "beginner" or "active"
+    grocery_budget: Optional[str] = None   # e.g. "200-400"; kept with the record
     weight_kg: Optional[float] = None      # optional; used only for the kidney-safe protein target
 
 
@@ -161,8 +162,13 @@ def assess(req: AssessRequest):
     profile_dict = req.profile.dict()
     prefs_dict = req.preferences.dict(exclude_none=True) if req.preferences else {}
 
-    risk_result = run_risk_prediction(profile_dict)
-    explain_result = run_explainability(profile_dict)
+    # If creatinine is unknown, the risk model gets a typical value for the person's sex,
+    # but the stored profile keeps it empty, so the plan uses the cautious kidney-safe rules.
+    model_profile = dict(profile_dict)
+    if model_profile.get("LBXSCR") is None:
+        model_profile["LBXSCR"] = 0.9 if model_profile.get("RIAGENDR") == 1 else 0.7
+    risk_result = run_risk_prediction(model_profile)
+    explain_result = run_explainability(model_profile)
     guidance = generate_core_guidance(explain_result["top_factors"])
     guidance = personalize_presentation(guidance, prefs_dict)
 
