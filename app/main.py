@@ -136,6 +136,7 @@ class Preferences(BaseModel):
     fitness: Optional[str] = None          # "beginner" or "active"
     grocery_budget: Optional[str] = None   # e.g. "200-400"; kept with the record
     weight_kg: Optional[float] = None      # optional; used only for the kidney-safe protein target
+    kidney_disease: Optional[str] = None   # asked only when creatinine is unknown: "no", "yes" or "unsure"
 
 
 class AssessRequest(BaseModel):
