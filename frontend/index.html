@@ -535,7 +535,16 @@
             <label for="creatinine">Serum creatinine</label>
             <div class="unit"><input id="creatinine" type="number" min="0.3" max="5" step="0.1" required placeholder="0.9"><span>mg/dL</span></div>
             <label class="inline-check"><input type="checkbox" id="creatUnknown"> I don't know my creatinine</label>
-            <span class="hint">It comes from a kidney blood test. If you do not know it, tick the box. We will then use the careful (kidney-safe) food limits and a typical value for the risk estimate.</span>
+            <span class="hint">It comes from a kidney blood test. If you do not know it, tick the box and answer one short question. If you tell us you have no kidney disease, we use a typical value for your sex. Otherwise we use the careful (kidney-safe) food limits.</span>
+            <div id="kidneyQ" style="display:none;margin-top:10px">
+              <label for="kidneyDisease">Has a doctor ever told you that you have kidney disease?</label>
+              <select id="kidneyDisease">
+                <option value="">Choose one</option>
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+                <option value="unsure">Not sure</option>
+              </select>
+            </div>
           </div>
         </div>
       </section>
@@ -743,7 +752,7 @@
 
   var STEPS = [
     {label:"About you", fields:["personName","gender","age","ethnicity","hhsize","incomeBand"]},
-    {label:"Body", fields:["heightFt","heightIn","weightLb","waistIn","creatinine"]},
+    {label:"Body", fields:["heightFt","heightIn","weightLb","waistIn","creatinine","kidneyDisease"]},
     {label:"Diet", fields:["kcal","sodium","potassium","protein","carbs","fat","alcoholg"]},
     {label:"Lifestyle", fields:["smoke","activity","alcfreq"]},
     {label:"Health & food", fields:[]},
@@ -860,7 +869,7 @@
 
   (function(){
     var cb = document.getElementById("creatUnknown"), inp = document.getElementById("creatinine");
-    function t(){ inp.disabled = cb.checked; if (cb.checked) inp.value = ""; }
+    function t(){ inp.disabled = cb.checked; if (cb.checked) inp.value = ""; document.getElementById("kidneyQ").style.display = cb.checked ? "" : "none"; document.getElementById("kidneyDisease").required = cb.checked; if (!cb.checked) document.getElementById("kidneyDisease").value = ""; }
     cb.addEventListener("change", t);
   })();
   function val(id){ var el = document.getElementById(id); return el ? el.value : ""; }
@@ -945,6 +954,7 @@
   document.getElementById("restartBtn").addEventListener("click", function(){
     form.reset();
     document.getElementById("creatinine").disabled = false;
+    document.getElementById("kidneyQ").style.display = "none";
     current = 0;
     updateUI();
     window.scrollTo({top:0, behavior:"smooth"});
@@ -983,6 +993,7 @@
     if (acts.length) preferences.activities = acts;
     if (val("grocery")) preferences.grocery_budget = val("grocery");
     if (val("activity")) preferences.fitness = parseFloat(val("activity")) >= 1.55 ? "active" : "beginner";
+    if (document.getElementById("creatUnknown").checked && val("kidneyDisease")) preferences.kidney_disease = val("kidneyDisease");
     if (val("weightKg") && Number(val("weightKg")) >= 30 && Number(val("weightKg")) <= 250) preferences.weight_kg = Number(val("weightKg"));
     var body = { name: val("personName").trim(), profile: profile };
     if (Object.keys(preferences).length) body.preferences = preferences;
