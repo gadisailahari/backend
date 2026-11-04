@@ -57,7 +57,16 @@ def _clean_list(x, allowed=None):
 
 def build_structured_input(profile, risk_probability, top_factors, prefs=None):
     prefs = prefs or {}
-    k = safety.kidney_status(profile.get("LBXSCR"), profile.get("RIDAGEYR"), profile.get("RIAGENDR"))
+    scr = profile.get("LBXSCR")
+    assumed = False
+    if scr is None and str(prefs.get("kidney_disease") or "").strip().lower() == "no" and profile.get("RIAGENDR") in (1, 2):
+        scr = 0.9 if profile["RIAGENDR"] == 1 else 0.7      # typical value for sex; used only when the person says no kidney disease
+        assumed = True
+    k = safety.kidney_status(scr, profile.get("RIDAGEYR"), profile.get("RIAGENDR"))
+    if assumed:
+        k["egfr"] = None                                    # estimated, so do not show it as a measured value
+        k["reason"] = ("No kidney blood test was entered, and you said you have no known kidney disease, "
+                       "so a typical value for your sex was used. " + k["reason"])
     t = safety.nutrient_targets(k["ckd_mode"], profile["RIAGENDR"])
     gaps = []
     if profile.get("DR1TSODI") is not None:
