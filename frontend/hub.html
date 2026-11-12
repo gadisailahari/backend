@@ -139,9 +139,7 @@ td.cell.open{white-space:pre-wrap;word-break:break-word;max-width:520px}
  <main>
   <!-- Overview -->
   <section class="pane" id="p-overview">
-   <h2>Overview</h2><p class="muted">Everything in one place. Click a card to open that section.</p>
-   <div class="card" id="plink"><h3>Patient link</h3><p class="muted" style="margin:4px 0 10px">Share this link with patients. It opens the questions, the risk result and the eating plan.</p>
-    <div class="row"><input id="purl" readonly aria-label="Patient link" style="flex:1;min-width:220px"><button id="pcopy">Copy link</button><a class="btnlink" id="popen" target="_blank" rel="noopener">Open patient app</a></div></div>
+   <h2>Overview</h2>
    <div class="cards" id="stats"></div>
    <div class="card"><h3>Needs attention</h3><div id="attn" class="muted">Loading…</div></div>
   </section>
@@ -226,12 +224,8 @@ $("logout").addEventListener("click",function(){signOut("")});
 
 /* ---------- patient link (the patient app lives at the site root, next to this page) ---------- */
 var PATIENT_URL=location.origin+location.pathname.replace(/[^\/]*$/,"");
-$("purl").value=PATIENT_URL;$("popen").href=PATIENT_URL;$("npatient").href=PATIENT_URL;$("tpatient").href=PATIENT_URL;
-$("pcopy").addEventListener("click",function(){
-  var done=function(){toast("Patient link copied")};
-  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(PATIENT_URL).then(done,function(){$("purl").select();document.execCommand("copy");done()})}
-  else{$("purl").select();document.execCommand("copy");done()}
-});
+$("npatient").href=PATIENT_URL;$("tpatient").href=PATIENT_URL;
+
 
 /* ---------- shell ---------- */
 var CUR="overview",LOADED={};
