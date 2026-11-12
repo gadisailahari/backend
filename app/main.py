@@ -48,6 +48,13 @@ except Exception as _e:
     care_router, init_care_tables = None, None
     _CARE_ERR = f"{type(_e).__name__}: {_e}"
 
+try:
+    from app.hub import router as hub_router, init_hub_tables
+    _HUB_ERR = None
+except Exception as _e:
+    hub_router, init_hub_tables = None, None
+    _HUB_ERR = f"{type(_e).__name__}: {_e}"
+
 app = FastAPI(title="Hypertension Risk Assessment API", version="1.0")
 
 app.add_middleware(
@@ -83,6 +90,13 @@ else:
     def diet_status_disabled():
         return {"diet_feature": "disabled", "error": _DIET_ERR}
 
+if hub_router is not None:
+    app.include_router(hub_router)
+else:
+    @app.get("/hub/status")
+    def hub_status_disabled():
+        return {"hub": "disabled", "error": _HUB_ERR}
+
 if plan_router is not None:
     app.include_router(plan_router)
 else:
@@ -104,6 +118,11 @@ def startup():
             init_care_tables()
         except Exception as e:
             print('care tables not created:', e)
+    if init_hub_tables is not None:
+        try:
+            init_hub_tables()
+        except Exception as e:
+            print('hub tables not created:', e)
 
 
 class Profile(BaseModel):
@@ -136,7 +155,6 @@ class Preferences(BaseModel):
     fitness: Optional[str] = None          # "beginner" or "active"
     grocery_budget: Optional[str] = None   # e.g. "200-400"; kept with the record
     weight_kg: Optional[float] = None      # optional; used only for the kidney-safe protein target
-    kidney_disease: Optional[str] = None   # asked only when creatinine is unknown: "no", "yes" or "unsure"
 
 
 class AssessRequest(BaseModel):
