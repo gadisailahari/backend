@@ -45,6 +45,9 @@ nav.side button:hover{background:var(--primary-soft)}
 nav.side button.on{background:var(--primary);color:#fff}
 nav.side .badge{margin-left:auto;background:var(--risk-high);color:#fff;border-radius:99px;font-size:.75rem;padding:1px 8px}
 nav.side svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+nav.side .navlink{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-weight:600;color:var(--primary);text-decoration:none;margin-top:8px;border:1px dashed var(--primary)}
+nav.side .navlink:hover{background:var(--primary-soft)}nav.side .navlink svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+a.btnlink{display:inline-block;font-weight:600;border-radius:var(--radius);padding:9px 16px;background:#fff;color:var(--primary);border:1px solid var(--primary);text-decoration:none}a.btnlink:hover{background:var(--primary-soft)}
 main{padding:22px;min-width:0;overflow:auto}
 section.pane{max-width:1100px;margin:0 auto}
 .card{background:var(--surface);border:1px solid var(--rule);border-radius:16px;box-shadow:var(--shadow);padding:18px;margin-bottom:16px}
@@ -121,6 +124,7 @@ td.cell.open{white-space:pre-wrap;word-break:break-word;max-width:520px}
    <span class="muted">Working as</span>
    <input id="wname" placeholder="Your name" aria-label="Your name">
    <input id="wrole" placeholder="Role (e.g. Physician)" aria-label="Your role">
+   <a class="btnlink" id="tpatient" target="_blank" rel="noopener" style="padding:6px 12px;font-size:14px">Try as patient</a>
    <button class="ghost small" id="logout">Sign out</button>
   </div>
  </header>
@@ -130,11 +134,14 @@ td.cell.open{white-space:pre-wrap;word-break:break-word;max-width:520px}
   <button data-go="doctors"><svg viewBox="0 0 24 24"><path d="M6 3v6a4 4 0 008 0V3"/><path d="M10 13v3a4 4 0 008 0v-2"/><circle cx="18" cy="12" r="2"/></svg>Doctors</button>
   <button data-go="database"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>Database</button>
   <button data-go="tasks"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 12l3 3 5-6"/></svg>Tasks<span class="badge" id="tbadge" hidden>0</span></button>
+  <a class="navlink" id="npatient" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/></svg>Patient app</a>
  </nav>
  <main>
   <!-- Overview -->
   <section class="pane" id="p-overview">
    <h2>Overview</h2><p class="muted">Everything in one place. Click a card to open that section.</p>
+   <div class="card" id="plink"><h3>Patient link</h3><p class="muted" style="margin:4px 0 10px">Share this link with patients. It opens the questions, the risk result and the eating plan.</p>
+    <div class="row"><input id="purl" readonly aria-label="Patient link" style="flex:1;min-width:220px"><button id="pcopy">Copy link</button><a class="btnlink" id="popen" target="_blank" rel="noopener">Open patient app</a></div></div>
    <div class="cards" id="stats"></div>
    <div class="card"><h3>Needs attention</h3><div id="attn" class="muted">Loading…</div></div>
   </section>
@@ -216,6 +223,15 @@ $("lform").addEventListener("submit",function(e){
 });
 function signOut(msg){ss(TK,null);$("app").hidden=true;$("login").hidden=false;$("lerr").textContent=msg||"";clearInterval(signOut.timer)}
 $("logout").addEventListener("click",function(){signOut("")});
+
+/* ---------- patient link (the patient app lives at the site root, next to this page) ---------- */
+var PATIENT_URL=location.origin+location.pathname.replace(/[^\/]*$/,"");
+$("purl").value=PATIENT_URL;$("popen").href=PATIENT_URL;$("npatient").href=PATIENT_URL;$("tpatient").href=PATIENT_URL;
+$("pcopy").addEventListener("click",function(){
+  var done=function(){toast("Patient link copied")};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(PATIENT_URL).then(done,function(){$("purl").select();document.execCommand("copy");done()})}
+  else{$("purl").select();document.execCommand("copy");done()}
+});
 
 /* ---------- shell ---------- */
 var CUR="overview",LOADED={};
