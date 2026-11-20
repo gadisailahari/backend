@@ -535,16 +535,7 @@
             <label for="creatinine">Serum creatinine</label>
             <div class="unit"><input id="creatinine" type="number" min="0.3" max="5" step="0.1" required placeholder="0.9"><span>mg/dL</span></div>
             <label class="inline-check"><input type="checkbox" id="creatUnknown"> I don't know my creatinine</label>
-            <span class="hint">It comes from a kidney blood test. If you do not know it, tick the box and answer one short question. If you tell us you have no kidney disease, we use a typical value for your sex. Otherwise we use the careful (kidney-safe) food limits.</span>
-            <div id="kidneyQ" style="display:none;margin-top:10px">
-              <label for="kidneyDisease">Has a doctor ever told you that you have kidney disease?</label>
-              <select id="kidneyDisease">
-                <option value="">Choose one</option>
-                <option value="no">No</option>
-                <option value="yes">Yes</option>
-                <option value="unsure">Not sure</option>
-              </select>
-            </div>
+            <span class="hint">It comes from a kidney blood test. If you do not know it, tick the box. We will then use the careful (kidney-safe) food limits and a typical value for the risk estimate.</span>
           </div>
         </div>
       </section>
@@ -752,7 +743,7 @@
 
   var STEPS = [
     {label:"About you", fields:["personName","gender","age","ethnicity","hhsize","incomeBand"]},
-    {label:"Body", fields:["heightFt","heightIn","weightLb","waistIn","creatinine","kidneyDisease"]},
+    {label:"Body", fields:["heightFt","heightIn","weightLb","waistIn","creatinine"]},
     {label:"Diet", fields:["kcal","sodium","potassium","protein","carbs","fat","alcoholg"]},
     {label:"Lifestyle", fields:["smoke","activity","alcfreq"]},
     {label:"Health & food", fields:[]},
@@ -869,7 +860,7 @@
 
   (function(){
     var cb = document.getElementById("creatUnknown"), inp = document.getElementById("creatinine");
-    function t(){ inp.disabled = cb.checked; if (cb.checked) inp.value = ""; document.getElementById("kidneyQ").style.display = cb.checked ? "" : "none"; document.getElementById("kidneyDisease").required = cb.checked; if (!cb.checked) document.getElementById("kidneyDisease").value = ""; }
+    function t(){ inp.disabled = cb.checked; if (cb.checked) inp.value = ""; }
     cb.addEventListener("change", t);
   })();
   function val(id){ var el = document.getElementById(id); return el ? el.value : ""; }
@@ -954,7 +945,6 @@
   document.getElementById("restartBtn").addEventListener("click", function(){
     form.reset();
     document.getElementById("creatinine").disabled = false;
-    document.getElementById("kidneyQ").style.display = "none";
     current = 0;
     updateUI();
     window.scrollTo({top:0, behavior:"smooth"});
@@ -993,9 +983,9 @@
     if (acts.length) preferences.activities = acts;
     if (val("grocery")) preferences.grocery_budget = val("grocery");
     if (val("activity")) preferences.fitness = parseFloat(val("activity")) >= 1.55 ? "active" : "beginner";
-    if (document.getElementById("creatUnknown").checked && val("kidneyDisease")) preferences.kidney_disease = val("kidneyDisease");
     if (val("weightKg") && Number(val("weightKg")) >= 30 && Number(val("weightKg")) <= 250) preferences.weight_kg = Number(val("weightKg"));
     var body = { name: val("personName").trim(), profile: profile };
+    if (window.PP_snapshot) body.form_snapshot = window.PP_snapshot();
     if (Object.keys(preferences).length) body.preferences = preferences;
     return body;
   }
@@ -1411,7 +1401,7 @@
 
     fetch(BACKEND_URL + "/assess", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: Object.assign({ "Content-Type": "application/json" }, window.PP_authHeader ? window.PP_authHeader() : {}),
       body: JSON.stringify(buildPayload())
     })
       .then(function(res){
@@ -1421,6 +1411,7 @@
       .then(function(data){
         renderResults(data);
         addHealthNote();
+        if (window.PP_afterResults) window.PP_afterResults(data);
       })
       .catch(function(err){
         renderError("Couldn't reach the risk model. Check your connection and try again.", err.message);
@@ -1553,6 +1544,235 @@
       setMsg(err.message || "We could not read that just now. Please try again, or type your numbers below.", true);
     }).finally(function(){ btn.disabled = false; btn.textContent = "Work out my numbers"; });
   });
+})();
+</script>
+
+<style>
+  .acct{max-width:var(--maxw); margin:0 auto 16px; background:#fff; border:2px solid #A9C7EC; border-radius:16px; padding:14px 16px; font-size:0.93rem; color:var(--ink)}
+  .acct h3{margin:0 0 6px; font-size:1rem}
+  .acct .row{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:8px}
+  .acct input{padding:9px 10px; border:1.5px solid #8FB3E0; border-radius:10px; font-size:0.95rem; width:150px}
+  .acct button{padding:9px 14px; border-radius:999px; border:0; background:var(--primary); color:#fff; font-weight:600; cursor:pointer}
+  .acct button.alt{background:#fff; color:var(--primary); border:1.5px solid var(--primary)}
+  .acct .msg{margin-top:8px; font-size:0.88rem}
+  .acct .msg.err{color:var(--risk-high)}
+  .acct .code{display:inline-block; font-size:1.25rem; letter-spacing:2px; font-weight:700; background:var(--primary-soft); padding:6px 12px; border-radius:10px; margin:4px 0}
+  .acct .hist{margin-top:10px; border-top:1px solid var(--rule); padding-top:8px}
+  .acct .hist .item{display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:6px 0; border-bottom:1px dashed var(--rule)}
+  .acct .hist .planbox{white-space:pre-wrap; background:#F5F8FD; border-radius:10px; padding:10px; margin:6px 0; font-size:0.88rem}
+  .acct .small{font-size:0.82rem; color:var(--ink-soft)}
+</style>
+<script>
+(function(){
+  "use strict";
+  var BACKEND = "https://backend-production-b3eff.up.railway.app";
+  var KEY = "pp_acct", DRAFT = "pp_draft";
+  // Fields that are kept in the saved form. Yesterday's food and the symptom boxes are left out on purpose: they change every visit.
+  var FIELDS = ["personName","gender","age","ethnicity","hhsize","incomeBand","grocery","heightFt","heightIn","weightLb","waistIn","creatinine","smoke","activity","alcfreq","cuisine","constraint","dislikes"];
+  var form = document.getElementById("assessForm");
+  var acct = load();
+  var emailOn = false;
+
+  function load(){ try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return null; } }
+  function store(a){ acct = a; try { if (a) localStorage.setItem(KEY, JSON.stringify(a)); else localStorage.removeItem(KEY); } catch (e) {} }
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  function call(path, opts){
+    opts = opts || {}; opts.headers = opts.headers || {};
+    if (acct && acct.token) opts.headers["Authorization"] = "Bearer " + acct.token;
+    return fetch(BACKEND + path, opts).then(function(r){
+      return r.json().catch(function(){ return {}; }).then(function(j){ if (!r.ok) { var m = j && j.detail; throw new Error(typeof m === "string" ? m : "Something went wrong (" + r.status + ")"); } return j; });
+    });
+  }
+  function post(path, body){ return call(path, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)}); }
+
+  // ---- the form <-> a plain object (used for the saved answers and for the short-term draft)
+  function snapshot(){
+    var s = {};
+    FIELDS.forEach(function(id){ var el = document.getElementById(id); if (el && el.value !== "") s[id] = el.value; });
+    var cu = document.getElementById("creatUnknown"); if (cu) s.creatUnknown = !!cu.checked;
+    s.conds = [].slice.call(document.querySelectorAll("#condChecks input:checked")).map(function(x){ return x.value; });
+    s.acts = [].slice.call(document.querySelectorAll("#actChecks input:checked")).map(function(x){ return x.value; });
+    return s;
+  }
+  function fire(el, name){ el.dispatchEvent(new Event(name, {bubbles:true})); }
+  function fill(s){
+    if (!s) return;
+    FIELDS.forEach(function(id){ var el = document.getElementById(id); if (el && s[id] != null) { el.value = s[id]; fire(el, "input"); fire(el, "change"); } });
+    var cu = document.getElementById("creatUnknown"); if (cu && s.creatUnknown != null) { cu.checked = !!s.creatUnknown; fire(cu, "change"); if (!cu.checked && s.creatinine != null) document.getElementById("creatinine").value = s.creatinine; }
+    [["#condChecks", s.conds], ["#actChecks", s.acts]].forEach(function(p){
+      [].slice.call(document.querySelectorAll(p[0] + " input")).forEach(function(c){ c.checked = (p[1] || []).indexOf(c.value) >= 0; });
+    });
+  }
+  window.PP_snapshot = snapshot;
+  window.PP_authHeader = function(){ return (acct && acct.token) ? {"Authorization":"Bearer " + acct.token} : {}; };
+
+  // ---- short-term memory: the visit in progress survives a refresh (this tab only)
+  var timer = null;
+  function saveDraft(){ clearTimeout(timer); timer = setTimeout(function(){ try { sessionStorage.setItem(DRAFT, JSON.stringify(snapshot())); } catch (e) {} }, 400); }
+  if (form){ form.addEventListener("input", saveDraft); form.addEventListener("change", saveDraft); }
+
+  // ---- the account panel
+  var bar = document.createElement("div"); bar.className = "acct"; bar.id = "acctBar";
+  var anchor = document.getElementById("introBlock");
+  if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(bar, anchor.nextSibling);
+
+  function setMsg(t, err){ var m = document.getElementById("acctMsg"); if (m){ m.textContent = t || ""; m.className = "msg" + (err ? " err" : ""); } }
+
+  function render(extra){
+    if (acct && acct.token){
+      bar.innerHTML = '<h3>Signed in as <span id="acctCode"></span></h3>' +
+        '<div class="small">Your answers from earlier visits are saved. Your visit history is below, and the form is filled in from your last visit.</div>' +
+        '<div class="row"><button type="button" class="alt" id="acctHist">My history</button><button type="button" class="alt" id="acctSet">Account settings</button><button type="button" class="alt" id="acctOut">Sign out</button></div>' +
+        '<div id="acctSetBox"></div>' +
+        '<div class="msg" id="acctMsg"></div><div id="acctHistBox"></div>';
+      document.getElementById("acctCode").textContent = acct.code + (acct.name ? " (" + acct.name + ")" : "");
+      document.getElementById("acctOut").onclick = function(){ store(null); try { sessionStorage.removeItem(DRAFT); } catch (e) {} render(); };
+      document.getElementById("acctHist").onclick = showHistory;
+      document.getElementById("acctSet").onclick = showSettings;
+      if (extra) { var m = document.getElementById("acctMsg"); m.innerHTML = extra; }
+    } else {
+      bar.innerHTML = '<h3>Come back later and find your results (optional)</h3>' +
+        '<div class="small">Make a free account to keep your answers and past plans. You do not need one to use the tool.</div>' +
+        '<div class="row"><input id="acctCodeIn" placeholder="Patient ID (like PRIYA-482)" autocomplete="username" maxlength="16" style="width:190px"><input id="acctPinIn" type="password" inputmode="numeric" placeholder="PIN" autocomplete="current-password" maxlength="8"><button type="button" id="acctIn">Sign in</button></div>' +
+        '<div class="row"><span class="small">New here?</span><input id="acctFirst" placeholder="Your first name" maxlength="30" autocomplete="given-name"><input id="acctNew" type="password" inputmode="numeric" placeholder="Choose a 4–8 digit PIN" maxlength="8"><input id="acctMail" type="email" placeholder="Email (optional, for recovery)" maxlength="254" style="width:210px"><button type="button" class="alt" id="acctMake">Create my ID</button></div>' +
+        '<div class="row"><button type="button" class="alt" id="acctForgot">Forgot your ID or PIN?</button></div><div id="acctRecBox"></div>' +
+        '<div class="msg" id="acctMsg"></div>';
+      document.getElementById("acctForgot").onclick = showRecovery;
+      document.getElementById("acctIn").onclick = signIn;
+      document.getElementById("acctMake").onclick = createAcct;
+    }
+  }
+  function idBox(j){
+    return '<b>Your patient ID</b><br><span class="code">' + esc(j.patient_code) + '</span><br><b>Your recovery key</b><br><span class="code">' + esc(j.recovery_key) + '</span><br>' +
+      '<b>Write both down and keep them somewhere safe.</b> The recovery key is shown only once. If you forget your PIN, the ID and recovery key let you set a new one.';
+  }
+  function afterSignIn(extra, restore){
+    render(extra);
+    if (extra && !restore) return Promise.resolve();   // keep the ID and recovery key on screen; nothing to restore for a brand-new account
+    return call("/account/latest").then(function(j){
+      var a = j && j.assessment;
+      if (extra) { if (a && a.form_snapshot) fill(a.form_snapshot); return; }   // keep the recovery message; just fill in the form
+      if (a && a.form_snapshot){
+        fill(a.form_snapshot);
+        setMsg("Welcome back. We filled in your answers from your last visit (" + a.date + "). Please update yesterday’s food and anything that has changed.");
+      } else if (a) {
+        setMsg("Welcome back. Your last visit is saved, but it has no stored form answers to fill in.");
+      } else { setMsg("You are signed in. Your next result will be saved here."); }
+    }).catch(function(){});
+  }
+  function signIn(){
+    var code = document.getElementById("acctCodeIn").value.trim(), pin = document.getElementById("acctPinIn").value.trim();
+    if (!code || !pin) return setMsg("Enter your patient ID and PIN.", true);
+    post("/account/login", {patient_code:code, pin:pin}).then(function(j){
+      store({token:j.token, code:j.patient_code, name:j.display_name}); afterSignIn();
+    }).catch(function(e){ setMsg(e.message, true); });
+  }
+  function createAcct(){
+    var pin = document.getElementById("acctNew").value.trim();
+    if (!/^[0-9]{4,8}$/.test(pin)) return setMsg("The PIN must be 4 to 8 digits.", true);
+    var nm = ((document.getElementById("acctFirst") || {}).value || "").trim() || (document.getElementById("personName") || {}).value || "";
+    var em = ((document.getElementById("acctMail") || {}).value || "").trim();
+    post("/account/register", {pin:pin, display_name:nm.trim() || null, email:em || null}).then(function(j){
+      store({token:j.token, code:j.patient_code, name:j.display_name});
+      afterSignIn(idBox(j));
+    }).catch(function(e){ setMsg(e.message, true); });
+  }
+  function showRecovery(){
+    var box = document.getElementById("acctRecBox");
+    if (box.innerHTML){ box.innerHTML = ""; return; }
+    var h = '<div class="hist"><b>Reset your PIN with your recovery key</b><div class="row"><input id="rkCode" placeholder="Patient ID" maxlength="16"><input id="rkKey" placeholder="Recovery key (RK-…)" maxlength="30" style="width:200px"><input id="rkPin" type="password" inputmode="numeric" placeholder="New PIN" maxlength="8"><button type="button" id="rkGo">Reset PIN</button></div></div>';
+    if (emailOn) h += '<div class="hist"><b>Or use your email</b><div class="small">Only works if you added an email when you made your ID.</div>' +
+      '<div class="row"><input id="fiMail" type="email" placeholder="Your email" maxlength="254" style="width:210px"><button type="button" class="alt" id="fiGo">Email me my patient ID</button></div>' +
+      '<div class="row"><input id="fpCode" placeholder="Patient ID" maxlength="16"><button type="button" class="alt" id="fpGo">Email me a reset code</button></div>' +
+      '<div class="row"><input id="rcCode" placeholder="Patient ID" maxlength="16"><input id="rcCodeIn" placeholder="6-digit code" maxlength="6" style="width:120px"><input id="rcPin" type="password" inputmode="numeric" placeholder="New PIN" maxlength="8"><button type="button" id="rcGo">Reset PIN</button></div></div>';
+    else h += '<div class="hist small">Email recovery is not switched on yet. If you lost both your PIN and recovery key, ask the care team to help.</div>';
+    box.innerHTML = h;
+    var v = function(id){ return document.getElementById(id).value.trim(); };
+    function done(j, extra){ store({token:j.token, code:(v("rkCode") || v("rcCode")).toUpperCase(), name:null}); afterSignIn(extra, true); }
+    document.getElementById("rkGo").onclick = function(){
+      post("/account/reset-pin-with-key", {patient_code:v("rkCode"), recovery_key:v("rkKey"), new_pin:v("rkPin")}).then(function(j){
+        done(j, '<b>PIN changed.</b> Your old recovery key no longer works. Your new recovery key is<br><span class="code">' + esc(j.new_recovery_key) + '</span><br><b>Write it down.</b> It is shown only once.');
+      }).catch(function(e){ setMsg(e.message, true); });
+    };
+    if (emailOn){
+      document.getElementById("fiGo").onclick = function(){ post("/account/forgot-id", {email:v("fiMail")}).then(function(j){ setMsg(j.message); }).catch(function(e){ setMsg(e.message, true); }); };
+      document.getElementById("fpGo").onclick = function(){ post("/account/forgot-pin", {patient_code:v("fpCode")}).then(function(j){ setMsg(j.message); }).catch(function(e){ setMsg(e.message, true); }); };
+      document.getElementById("rcGo").onclick = function(){
+        post("/account/reset-pin", {patient_code:v("rcCode"), code:v("rcCodeIn"), new_pin:v("rcPin")}).then(function(j){ done(j, "<b>PIN changed.</b> You are signed in."); }).catch(function(e){ setMsg(e.message, true); });
+      };
+    }
+  }
+  function showSettings(){
+    var box = document.getElementById("acctSetBox");
+    if (box.innerHTML){ box.innerHTML = ""; return; }
+    box.innerHTML = '<div class="hist"><b>Recovery</b><div class="small">An email lets you get your ID or a PIN reset code if you forget. It is used for nothing else.</div>' +
+      '<div class="row"><input id="seMail" type="email" placeholder="Your email" maxlength="254" style="width:210px"><button type="button" class="alt" id="seGo">Save email</button></div>' +
+      '<div class="row"><input id="nkPin" type="password" inputmode="numeric" placeholder="Your PIN" maxlength="8"><button type="button" class="alt" id="nkGo">Make a new recovery key</button></div>' +
+      '<div class="row"><input id="cpOld" type="password" inputmode="numeric" placeholder="Old PIN" maxlength="8"><input id="cpNew" type="password" inputmode="numeric" placeholder="New PIN" maxlength="8"><button type="button" class="alt" id="cpGo">Change PIN</button></div></div>';
+    var v = function(id){ return document.getElementById(id).value.trim(); };
+    document.getElementById("seGo").onclick = function(){ post("/account/set-email", {email:v("seMail")}).then(function(){ setMsg("Email saved."); }).catch(function(e){ setMsg(e.message, true); }); };
+    document.getElementById("nkGo").onclick = function(){ post("/account/new-recovery-key", {pin:v("nkPin")}).then(function(j){ setMsg(""); document.getElementById("acctMsg").innerHTML = '<b>Your new recovery key</b> (the old one no longer works)<br><span class="code">' + esc(j.recovery_key) + '</span><br><b>Write it down.</b> It is shown only once.'; }).catch(function(e){ setMsg(e.message, true); }); };
+    document.getElementById("cpGo").onclick = function(){ post("/account/change-pin", {old_pin:v("cpOld"), new_pin:v("cpNew")}).then(function(){ setMsg("PIN changed."); }).catch(function(e){ setMsg(e.message, true); }); };
+  }
+  function showHistory(){
+    var box = document.getElementById("acctHistBox");
+    box.innerHTML = '<div class="hist small">Loading…</div>';
+    call("/account/me").then(function(j){
+      if (!j.history.length){ box.innerHTML = '<div class="hist small">No saved visits yet. Your next result will appear here.</div>'; return; }
+      box.innerHTML = '<div class="hist"><b>' + j.visits + ' saved visit' + (j.visits === 1 ? "" : "s") + '</b></div>';
+      var host = box.firstChild;
+      j.history.forEach(function(h){
+        var it = document.createElement("div"); it.className = "item";
+        it.innerHTML = '<span>' + esc(h.date) + ' · risk ' + Math.round(h.risk_probability * 100) + '% (' + esc(h.tier) + ')' +
+          (h.review_status && h.review_status !== "pending" ? ' · clinician: ' + esc(h.review_status) : "") + '</span>';
+        var use = document.createElement("button"); use.type = "button"; use.className = "alt"; use.textContent = "Use these answers";
+        use.onclick = function(){ call("/account/assessment/" + h.assessment_id).then(function(a){ if (a.form_snapshot){ fill(a.form_snapshot); setMsg("Filled in from " + a.date + ". Update anything that has changed."); window.scrollTo({top:0, behavior:"smooth"}); } else setMsg("That visit has no stored form answers.", true); }).catch(function(e){ setMsg(e.message, true); }); };
+        it.appendChild(use);
+        if (h.plan_id){
+          var pb = document.createElement("button"); pb.type = "button"; pb.className = "alt"; pb.textContent = "View plan";
+          pb.onclick = function(){
+            var old = it.querySelector(".planbox"); if (old){ old.remove(); return; }
+            call("/account/plan/" + h.plan_id).then(function(p){ var d = document.createElement("div"); d.className = "planbox"; d.textContent = p.text + (p.reviewer_note ? "\n\nClinician note: " + p.reviewer_note : ""); it.appendChild(d); }).catch(function(e){ setMsg(e.message, true); });
+          };
+          it.appendChild(pb);
+        }
+        host.appendChild(it);
+      });
+    }).catch(function(e){ box.innerHTML = '<div class="hist small err">' + esc(e.message) + '</div>'; if (/sign in/i.test(e.message)) { store(null); render(); } });
+  }
+
+  // ---- called by the main script after a result is shown
+  window.PP_afterResults = function(data){
+    try { sessionStorage.removeItem(DRAFT); } catch (e) {}
+    if (acct && acct.token || !data || !data.id || !data.claim_token) return;
+    var rb = document.getElementById("resultsBody"); if (!rb) return;
+    var d = document.createElement("div"); d.className = "acct"; d.style.margin = "14px 0";
+    d.innerHTML = '<h3>Save this result?</h3><div class="small">Make a free ID and PIN and this visit, your answers and any plan you create will be saved for next time.</div>' +
+      '<div class="row"><input id="saveNew" type="password" inputmode="numeric" placeholder="Choose a 4–8 digit PIN" maxlength="8"><input id="saveMail" type="email" placeholder="Email (optional, for recovery)" maxlength="254" style="width:210px"><button type="button" id="saveBtn">Create ID and save</button></div><div class="msg" id="saveMsg"></div>';
+    rb.insertBefore(d, rb.firstChild);
+    document.getElementById("saveBtn").onclick = function(){
+      var pin = document.getElementById("saveNew").value.trim(), m = document.getElementById("saveMsg");
+      if (!/^[0-9]{4,8}$/.test(pin)){ m.textContent = "The PIN must be 4 to 8 digits."; m.className = "msg err"; return; }
+      var nm = (document.getElementById("personName") || {}).value || "";
+      var em2 = ((document.getElementById("saveMail") || {}).value || "").trim();
+      post("/account/register", {pin:pin, display_name:nm.trim() || null, email:em2 || null}).then(function(j){
+        store({token:j.token, code:j.patient_code, name:j.display_name});
+        return post("/account/claim", {assessment_id:data.id, claim_token:data.claim_token, form_snapshot:snapshot()}).then(function(){
+          d.innerHTML = '<h3>Saved</h3><div>' + idBox(j) + '</div>';
+          render();
+        });
+      }).catch(function(e){ m.textContent = e.message; m.className = "msg err"; });
+    };
+  };
+
+  // ---- start up: restore this tab's unfinished visit first, otherwise the saved answers of a signed-in patient
+  call("/account/status").then(function(j){ emailOn = !!(j && j.email_recovery); }).catch(function(){});
+  render();
+  var draft = null; try { draft = JSON.parse(sessionStorage.getItem(DRAFT) || "null"); } catch (e) {}
+  if (acct && acct.token){
+    if (draft && Object.keys(draft).length > 3){ fill(draft); render(); setMsg("Your unfinished answers from this visit were restored."); }
+    else afterSignIn();
+  } else if (draft && Object.keys(draft).length > 3){ fill(draft); setMsg("Your unfinished answers from this visit were restored."); }
 })();
 </script>
 
