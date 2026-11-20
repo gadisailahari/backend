@@ -247,6 +247,13 @@ def answer_request(rid: int, req: AnswerRequest, _a: bool = Depends(PR.require_a
 def _groups():
     """Group assessments into one patient thread: an assessment created by a check-in belongs to the thread of the one it came from."""
     parent = {c["new_assessment_id"]: c["assessment_id"] for c in _rows("SELECT assessment_id,new_assessment_id FROM checkins WHERE new_assessment_id IS NOT NULL")}
+    try:   # visits by the same signed-in patient form one thread, rooted at their first visit
+        first = {}
+        for a in _rows("SELECT id,patient_id FROM assessments WHERE patient_id IS NOT NULL ORDER BY id"):
+            first.setdefault(a["patient_id"], a["id"])
+            if a["id"] != first[a["patient_id"]]: parent.setdefault(a["id"], first[a["patient_id"]])
+    except Exception:
+        pass
     def root(x):
         seen = set()
         while x in parent and x not in seen: seen.add(x); x = parent[x]

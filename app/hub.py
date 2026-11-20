@@ -26,7 +26,7 @@ TOKEN_HOURS = float(os.environ.get("HUB_TOKEN_HOURS", "8"))
 _SECRET = (os.environ.get("HUB_SECRET") or hashlib.sha256(f"{HUB_ID}|{HUB_PIN}|{os.environ.get('ADMIN_KEY','')}".encode()).hexdigest()).encode()
 
 TABLES = ["assessments", "plans", "checkins", "clinician_requests", "plan_feedback", "usability_reviews",
-          "study_items", "plan_ratings", "notifications", "hub_activity", "hub_task_state"]
+          "study_items", "plan_ratings", "notifications", "hub_activity", "hub_task_state", "patients"]
 
 _fails, _fails_lock = {}, threading.Lock()
 
@@ -246,7 +246,7 @@ def _existing_tables():
     return [t for t in TABLES if t in have]
 
 
-SECRET_COLUMNS = {"token"}      # patients' private reply tokens are never shown, even to staff
+SECRET_COLUMNS = {"token", "pin_hash", "pin_salt", "recovery_hash", "recovery_salt", "reset_hash", "email"}      # patients' private reply tokens are never shown, even to staff
 
 
 def _clean(v):

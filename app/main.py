@@ -19,7 +19,7 @@ Docker/Railway: see Dockerfile in this same backend/ folder.
 
 import os
 
-from fastapi import FastAPI, HTTPException, Query, Depends
+from fastapi import FastAPI, HTTPException, Query, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
@@ -47,6 +47,13 @@ try:
 except Exception as _e:
     care_router, init_care_tables = None, None
     _CARE_ERR = f"{type(_e).__name__}: {_e}"
+
+try:
+    from app.accounts import router as account_router, init_account_tables, link_assessment, claim_token
+    _ACCOUNT_ERR = None
+except Exception as _e:
+    account_router, init_account_tables, link_assessment, claim_token = None, None, None, None
+    _ACCOUNT_ERR = f"{type(_e).__name__}: {_e}"
 
 try:
     from app.hub import router as hub_router, init_hub_tables
@@ -90,6 +97,13 @@ else:
     def diet_status_disabled():
         return {"diet_feature": "disabled", "error": _DIET_ERR}
 
+if account_router is not None:
+    app.include_router(account_router)
+else:
+    @app.get("/account/status")
+    def account_status_disabled():
+        return {"accounts": "disabled", "error": _ACCOUNT_ERR}
+
 if hub_router is not None:
     app.include_router(hub_router)
 else:
@@ -118,6 +132,11 @@ def startup():
             init_care_tables()
         except Exception as e:
             print('care tables not created:', e)
+    if init_account_tables is not None:
+        try:
+            init_account_tables()
+        except Exception as e:
+            print('account tables not created:', e)
     if init_hub_tables is not None:
         try:
             init_hub_tables()
@@ -159,6 +178,7 @@ class Preferences(BaseModel):
 
 class AssessRequest(BaseModel):
     name: Optional[str] = None
+    form_snapshot: Optional[dict] = None   # the answers as typed; kept only for signed-in patients
     profile: Profile
     preferences: Optional[Preferences] = None
 
@@ -177,7 +197,7 @@ def health():
 
 
 @app.post("/assess")
-def assess(req: AssessRequest):
+def assess(req: AssessRequest, authorization: Optional[str] = Header(default=None)):
     profile_dict = req.profile.dict()
     prefs_dict = req.preferences.dict(exclude_none=True) if req.preferences else {}
 
@@ -200,9 +220,15 @@ def assess(req: AssessRequest):
         guidance=guidance,
         name=req.name,
     )
+    if link_assessment is not None:   # a signed-in patient's visit is saved to their account; anonymous visits are unchanged
+        try:
+            link_assessment(assessment_id, authorization, req.form_snapshot)
+        except Exception as e:
+            print("could not link assessment to patient:", e)
 
     return {
         "id": assessment_id,
+        "claim_token": claim_token(assessment_id) if claim_token is not None else None,
         "risk_probability": risk_result["risk_probability"],
         "risk_label": risk_result["risk_label"],
         "top_factors": explain_result["top_factors"],
