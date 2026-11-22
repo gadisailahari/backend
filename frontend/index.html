@@ -7,7 +7,7 @@
 <meta name="description" content="A step-by-step hypertension risk check with personalized, DASH-based dietary guidance.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --paper:#FFFFFF;
@@ -386,6 +386,246 @@
 .symnote{background:#f3f7fd;border:1px solid #c9d9ee;border-left:4px solid #1d4f8a;border-radius:10px;padding:12px 14px;margin:14px 0;color:#17406e;line-height:1.5}
 .symnote.warn{border-left-color:#b3261e;color:#7a1a14;background:#fdf3f2;border-color:#f0c9c6}
 </style>
+<style>
+/* ===================== v2 theme: sign-in page, dashboard, blocks ===================== */
+:root{
+  --teal:#16947F; --teal-soft:#E3F5F0; --teal-dark:#0F6F5F;
+  --grad:linear-gradient(135deg,#1F4E8C 0%,#1C7A8C 55%,#16947F 100%);
+  --shadow-lg:0 26px 60px -26px rgba(22,58,105,.38),0 2px 8px rgba(22,58,105,.06);
+  --ui:"Inter","Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+}
+[hidden]{display:none !important;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--ui); font-size:16px; line-height:1.55; color:var(--ink); background:#F3F8FC; position:relative; min-height:100vh;}
+body::before{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(900px 520px at 6% -10%, rgba(22,148,127,.17), transparent 60%),
+    radial-gradient(820px 500px at 100% -4%, rgba(31,78,140,.17), transparent 58%),
+    radial-gradient(rgba(31,78,140,.075) 1.1px, transparent 1.3px);
+  background-size:auto, auto, 22px 22px;
+}
+h1,h2,h3,.brand span,.intro h1{font-family:var(--ui); letter-spacing:-.012em;}
+.view{position:relative; z-index:1;}
+
+/* ---- top bar ---- */
+.topbar.wrap{max-width:1040px; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:20px 20px 4px; position:relative; z-index:2;}
+.brand .mark{width:34px; height:34px; border-radius:11px; background:var(--grad); box-shadow:0 6px 14px -4px rgba(31,78,140,.5);}
+.brand span{font-weight:800; font-size:1.12rem; color:var(--primary-dark);}
+.navright{display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:.9rem; color:var(--ink-soft);}
+.navright .who{background:#fff; border:1px solid #DCE6F2; padding:6px 12px; border-radius:999px; font-weight:600; color:var(--primary-dark);}
+.pill{border:1.5px solid #CBD9EA; background:#fff; color:var(--primary-dark); padding:8px 15px; border-radius:999px; font-weight:600; font-size:.88rem; cursor:pointer; transition:transform .15s, box-shadow .15s, border-color .15s;}
+.pill:hover{border-color:var(--primary); transform:translateY(-1px); box-shadow:0 6px 14px -8px rgba(31,78,140,.5);}
+.pill.solid{background:var(--grad); color:#fff; border-color:transparent;}
+.pill.solid:hover{box-shadow:0 10px 20px -10px rgba(31,78,140,.8);}
+.pill:disabled{opacity:.55; cursor:default; transform:none;}
+.btnx{border:0; cursor:pointer; font-weight:700; font-size:1rem; padding:13px 22px; border-radius:14px; background:var(--grad); color:#fff; box-shadow:0 12px 22px -12px rgba(31,78,140,.8); transition:transform .15s, box-shadow .15s;}
+.btnx:hover{transform:translateY(-2px); box-shadow:0 16px 26px -12px rgba(31,78,140,.85);}
+.btnx.alt{background:#fff; color:var(--primary-dark); border:1.5px solid #CBD9EA; box-shadow:none;}
+.btnx.alt:hover{border-color:var(--primary); box-shadow:0 8px 16px -10px rgba(31,78,140,.5);}
+.btnx.block{width:100%;}
+.linkbtn{background:none; border:0; padding:0; color:var(--primary); font-weight:600; cursor:pointer; text-decoration:underline; font-size:.92rem;}
+
+/* ---- sign-in page ---- */
+.auth{display:grid; grid-template-columns:1.05fr 1fr; max-width:1040px; margin:18px auto 40px; border-radius:32px; overflow:hidden; box-shadow:var(--shadow-lg); background:#fff; min-height:560px;}
+.auth-hero{position:relative; background:var(--grad); color:#fff; padding:44px 38px; display:flex; flex-direction:column; justify-content:center; overflow:hidden;}
+.auth-hero::before,.auth-hero::after{content:""; position:absolute; border-radius:50%; background:rgba(255,255,255,.09);}
+.auth-hero::before{width:340px; height:340px; right:-120px; top:-110px;}
+.auth-hero::after{width:260px; height:260px; left:-90px; bottom:-90px;}
+.auth-hero > *{position:relative; z-index:1;}
+.auth-hero .mascot{width:104px; height:104px; filter:drop-shadow(0 10px 14px rgba(0,0,0,.2)); animation:bob 3.2s ease-in-out infinite;}
+.auth-hero h1{color:#fff; font-size:clamp(1.7rem,3.2vw,2.3rem); line-height:1.15; margin:18px 0 10px; font-weight:800;}
+.auth-hero p.lead{margin:0 0 22px; opacity:.92; font-size:1.02rem; max-width:34ch;}
+.perks{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px;}
+.perks li{display:flex; align-items:flex-start; gap:12px; font-size:.97rem;}
+.perks .pi{flex:none; width:36px; height:36px; border-radius:12px; background:rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center; font-size:1.1rem;}
+.perks b{display:block; font-weight:700;}
+.perks span.s{opacity:.85; font-size:.88rem;}
+.auth-card{padding:40px 38px; display:flex; flex-direction:column; justify-content:center;}
+.auth-card h2{font-size:1.45rem; font-weight:800; margin:0 0 4px;}
+.auth-card .sub{color:var(--ink-soft); margin:0 0 18px; font-size:.95rem;}
+.tabs{display:flex; background:#EDF3FA; border-radius:14px; padding:4px; margin-bottom:20px;}
+.tabs button{flex:1; border:0; background:none; padding:10px 8px; border-radius:11px; font-weight:700; color:var(--ink-soft); cursor:pointer; font-size:.95rem;}
+.tabs button.on{background:#fff; color:var(--primary-dark); box-shadow:0 4px 12px -6px rgba(31,78,140,.5);}
+.af{display:flex; flex-direction:column; gap:6px; margin-bottom:14px;}
+.af label{font-size:.85rem; font-weight:700; color:var(--ink);}
+.af input{padding:13px 15px; border:1.5px solid #D5E1F0; border-radius:14px; font-size:1rem; background:#F8FBFF; font-family:var(--ui); transition:border-color .15s, box-shadow .15s, background .15s; width:100%;}
+.af input:focus{outline:none; border-color:var(--primary); background:#fff; box-shadow:0 0 0 4px rgba(31,78,140,.13);}
+.af .h{font-size:.78rem; color:var(--ink-faint);}
+.amsg{min-height:1.2em; margin:8px 0 0; font-size:.9rem; color:var(--ink-soft);}
+.amsg.err{color:var(--risk-high); font-weight:600;}
+.guestrow{margin-top:18px; padding-top:16px; border-top:1px dashed #D5E1F0; text-align:center; font-size:.92rem; color:var(--ink-soft);}
+.idcard{background:linear-gradient(135deg,#F2FAF7,#EEF4FC); border:1.5px solid #CFE6DE; border-radius:20px; padding:20px; margin:6px 0 16px;}
+.idcard .lbl{font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-faint); font-weight:700;}
+.idcard .val{font-size:1.5rem; font-weight:800; letter-spacing:.06em; color:var(--primary-dark); margin:2px 0 12px; word-break:break-all;}
+.idcard .warn{background:#FFF6E6; border:1px solid #F0D49A; color:#7A5410; border-radius:12px; padding:10px 12px; font-size:.88rem;}
+.copy{margin-left:8px; font-size:.78rem; padding:3px 10px;}
+.recbox{margin-top:14px; padding:14px; background:#F5F9FE; border-radius:16px; border:1px solid #E1EAF5;}
+.recbox h4{margin:0 0 8px; font-size:.95rem;}
+.recbox .af{margin-bottom:10px;}
+
+/* ---- dashboard ---- */
+.dash{max-width:1040px; margin:6px auto 56px; padding:0 20px;}
+.dash-hero{position:relative; overflow:hidden; background:var(--grad); color:#fff; border-radius:28px; padding:30px 32px; display:flex; flex-wrap:wrap; gap:18px; align-items:center; justify-content:space-between; box-shadow:var(--shadow-lg);}
+.dash-hero::after{content:""; position:absolute; width:300px; height:300px; border-radius:50%; background:rgba(255,255,255,.09); right:-70px; top:-120px;}
+.dash-hero > *{position:relative; z-index:1;}
+.dash-hero h1{color:#fff; font-size:clamp(1.5rem,3vw,2.05rem); font-weight:800; margin:0 0 6px;}
+.dash-hero p{margin:0; opacity:.92; max-width:46ch;}
+.dash-hero .btnx{background:#fff; color:var(--primary-dark); box-shadow:0 14px 26px -14px rgba(0,0,0,.5);}
+.dash-hero .btnx.go{padding:15px 26px; font-size:1.05rem;}
+.dgrid{display:grid; grid-template-columns:repeat(12,1fr); gap:18px; margin-top:20px;}
+.dcard{background:#fff; border:1px solid #E3EBF5; border-radius:24px; padding:22px 22px 20px; box-shadow:0 18px 40px -28px rgba(22,58,105,.45); grid-column:span 6; position:relative;}
+.dcard.wide{grid-column:span 12;}
+.dcard.third{grid-column:span 4;}
+.dcard h3{font-size:1.05rem; font-weight:800; margin:0 0 4px; display:flex; align-items:center; gap:10px;}
+.dcard h3 .ic{width:34px; height:34px; border-radius:11px; background:linear-gradient(135deg,#E5F5EF,#DEEAFB); display:inline-flex; align-items:center; justify-content:center; font-size:1.05rem;}
+.dcard .cap{color:var(--ink-soft); font-size:.88rem; margin:0 0 14px;}
+.dcard .top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:6px;}
+.ringwrap{display:flex; align-items:center; gap:20px; flex-wrap:wrap;}
+.ring{position:relative; width:128px; height:128px; flex:none;}
+.ring svg{width:128px; height:128px; transform:rotate(-90deg);}
+.ring .bg{fill:none; stroke:#E8EFF8; stroke-width:12;}
+.ring .fg{fill:none; stroke-width:12; stroke-linecap:round; transition:stroke-dashoffset .9s ease;}
+.ring .num{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:800; font-size:1.7rem; line-height:1;}
+.ring .num small{font-size:.7rem; color:var(--ink-faint); font-weight:600; margin-top:4px;}
+.badge{display:inline-block; padding:4px 12px; border-radius:999px; font-weight:700; font-size:.8rem;}
+.badge.low{background:var(--risk-low-soft); color:var(--risk-low);}
+.badge.mid{background:var(--risk-mid-soft); color:var(--risk-mid);}
+.badge.high{background:var(--risk-high-soft); color:var(--risk-high);}
+.badge.grey{background:#EEF2F7; color:var(--ink-soft);}
+.spark{width:100%; max-width:230px; height:64px;}
+.chips{display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 14px;}
+.pchip{background:#F2F7FD; border:1px solid #DDE8F5; border-radius:999px; padding:6px 13px; font-size:.86rem; font-weight:600; color:var(--primary-dark);}
+.pchip em{font-style:normal; color:var(--ink-faint); font-weight:500; margin-right:5px;}
+.empty{color:var(--ink-soft); font-size:.93rem; padding:6px 0;}
+.hitem{display:flex; flex-wrap:wrap; gap:10px; align-items:center; padding:11px 0; border-bottom:1px solid #EDF2F8;}
+.hitem:last-child{border-bottom:0;}
+.hitem .d{font-weight:600; min-width:130px; font-size:.92rem;}
+.hitem .sp{flex:1;}
+.planbox{white-space:pre-wrap; background:#F5F9FE; border:1px solid #E1EAF5; border-radius:14px; padding:14px; margin:8px 0 2px; font-size:.9rem; width:100%; max-height:380px; overflow:auto;}
+.setgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px; margin-top:12px;}
+.setgrid .box{background:#F7FAFE; border:1px solid #E1EAF5; border-radius:16px; padding:14px;}
+.setgrid h4{margin:0 0 4px; font-size:.95rem;}
+.setgrid .small{font-size:.8rem; color:var(--ink-soft); margin-bottom:8px;}
+.dmsg{margin-top:12px; font-size:.92rem; color:var(--ink-soft);}
+.dmsg.err{color:var(--risk-high); font-weight:600;}
+.dmsg .code{display:inline-block; font-weight:800; letter-spacing:.06em; background:var(--teal-soft); padding:4px 12px; border-radius:10px; margin:3px 0;}
+.skel{height:120px; border-radius:20px; background:linear-gradient(90deg,#EAF1F9 25%,#F5F9FD 37%,#EAF1F9 63%); background-size:400% 100%; animation:shimmer 1.3s infinite;}
+@keyframes shimmer{0%{background-position:100% 0}100%{background-position:0 0}}
+
+/* ---- the question blocks ---- */
+.flow-head{max-width:760px; margin:6px auto 0; padding:0 20px; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;}
+.flow-head h1{font-size:clamp(1.4rem,2.8vw,1.85rem); font-weight:800; margin:0;}
+.flow-head .tagx{background:var(--teal-soft); color:var(--teal-dark); font-weight:700; font-size:.8rem; padding:5px 12px; border-radius:999px;}
+main.wrap{max-width:760px; padding-top:12px;}
+.progress{margin:18px 0 16px;}
+.progress-seg{height:7px; background:#DCE7F4;}
+.progress-seg i{background:var(--grad);}
+.progress-labels{font-size:.74rem;}
+.progress-labels span.current{color:var(--teal-dark);}
+.card{background:#fff; border:1px solid #E3EBF5; border-radius:28px; box-shadow:var(--shadow-lg); padding:30px 30px 24px;}
+.card .field input,.card .field select{background:#F8FBFF; border:1.5px solid #D5E1F0; border-radius:14px; padding:12px 14px; font-family:var(--ui); font-size:1rem;}
+.card .field input:focus,.card .field select:focus{background:#fff; border-color:var(--primary); box-shadow:0 0 0 4px rgba(31,78,140,.13); outline:none;}
+.step h2{display:flex; align-items:center; font-size:1.35rem; font-weight:800;}
+.step h2 .em{width:46px; height:46px; border-radius:15px; background:linear-gradient(135deg,#E5F5EF,#DEEAFB); display:inline-flex; align-items:center; justify-content:center; font-size:1.45rem; margin-right:13px; animation:none;}
+.step .step-hint{margin:8px 0 22px; font-size:.95rem;}
+.field label{font-size:.86rem; font-weight:700;}
+.checks label{border:1.5px solid #D5E1F0; border-radius:999px; padding:8px 15px; background:#fff; cursor:pointer; transition:all .15s; font-size:.9rem;}
+.checks label:hover{border-color:var(--primary);}
+.checks label:has(input:checked){background:var(--teal-soft); border-color:var(--teal); color:var(--teal-dark); font-weight:700;}
+.calc{background:#F2F8F6; border:1px dashed #BFDCD3; border-radius:14px; padding:11px 14px; font-size:.92rem;}
+.diet-box{background:linear-gradient(135deg,#F2FAF7,#EEF4FC); border:1.5px solid #CFE6DE; border-radius:20px;}
+.diet-box textarea{border:1.5px solid #D5E1F0; border-radius:14px; font-family:var(--ui);}
+.btn-solid{background:var(--grad); border-radius:12px;}
+button.btn.primary{background:var(--grad); border-radius:14px; box-shadow:0 12px 22px -12px rgba(31,78,140,.8); padding:13px 24px; font-weight:700;}
+button.btn.primary:hover{background:var(--grad); transform:translateY(-2px);}
+button.btn.ghost{font-weight:700;}
+.review-list li{padding:10px 2px;}
+.restart-row button{border-radius:14px; font-weight:700;}
+.savebox{margin:14px 0; padding:18px 20px; border-radius:20px; background:linear-gradient(135deg,#F2FAF7,#EEF4FC); border:1.5px solid #CFE6DE;}
+.savebox h3{margin:0 0 4px; font-size:1.05rem;}
+.savebox .small{font-size:.88rem; color:var(--ink-soft);}
+.savebox .row{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:10px;}
+.savebox input{padding:11px 13px; border:1.5px solid #D5E1F0; border-radius:12px; font-size:.95rem; font-family:var(--ui);}
+.savebox .msg{margin-top:8px; font-size:.88rem;} .savebox .msg.err{color:var(--risk-high);}
+.savebox .code{display:inline-block; font-weight:800; letter-spacing:.06em; background:#fff; padding:4px 12px; border-radius:10px; margin:3px 0; font-size:1.15rem;}
+footer.wrap{position:relative; z-index:1; max-width:1040px;}
+footer p{font-size:.82rem;}
+.hide-signedin{}
+@media (max-width:860px){
+  .auth{grid-template-columns:1fr; margin:10px 12px 30px; border-radius:26px;}
+  .auth-hero{padding:30px 24px;}
+  .auth-card{padding:28px 22px;}
+  .dcard,.dcard.third{grid-column:span 12;}
+  .dash-hero{padding:24px 22px;}
+  .card{padding:22px 18px 18px; border-radius:24px;}
+  .progress-labels span:not(.current){display:none;}
+  .progress-labels span.current{text-align:center;}
+}
+.flow-head{padding:0;}
+.brand span{white-space:nowrap;}
+.topbar.wrap{flex-wrap:wrap;}
+@media (max-width:860px){ .navright .who{display:none;} }
+
+.auth.solo{display:block; max-width:420px; margin:36px auto 40px; min-height:0; border-radius:26px;}
+.auth.solo .auth-card{padding:34px 32px;}
+.auth.solo .auth-card h2{font-size:1.5rem; margin-bottom:16px;}
+.auth.solo .sub{margin-bottom:14px;}
+
+/* ---- cute pictures ---- */
+.scene{display:flex; flex-direction:column; align-items:center; margin:-4px 0 6px;}
+.scene .mascot{width:92px; height:92px; filter:drop-shadow(0 8px 10px rgba(229,86,107,.3)); animation:bob 3.2s ease-in-out infinite;}
+.veggies{display:flex; gap:6px; align-items:flex-end; justify-content:center; margin-top:-6px;}
+.veg{width:46px; height:56px; filter:drop-shadow(0 4px 4px rgba(22,58,105,.15)); transition:transform .2s;}
+.veggies .veg:nth-child(odd){animation:bob 3.6s ease-in-out infinite;}
+.veggies .veg:nth-child(even){animation:bob 3.1s ease-in-out .4s infinite;}
+.veg:hover{transform:scale(1.15) rotate(-6deg);}
+.auth.solo .auth-card h2{text-align:center; margin-bottom:4px;}
+.auth.solo .auth-card .sub{text-align:center;}
+.say{display:flex; align-items:center; gap:10px; margin:-8px 0 20px;}
+.say .sm{flex:none; width:46px; height:46px;}
+.say .mini{width:46px; height:46px;}
+.say .bub{position:relative; background:#F2FAF7; border:1.5px solid #CFE6DE; color:#1D5B4D; border-radius:16px; padding:9px 14px; font-size:.92rem; font-weight:600;}
+.say .bub::before{content:""; position:absolute; left:-7px; top:50%; width:12px; height:12px; background:#F2FAF7; border-left:1.5px solid #CFE6DE; border-bottom:1.5px solid #CFE6DE; transform:translateY(-50%) rotate(45deg);}
+.tipcard{display:flex; align-items:center; gap:18px; background:linear-gradient(135deg,#FFFFFF,#F2FAF7);}
+.tipart .mini.big{width:78px; height:78px; animation:bob 3.2s ease-in-out infinite;}
+.tipbody{flex:1; min-width:220px;}
+.tiplbl{font-size:.75rem; text-transform:uppercase; letter-spacing:.09em; font-weight:800; color:var(--teal-dark);}
+.tiptxt{font-size:1.08rem; font-weight:600; margin:4px 0 12px; max-width:52ch;}
+.stats{display:flex; gap:10px; flex-wrap:wrap;}
+.stat{background:#fff; border:1px solid #E1EAF5; border-radius:14px; padding:8px 14px; min-width:104px;}
+.stat b{display:block; font-size:1.25rem; color:var(--primary-dark);}
+.stat span{font-size:.76rem; color:var(--ink-soft);}
+.tipveg .veg{width:40px; height:50px;}
+.emptyart{display:flex; align-items:center; gap:14px;}
+.emptyart .veg{width:64px; height:78px; flex:none;}
+@media (max-width:860px){ .tipveg{display:none;} .tipcard{flex-wrap:wrap;} }
+
+/* ---- crimson hero panel, like the slide examples ---- */
+.auth-hero.crimson{background:linear-gradient(150deg,#B3134F 0%,#D93467 52%,#F0678A 100%); align-items:center; text-align:center; padding:30px 28px;}
+.auth-hero.crimson::before{width:420px; height:420px; right:-170px; top:-150px; background:rgba(255,255,255,.08);}
+.auth-hero.crimson::after{width:330px; height:330px; left:-140px; bottom:-150px; background:rgba(255,255,255,.07);}
+.auth-hero.crimson .bpart{width:min(100%,320px); height:auto; filter:drop-shadow(0 14px 18px rgba(80,0,30,.28)); animation:bob 4s ease-in-out infinite;}
+.auth-hero.crimson h1{color:#FFE066; font-size:clamp(1.9rem,3.4vw,2.6rem); margin:14px 0 6px; font-weight:800; letter-spacing:.01em;}
+.auth-hero.crimson .lead{margin:0; max-width:none; opacity:.95; font-size:1.02rem;}
+.heroart{position:relative; z-index:1; flex:none;}
+.heroart .bpart{width:190px; height:auto; display:block; filter:drop-shadow(0 10px 14px rgba(0,0,0,.25));}
+@media (max-width:860px){ .heroart{display:none;} .auth-hero.crimson .bpart{width:220px;} }
+
+.dash-hero p{max-width:50ch; font-size:1.02rem;}
+.factlbl{display:inline-block; background:rgba(255,255,255,.2); border-radius:999px; padding:2px 11px; font-size:.74rem; font-weight:800; letter-spacing:.07em; text-transform:uppercase; margin-right:6px;}
+
+/* ---- clean, professional first page (slide style) ---- */
+.auth-hero.light{background:linear-gradient(160deg,#FFFFFF 0%,#FCF1F4 58%,#F7DFE6 100%); color:var(--ink); align-items:center; text-align:center; padding:34px 28px;}
+.auth-hero.light::before{width:380px; height:380px; right:-150px; top:-140px; background:rgba(179,19,79,.05);}
+.auth-hero.light::after{width:300px; height:300px; left:-120px; bottom:-140px; background:rgba(179,19,79,.045);}
+.auth-hero.light .bpart{width:min(100%,360px); height:auto; filter:drop-shadow(0 18px 18px rgba(60,10,25,.18));}
+.auth-hero.light h1{font-family:"Amiri", Georgia, serif; color:#1B2A41; font-size:clamp(2.2rem,4vw,3rem); font-weight:700; letter-spacing:.01em; margin:10px 0 10px;}
+.auth-hero.light .rule{width:56%; height:2px; background:linear-gradient(90deg,transparent,#B3134F,transparent); border-radius:2px;}
+.heroart{background:rgba(255,255,255,.95); border-radius:22px; padding:10px 14px; box-shadow:0 14px 28px -14px rgba(0,0,0,.45);}
+.heroart .bpart{width:170px; filter:none;}
+
+</style>
 </head>
 <body>
 
@@ -399,12 +639,10 @@
     </span>
     <span>Pulse &amp; Plate</span>
   </div>
+  <div class="navright" id="navRight"></div>
 </div>
 
-<main class="wrap">
-
-  <div class="intro" id="introBlock">
-    <svg class="mascot" viewBox="0 0 120 120" role="img" aria-label="Rosie, a friendly heart mascot">
+<div id="mascotSrc" hidden><svg class="mascot" viewBox="0 0 120 120" role="img" aria-label="Rosie, a friendly heart mascot">
       <path d="M60 106 C16 76 8 46 28 30 C42 19 56 26 60 38 C64 26 78 19 92 30 C112 46 104 76 60 106Z" fill="#FF7A8A" stroke="#E5566B" stroke-width="3"/>
       <ellipse cx="42" cy="48" rx="6" ry="8" fill="#fff"/><ellipse cx="78" cy="48" rx="6" ry="8" fill="#fff"/>
       <circle cx="43" cy="50" r="3.6" fill="#1B2A41"/><circle cx="79" cy="50" r="3.6" fill="#1B2A41"/>
@@ -412,37 +650,33 @@
       <path d="M48 66 Q60 80 72 66" fill="#fff" stroke="#1B2A41" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
       <path d="M60 22 C56 10 66 4 72 8" fill="none" stroke="#1F8F63" stroke-width="4" stroke-linecap="round"/>
       <ellipse cx="74" cy="9" rx="8" ry="4.5" fill="#2FB77C" transform="rotate(-20 74 9)"/>
-    </svg>
-    <div class="copy">
-      <h1>Hi, I'm Rosie! Let's check on your heart 💚</h1>
-      <p>Answer a few quick, friendly questions. You'll get a personal blood pressure risk estimate, the reasons behind it, and tasty food ideas you can try today 🥗</p>
-    </div>
-  </div>
+    </svg></div>
+<div id="viewAuth" class="view" hidden></div>
+<div id="viewDash" class="view" hidden></div>
 
+<main class="wrap view" id="viewWizard" hidden>
+  <div class="intro" id="introBlock" style="display:none"></div>
+  <div class="flow-head"><h1 id="flowTitle">Check-in</h1><span class="tagx" id="flowTag"></span></div>
   <div class="progress" id="progressBlock">
     <div class="progress-track" id="progressTrack"></div>
     <div class="progress-labels" id="progressLabels"></div>
   </div>
-
   <div class="card">
     <form id="assessForm" novalidate>
 
-      <!-- Step 0: About you -->
+      <!-- Block 1: About you (profile, saved once) -->
       <section class="step active" data-step="0">
         <h2><span class="em" aria-hidden="true">🙋</span>About you</h2>
-        <p class="step-hint">So we can account for how risk differs across age and sex.</p>
-
-        <div class="examples" role="group" aria-label="Fill the form with an example">
+        <p class="step-hint">You only answer these once. We keep them in your profile.</p>
+        <div class="examples guest-only" role="group" aria-label="Fill the form with an example">
           <button type="button" class="chip" data-example="active">Try example: active, lower risk</button>
           <button type="button" class="chip" data-example="sodium">Try example: sodium-driven risk</button>
         </div>
-
-        <div class="field full">
-          <label for="personName">Your name</label>
-          <input id="personName" type="text" required placeholder="Jane Doe">
-          <span class="hint">So your results can be found again later.</span>
-        </div>
         <div class="grid2">
+          <div class="field full">
+            <label for="personName">Your name</label>
+            <input id="personName" type="text" required placeholder="Jane Doe">
+          </div>
           <div class="field">
             <label for="gender">Sex</label>
             <select id="gender" required>
@@ -467,6 +701,29 @@
               <option value="7">Other / multiracial</option>
             </select>
           </div>
+          <div class="field">
+            <label for="heightFt">Height</label>
+            <div class="pair">
+              <div class="unit"><input id="heightFt" type="number" min="3" max="7" step="1" required placeholder="5"><span>ft</span></div>
+              <div class="unit"><input id="heightIn" type="number" min="0" max="11" step="1" required placeholder="9"><span>in</span></div>
+            </div>
+          </div>
+          <div class="field full">
+            <label for="smoke">Smoked 100+ cigarettes in your life?</label>
+            <select id="smoke" required>
+              <option value="" disabled selected>Choose one</option>
+              <option value="1">Yes</option>
+              <option value="2">No</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Block 2: Household (profile) -->
+      <section class="step" data-step="1">
+        <h2><span class="em" aria-hidden="true">🏠</span>Your household</h2>
+        <p class="step-hint">Helps us keep food ideas realistic for your budget. A rough range is fine.</p>
+        <div class="grid2">
           <div class="field">
             <label for="hhsize">People in your household</label>
             <select id="hhsize" required>
@@ -506,18 +763,68 @@
         </div>
       </section>
 
-      <!-- Step 1: Body measurements -->
-      <section class="step" data-step="1">
-        <h2><span class="em" aria-hidden="true">📏</span>Body measurements</h2>
-        <p class="step-hint">Use feet, inches and pounds. A rough measurement is fine.</p>
+      <!-- Block 3: Food and health (profile) -->
+      <section class="step" data-step="2">
+        <h2><span class="em" aria-hidden="true">🌮</span>Food and health</h2>
+        <p class="step-hint">Saved to your profile, so Rosie can build meals and workouts that fit you every time.</p>
         <div class="grid2">
           <div class="field">
-            <label for="heightFt">Height</label>
-            <div class="pair">
-              <div class="unit"><input id="heightFt" type="number" min="3" max="7" step="1" required placeholder="5"><span>ft</span></div>
-              <div class="unit"><input id="heightIn" type="number" min="0" max="11" step="1" required placeholder="9"><span>in</span></div>
+            <label for="cuisine">Cuisine you cook most</label>
+            <select id="cuisine">
+              <option value="">No preference</option>
+              <option>Mexican</option>
+              <option>South Asian</option>
+              <option>Mediterranean</option>
+              <option>East Asian</option>
+              <option>American</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="constraint">Dietary pattern</label>
+            <select id="constraint">
+              <option value="">No preference</option>
+              <option value="non-vegetarian">Non-vegetarian</option>
+              <option value="vegetarian">Vegetarian</option>
+              <option value="vegan">Vegan</option>
+              <option value="low-sodium">Already low-sodium</option>
+              <option value="gluten-free">Gluten-free</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="dislikes">Foods to avoid suggesting</label>
+            <input id="dislikes" type="text" placeholder="e.g. fish, mushrooms">
+            <span class="hint">Separate with commas.</span>
+          </div>
+          <div class="field full">
+            <label>Safety check (tick any that apply)</label>
+            <div class="checks" id="condChecks">
+              <label><input type="checkbox" value="pregnant"> Pregnant or breastfeeding</label>
+              <label><input type="checkbox" value="kidney"> Kidney disease (told by a doctor)</label>
+            </div>
+            <span class="hint">This tool covers high blood pressure only. If you are pregnant or breastfeeding, or have kidney disease, we send you to a doctor or dietitian instead of making a plan.</span>
+          </div>
+          <div class="field full">
+            <label>Exercise you like (tick any)</label>
+            <div class="checks" id="actChecks">
+              <label><input type="checkbox" value="yoga"> 🧘 Yoga</label>
+              <label><input type="checkbox" value="home"> 🏠 Home workouts</label>
+              <label><input type="checkbox" value="gym"> 🏋️ Gym</label>
+              <label><input type="checkbox" value="zumba"> 💃 Zumba / dance</label>
+              <label><input type="checkbox" value="walking"> 🚶 Walking</label>
+              <label><input type="checkbox" value="running"> 🏃 Running / jogging</label>
+              <label><input type="checkbox" value="swimming"> 🏊 Swimming</label>
+              <label><input type="checkbox" value="cycling"> 🚴 Cycling</label>
             </div>
           </div>
+        </div>
+      </section>
+
+      <!-- Block 4: Body today (every check-in) -->
+      <section class="step" data-step="3">
+        <h2><span class="em" aria-hidden="true">📏</span>Body today</h2>
+        <p class="step-hint">Use pounds and inches. A rough measurement is fine.</p>
+        <div class="grid2">
           <div class="field">
             <label for="weightLb">Weight</label>
             <div class="unit"><input id="weightLb" type="number" min="66" max="550" step="1" required placeholder="180"><span>lb</span></div>
@@ -526,22 +833,22 @@
             <label for="waistIn">Waist (around your belly button)</label>
             <div class="unit"><input id="waistIn" type="number" min="20" max="80" step="0.5" required placeholder="36"><span>in</span></div>
           </div>
-          <div class="field">
-            <label>Your BMI (we work this out)</label>
-            <div class="calc" id="bmiShow">Fill in height and weight</div>
+          <div class="field full">
+            <label>Your BMI (we work this out from your profile height)</label>
+            <div class="calc" id="bmiShow">Fill in your weight</div>
           </div>
           <input type="hidden" id="bmi" value=""><input type="hidden" id="waist" value=""><input type="hidden" id="weightKg" value="">
           <div class="field full">
             <label for="creatinine">Serum creatinine</label>
             <div class="unit"><input id="creatinine" type="number" min="0.3" max="5" step="0.1" required placeholder="0.9"><span>mg/dL</span></div>
             <label class="inline-check"><input type="checkbox" id="creatUnknown"> I don't know my creatinine</label>
-            <span class="hint">It comes from a kidney blood test. If you do not know it, tick the box. We will then use the careful (kidney-safe) food limits and a typical value for the risk estimate.</span>
+            <span class="hint">It comes from a kidney blood test. If you do not know it, tick the box. We will then use a typical value for the risk estimate only. This tool is for high blood pressure and does not give kidney advice.</span>
           </div>
         </div>
       </section>
 
-      <!-- Step 2: Diet -->
-      <section class="step" data-step="2">
+<!-- Block: Diet (every check-in) -->
+      <section class="step" data-step="4">
         <h2><span class="em" aria-hidden="true">🍽️</span>What you ate yesterday</h2>
         <p class="step-hint">Tell us in your own words. Rough estimates are fine.</p>
         <div class="diet-box" id="dietBox">
@@ -590,19 +897,11 @@
         </div>
       </section>
 
-      <!-- Step 3: Lifestyle -->
-      <section class="step" data-step="3">
+            <!-- Block 6: Lifestyle (every check-in, pre-filled) -->
+      <section class="step" data-step="5">
         <h2><span class="em" aria-hidden="true">🏃</span>Lifestyle</h2>
-        <p class="step-hint">Smoking and activity both affect blood pressure, apart from what you eat.</p>
+        <p class="step-hint">Pre-filled from last time. Change them only if they have changed.</p>
         <div class="grid2">
-          <div class="field">
-            <label for="smoke">Smoked 100+ cigarettes in your life?</label>
-            <select id="smoke" required>
-              <option value="" disabled selected>Choose one</option>
-              <option value="1">Yes</option>
-              <option value="2">No</option>
-            </select>
-          </div>
           <div class="field full">
             <label for="activity">How active are you in a normal week?</label>
             <select id="activity" required>
@@ -613,10 +912,10 @@
               <option value="1.725">Very active: hard exercise 6 to 7 days a week</option>
               <option value="1.9">Extra active: very hard exercise or a physical job</option>
             </select>
-            <div class="calc" id="tdeeShow" style="margin-top:8px">Your daily calorie need shows here once you fill in the earlier steps.</div>
+            <div class="calc" id="tdeeShow" style="margin-top:8px">Your daily calorie need shows here once your profile and weight are filled in.</div>
           </div>
           <input type="hidden" id="vigorous" value=""><input type="hidden" id="moderate" value="">
-          <div class="field">
+          <div class="field full">
             <label for="alcfreq">How often do you drink?</label>
             <select id="alcfreq" required>
               <option value="" disabled selected>Choose one</option>
@@ -632,62 +931,11 @@
         </div>
       </section>
 
-      <!-- Step 4: Preferences -->
-      <section class="step" data-step="4">
-        <h2><span class="em" aria-hidden="true">🌮</span>Health and food</h2>
-        <p class="step-hint">Optional, but this is how Rosie builds meals and workouts that fit you.</p>
+      <!-- Block 7: How are you feeling (every check-in) -->
+      <section class="step" data-step="6">
+        <h2><span class="em" aria-hidden="true">💬</span>How are you feeling?</h2>
+        <p class="step-hint">Optional. Tick anything you have noticed lately.</p>
         <div class="grid2">
-          <div class="field">
-            <label for="cuisine">Cuisine you cook most</label>
-            <select id="cuisine">
-              <option value="">No preference</option>
-              <option>Mexican</option>
-              <option>South Asian</option>
-              <option>Mediterranean</option>
-              <option>East Asian</option>
-              <option>American</option>
-              <option>Other</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="constraint">Dietary pattern</label>
-            <select id="constraint">
-              <option value="">No preference</option>
-              <option value="non-vegetarian">Non-vegetarian</option>
-              <option value="vegetarian">Vegetarian</option>
-              <option value="vegan">Vegan</option>
-              <option value="low-sodium">Already low-sodium</option>
-              <option value="gluten-free">Gluten-free</option>
-            </select>
-          </div>
-          <div class="field full">
-            <label for="dislikes">Foods to avoid suggesting</label>
-            <input id="dislikes" type="text" placeholder="e.g. fish, mushrooms">
-            <span class="hint">Separate with commas.</span>
-          </div>
-          <div class="field full">
-            <label>Health conditions (tick any that apply)</label>
-            <div class="checks" id="condChecks">
-              <label><input type="checkbox" value="pcos"> PCOS</label>
-              <label><input type="checkbox" value="diabetes"> Diabetes / pre-diabetes</label>
-              <label><input type="checkbox" value="cholesterol"> High cholesterol</label>
-              <label><input type="checkbox" value="pregnant"> Pregnant or breastfeeding</label>
-            </div>
-            <span class="hint">The food choices change for these. Pregnant or breastfeeding: we send you to a doctor instead of making a plan.</span>
-          </div>
-          <div class="field full">
-            <label>Exercise you like (tick any)</label>
-            <div class="checks" id="actChecks">
-              <label><input type="checkbox" value="yoga"> 🧘 Yoga</label>
-              <label><input type="checkbox" value="home"> 🏠 Home workouts</label>
-              <label><input type="checkbox" value="gym"> 🏋️ Gym</label>
-              <label><input type="checkbox" value="zumba"> 💃 Zumba / dance</label>
-              <label><input type="checkbox" value="walking"> 🚶 Walking</label>
-              <label><input type="checkbox" value="running"> 🏃 Running / jogging</label>
-              <label><input type="checkbox" value="swimming"> 🏊 Swimming</label>
-              <label><input type="checkbox" value="cycling"> 🚴 Cycling</label>
-            </div>
-          </div>
           <div class="field full">
             <label>Have you noticed any of these lately? (tick any, optional)</label>
             <div class="checks" id="symChecks">
@@ -702,32 +950,32 @@
         </div>
       </section>
 
-      <!-- Step 5: Review -->
-      <section class="step" data-step="5">
+      <!-- Review -->
+      <section class="step" data-step="7">
         <h2><span class="em" aria-hidden="true">✅</span>Review your answers</h2>
         <p class="step-hint">Everything looks right? Submit to see your risk estimate.</p>
         <ul class="review-list" id="reviewList"></ul>
       </section>
 
-      <!-- Step 6: Results -->
-      <section class="step" data-step="6" id="resultsStep">
+      <!-- Results -->
+      <section class="step" data-step="8" id="resultsStep">
         <div id="resultsBody"></div>
         <div class="restart-row">
-          <button type="button" id="restartBtn">Start a new check</button>
+          <button type="button" id="restartBtn">Done</button>
         </div>
       </section>
 
       <div class="step-nav" id="stepNav">
         <button type="button" class="btn ghost" id="backBtn">Back</button>
-        <span class="step-count" id="stepCount">Step 1 of 6</span>
+        <span class="step-count" id="stepCount">Block 1</span>
         <span class="spacer"></span>
         <button type="button" class="btn primary" id="nextBtn">Continue</button>
+        <button type="button" class="btn primary" id="profBtn" style="display:none;">Save profile</button>
         <button type="submit" class="btn primary" id="submitBtn" style="display:none;">Check my risk</button>
       </div>
 
     </form>
   </div>
-
 </main>
 
 <footer class="wrap">
@@ -742,15 +990,18 @@
   var BACKEND_URL = "https://backend-production-b3eff.up.railway.app";
 
   var STEPS = [
-    {label:"About you", fields:["personName","gender","age","ethnicity","hhsize","incomeBand"]},
-    {label:"Body", fields:["heightFt","heightIn","weightLb","waistIn","creatinine"]},
+    {label:"About you", fields:["personName","gender","age","ethnicity","heightFt","heightIn","smoke"]},
+    {label:"Household", fields:["hhsize","incomeBand"]},
+    {label:"Food & health", fields:[]},
+    {label:"Body", fields:["weightLb","waistIn","creatinine"]},
     {label:"Diet", fields:["kcal","sodium","potassium","protein","carbs","fat","alcoholg"]},
-    {label:"Lifestyle", fields:["smoke","activity","alcfreq"]},
-    {label:"Health & food", fields:[]},
+    {label:"Lifestyle", fields:["activity","alcfreq"]},
+    {label:"Feeling", fields:[]},
     {label:"Review", fields:[]}
   ];
-  // index 6 = results, not part of the rail
-
+  var REV = 7, RES = 8;                      // review and results blocks
+  var FLOWS = {full:[0,1,2,3,4,5,6,7], checkin:[3,4,5,6,7], profile:[0,1,2]};
+  var MODE = "full", FLOW = FLOWS.full, pos = 0;
   var current = 0;
   var form = document.getElementById("assessForm");
   var backBtn = document.getElementById("backBtn");
@@ -764,17 +1015,33 @@
   var progressBlock = document.getElementById("progressBlock");
   var resultsBody = document.getElementById("resultsBody");
 
-  // Build progress rail
-  STEPS.forEach(function(s, i){
-    var seg = document.createElement("div");
-    seg.className = "progress-seg";
-    seg.innerHTML = "<i></i>";
-    progressTrack.appendChild(seg);
-    var lbl = document.createElement("span");
-    lbl.textContent = s.label;
-    lbl.dataset.idx = i;
-    progressLabels.appendChild(lbl);
-  });
+  // Build the progress rail for the current flow
+  function buildRail(){
+    progressTrack.innerHTML = ""; progressLabels.innerHTML = "";
+    FLOW.forEach(function(si, i){
+      var seg = document.createElement("div");
+      seg.className = "progress-seg";
+      seg.innerHTML = "<i></i>";
+      progressTrack.appendChild(seg);
+      var lbl = document.createElement("span");
+      lbl.textContent = STEPS[si].label;
+      lbl.dataset.idx = i;
+      progressLabels.appendChild(lbl);
+    });
+  }
+  var FLOW_INFO = {
+    full:{t:"Let\u2019s check on your heart \uD83D\uDC9A", g:"Quick check"},
+    checkin:{t:"Today\u2019s check-in", g:"Takes about 2 minutes"},
+    profile:{t:"Your profile", g:"Saved once, reused every time"}
+  };
+  window.PP_flow = function(mode){
+    MODE = FLOWS[mode] ? mode : "full"; FLOW = FLOWS[MODE]; pos = 0; current = FLOW[0];
+    document.getElementById("flowTitle").textContent = FLOW_INFO[MODE].t;
+    document.getElementById("flowTag").textContent = FLOW_INFO[MODE].g;
+    document.getElementById("resultsBody").innerHTML = "";
+    buildRail(); updateUI();
+  };
+  buildRail();
 
   var EXAMPLES = {
     active: {
@@ -835,8 +1102,8 @@
     if (totalIn > 0 && lb > 0){
       var bmi = Math.round(lb * 703 / (totalIn * totalIn) * 10) / 10;
       setv("bmi", bmi); setv("weightKg", Math.round(lb * 0.45359 * 10) / 10);
-      if (show) show.innerHTML = "<b>" + bmi.toFixed(1) + "</b> (worked out from your height and weight)";
-    } else { setv("bmi", ""); setv("weightKg", ""); if (show) show.textContent = "Fill in height and weight"; }
+      if (show) show.innerHTML = "<b>" + bmi.toFixed(1) + "</b> (worked out from your profile height and weight)";
+    } else { setv("bmi", ""); setv("weightKg", ""); if (show) show.textContent = "Fill in your weight (height comes from your profile)"; }
     setv("waist", wi > 0 ? Math.round(wi * 2.54 * 10) / 10 : "");
     // activity -> the two yes/no answers the model was trained on
     var act = parseFloat(val("activity"));
@@ -849,7 +1116,7 @@
         var bmr = 10 * kg + 6.25 * cm - 5 * age + (sex === "1" ? 5 : -161);
         window.__tdee = Math.round(bmr * act / 10) * 10;
         t.innerHTML = "Your estimated daily calorie need: about <b>" + window.__tdee.toLocaleString("en-US") + " kcal</b> to stay at your weight.";
-      } else { window.__tdee = null; t.textContent = "Your daily calorie need shows here once you fill in the earlier steps."; }
+      } else { window.__tdee = null; t.textContent = "Your daily calorie need shows here once your profile and weight are filled in."; }
     }
     var cmp = document.getElementById("tdeeCmp");
     if (cmp){ var k = parseFloat(val("kcal")); cmp.textContent = (window.__tdee && k) ? ("For comparison, your estimated daily need is about " + window.__tdee.toLocaleString("en-US") + " kcal.") : ""; }
@@ -866,31 +1133,35 @@
   function val(id){ var el = document.getElementById(id); return el ? el.value : ""; }
   function num(id){ return parseFloat(val(id)); }
 
+  var profBtn = document.getElementById("profBtn");
   function updateUI(){
     document.querySelectorAll(".step").forEach(function(sec){
       sec.classList.toggle("active", parseInt(sec.dataset.step,10) === current);
     });
 
-    var onResults = current === 6;
-    introBlock.style.display = onResults ? "none" : "";
+    var onResults = current === RES;
     progressBlock.style.display = onResults ? "none" : "";
     stepNav.style.display = onResults ? "none" : "flex";
+    document.querySelector(".flow-head").style.display = onResults ? "none" : "";
 
     if (!onResults){
+      pos = FLOW.indexOf(current); if (pos < 0){ pos = 0; current = FLOW[0]; }
       var segs = progressTrack.querySelectorAll(".progress-seg i");
-      segs.forEach(function(i, idx){ i.style.width = idx <= current ? "100%" : "0%"; });
+      segs.forEach(function(i, idx){ i.style.width = idx <= pos ? "100%" : "0%"; });
       var labels = progressLabels.querySelectorAll("span");
-      labels.forEach(function(l, idx){ l.classList.toggle("current", idx === current); });
+      labels.forEach(function(l, idx){ l.classList.toggle("current", idx === pos); });
 
-      backBtn.style.visibility = current === 0 ? "hidden" : "visible";
-      stepCount.textContent = "Step " + (current+1) + " of " + STEPS.length;
+      backBtn.style.visibility = "visible";
+      backBtn.textContent = pos === 0 ? "Cancel" : "Back";
+      stepCount.textContent = "Block " + (pos+1) + " of " + FLOW.length;
 
-      var isReview = current === STEPS.length - 1;
-      nextBtn.style.display = isReview ? "none" : "inline-block";
-      submitBtn.style.display = isReview ? "inline-block" : "none";
-      nextBtn.textContent = current === STEPS.length - 2 ? "Continue to review" : "Continue";
+      var isLast = pos === FLOW.length - 1;
+      nextBtn.style.display = isLast ? "none" : "inline-block";
+      submitBtn.style.display = (isLast && MODE !== "profile") ? "inline-block" : "none";
+      profBtn.style.display = (isLast && MODE === "profile") ? "inline-block" : "none";
+      nextBtn.textContent = (pos === FLOW.length - 2 && MODE !== "profile") ? "Continue to review" : "Continue";
 
-      if (isReview) buildReview();
+      if (current === REV) buildReview();
     }
   }
 
@@ -908,7 +1179,7 @@
 
   function buildReview(){
     var list = document.getElementById("reviewList");
-    var allFields = STEPS.slice(0,5).reduce(function(acc,s){ return acc.concat(s.fields); }, [])
+    var allFields = STEPS.slice(0,REV).reduce(function(acc,s){ return acc.concat(s.fields); }, [])
       .concat(["cuisine","constraint","dislikes"]);
     var extra = [["Health conditions","#condChecks"],["Exercise you like","#actChecks"]].map(function(p){
       var v = [].slice.call(document.querySelectorAll(p[1] + " input:checked")).map(function(x){return x.parentNode.textContent.trim();});
@@ -931,23 +1202,25 @@
 
   nextBtn.addEventListener("click", function(){
     if (!validateStep(current)) return;
-    current = Math.min(current + 1, STEPS.length - 1);
+    current = FLOW[Math.min(pos + 1, FLOW.length - 1)];
     updateUI();
     window.scrollTo({top:0, behavior:"smooth"});
   });
 
   backBtn.addEventListener("click", function(){
-    current = Math.max(current - 1, 0);
+    if (pos === 0){ if (window.PP_home) window.PP_home(); return; }
+    current = FLOW[pos - 1];
     updateUI();
     window.scrollTo({top:0, behavior:"smooth"});
   });
 
   document.getElementById("restartBtn").addEventListener("click", function(){
-    form.reset();
-    document.getElementById("creatinine").disabled = false;
-    current = 0;
-    updateUI();
-    window.scrollTo({top:0, behavior:"smooth"});
+    // a clean page: signed-in people land on their dashboard, guests on the sign-in page
+    location.reload();
+  });
+  profBtn.addEventListener("click", function(){
+    for (var k = 0; k < FLOW.length; k++){ if (!validateStep(FLOW[k])){ current = FLOW[k]; updateUI(); validateStep(FLOW[k]); return; } }
+    if (window.PP_saveProfile) window.PP_saveProfile();
   });
 
   function buildPayload(){
@@ -1077,10 +1350,10 @@
       '<div class="trust"><b>A note on trust and safety</b>' +
       "These factors are statistical associations from population data, explained with SHAP — not a medical diagnosis. " +
       "The guidance above follows DASH/AHA recommendations broadly; confirm how it applies to you with a doctor or " +
-      "registered dietitian, especially if you take blood pressure medication or have kidney disease.</div>";
+      "registered dietitian, especially if you take blood pressure medication. This tool covers high blood pressure only; with kidney disease, ask your doctor or a kidney dietitian for a plan of your own.</div>";
     resultsBody.insertAdjacentHTML("beforeend", planPanelHtml()); confetti();
     wirePlan(data.id);
-    current = 6;
+    current = RES;
     updateUI();
     window.scrollTo({top:0, behavior:"smooth"});
   }
@@ -1090,7 +1363,7 @@
   function planPanelHtml(){
     return '<div class="plan" id="planPanel">' +
       "<h3>🍽️ Your personalised eating plan</h3>" +
-      '<p class="plan-sub">Written from the DASH and AHA/ACC guidelines (and KDIGO if your kidney result is low), then checked by software for sodium limits and safety. Education only, not a diagnosis.</p>' +
+      '<p class="plan-sub">Written from the DASH and AHA/ACC guidelines then checked by software for sodium limits and safety. Education only, not a diagnosis.</p>' +
       '<button type="button" class="btn primary" id="planBtn">Create my plan</button>' +
       '<div id="planOut"></div></div>';
   }
@@ -1171,6 +1444,7 @@
     function viewHtml(v){
       var o = '<div class="pv">';
       if (v.built_note) o += '<div class="plan-flag">Good news: this plan is built from our checked food list, and it passes the same sodium, protein and safety checks.</div>';
+      (v.safety_notes || []).forEach(function(n){ o += '<div class="plan-flag"><b>Please note:</b> ' + escapeHtml(n) + "</div>"; });
       if (v.summary) o += '<div class="sum">' + escapeHtml(v.summary) + "</div>";
       if (v.protein && v.protein.text) o += '<h4>💪 Protein</h4><div class="prot">' + escapeHtml(v.protein.text) + "</div>";
       o += "<h4>🍽️ What to eat (pick one option per meal)</h4>";
@@ -1217,12 +1491,6 @@
       var first = (document.getElementById("personName").value || "").trim().split(/\s+/)[0] || "there";
       first = first.charAt(0).toUpperCase() + first.slice(1);
       var html = '<div class="hello"><b>Hey ' + escapeHtml(first) + '! \uD83D\uDC9A</b> Here is your personalised plan. I put it together from your numbers, your food choices and trusted guidelines, and the amounts have been double-checked. Pick one option for each meal, and tell me below if anything does not suit you.</div>';
-      if (res.kidney_safe_mode){
-        var kn = res.kidney_note ? escapeHtml(res.kidney_note) : "We could not tell how well your kidneys are working.";
-        html += '<div class="plan-flag"><b>Extra kidney care is switched on.</b> ' + kn +
-          ' Because of this, your plan uses a lower salt limit (2,000 mg a day), avoids salt substitutes and potassium supplements, and keeps protein moderate. ' +
-          'This is a safety setting, not a diagnosis. If you have a recent kidney lab result (eGFR), your doctor or kidney dietitian can confirm which rules fit you.</div>';
-      }
       html += '<div id="planBody">' + bodyHtml(res) + "</div>";
       html += '<div class="plan-meta"><button type="button" class="btn" id="revBtn">Check for clinician-reviewed version</button></div><div id="revOut"></div>';
       html += '<div class="carebox"><b>Follow up with your care team</b><div class="muted" style="font-size:.85rem">If your health changes, tell us. Your plan will be updated, and a clinician can answer questions. This tool does not replace a doctor.</div>' +
@@ -1259,7 +1527,7 @@
         "<label>Other symptoms</label>" + chks(AMBER) +
         "<label>Changes since your last assessment (optional)</label>" +
         'New BMI <input type="number" step="0.1" id="ciBmi" style="width:90px"> New waist (cm) <input type="number" step="0.5" id="ciWst" style="width:90px">' +
-        '<label>New health conditions (comma separated, e.g. diabetes, cholesterol)</label><input type="text" id="ciAdd" style="width:100%">' +
+        '<label>Anything else that has changed? (optional)</label><input type="text" id="ciAdd" style="width:100%">' +
         '<label>Anything else? (optional)</label><textarea id="ciNote" maxlength="500"></textarea>' +
         '<label>Email for updates (optional)</label><input type="text" id="ciMail" style="width:100%" autocomplete="email">' +
         '<div class="row2"><button type="button" class="btn primary" id="ciSend">Send check-in</button></div><div id="ciMsg"></div></div>';
@@ -1382,12 +1650,12 @@
     resultsBody.innerHTML =
       '<div class="results-head"><p>' + escapeHtml(message) + "</p></div>" +
       '<div class="error-box"><span>' + escapeHtml(raw || "") + '</span><button type="button" id="retryBtn">Retry</button></div>';
-    current = 6;
-    document.getElementById("restartBtn").textContent = "Back to form";
+    current = RES;
+    document.getElementById("restartBtn").textContent = "Back to start";
     updateUI();
     var retry = document.getElementById("retryBtn");
     if (retry) retry.addEventListener("click", function(){
-      current = STEPS.length - 1;
+      current = REV;
       updateUI();
       form.requestSubmit();
     });
@@ -1547,31 +1815,23 @@
 })();
 </script>
 
-<style>
-  .acct{max-width:var(--maxw); margin:0 auto 16px; background:#fff; border:2px solid #A9C7EC; border-radius:16px; padding:14px 16px; font-size:0.93rem; color:var(--ink)}
-  .acct h3{margin:0 0 6px; font-size:1rem}
-  .acct .row{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:8px}
-  .acct input{padding:9px 10px; border:1.5px solid #8FB3E0; border-radius:10px; font-size:0.95rem; width:150px}
-  .acct button{padding:9px 14px; border-radius:999px; border:0; background:var(--primary); color:#fff; font-weight:600; cursor:pointer}
-  .acct button.alt{background:#fff; color:var(--primary); border:1.5px solid var(--primary)}
-  .acct .msg{margin-top:8px; font-size:0.88rem}
-  .acct .msg.err{color:var(--risk-high)}
-  .acct .code{display:inline-block; font-size:1.25rem; letter-spacing:2px; font-weight:700; background:var(--primary-soft); padding:6px 12px; border-radius:10px; margin:4px 0}
-  .acct .hist{margin-top:10px; border-top:1px solid var(--rule); padding-top:8px}
-  .acct .hist .item{display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:6px 0; border-bottom:1px dashed var(--rule)}
-  .acct .hist .planbox{white-space:pre-wrap; background:#F5F8FD; border-radius:10px; padding:10px; margin:6px 0; font-size:0.88rem}
-  .acct .small{font-size:0.82rem; color:var(--ink-soft)}
-</style>
+
 <script>
 (function(){
   "use strict";
   var BACKEND = "https://backend-production-b3eff.up.railway.app";
   var KEY = "pp_acct", DRAFT = "pp_draft";
-  // Fields that are kept in the saved form. Yesterday's food and the symptom boxes are left out on purpose: they change every visit.
-  var FIELDS = ["personName","gender","age","ethnicity","hhsize","incomeBand","grocery","heightFt","heightIn","weightLb","waistIn","creatinine","smoke","activity","alcfreq","cuisine","constraint","dislikes"];
-  var form = document.getElementById("assessForm");
-  var acct = load();
-  var emailOn = false;
+  // Long-term profile: answers that rarely change. Saved once to the account and reused at every check-in.
+  var PROFILE_FIELDS = ["personName","gender","age","ethnicity","heightFt","heightIn","smoke","hhsize","incomeBand","grocery","cuisine","constraint","dislikes"];
+  var REQUIRED_PROFILE = ["gender","age","ethnicity","heightFt","heightIn","smoke","hhsize","incomeBand"];
+  // Answers that can change between visits; pre-filled from the last check-in. Yesterday's food and symptoms are never carried over.
+  var CHECKIN_FIELDS = ["weightLb","waistIn","creatinine","activity","alcfreq"];
+  var FIELDS = PROFILE_FIELDS.concat(CHECKIN_FIELDS);
+
+  var acct = load(), emailOn = false, state = {me:null, profile:null, latest:null}, setupNext = false;
+  var $ = function(id){ return document.getElementById(id); };
+  var V = {auth:$("viewAuth"), dash:$("viewDash"), wiz:$("viewWizard")};
+  var form = $("assessForm");
 
   function load(){ try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return null; } }
   function store(a){ acct = a; try { if (a) localStorage.setItem(KEY, JSON.stringify(a)); else localStorage.removeItem(KEY); } catch (e) {} }
@@ -1584,196 +1844,463 @@
     });
   }
   function post(path, body){ return call(path, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)}); }
+  function fire(el, name){ el.dispatchEvent(new Event(name, {bubbles:true})); }
 
-  // ---- the form <-> a plain object (used for the saved answers and for the short-term draft)
+  // ---------- the form <-> plain objects ----------
+  function checked(sel){ return [].slice.call(document.querySelectorAll(sel + " input:checked")).map(function(x){ return x.value; }); }
+  function pick(ids){ var s = {}; ids.forEach(function(id){ var el = $(id); if (el && el.value !== "") s[id] = el.value; }); return s; }
+  function profileSnap(){ var s = pick(PROFILE_FIELDS); s.conds = checked("#condChecks"); s.acts = checked("#actChecks"); return s; }
   function snapshot(){
-    var s = {};
-    FIELDS.forEach(function(id){ var el = document.getElementById(id); if (el && el.value !== "") s[id] = el.value; });
-    var cu = document.getElementById("creatUnknown"); if (cu) s.creatUnknown = !!cu.checked;
-    s.conds = [].slice.call(document.querySelectorAll("#condChecks input:checked")).map(function(x){ return x.value; });
-    s.acts = [].slice.call(document.querySelectorAll("#actChecks input:checked")).map(function(x){ return x.value; });
+    var s = pick(FIELDS); s.conds = checked("#condChecks"); s.acts = checked("#actChecks");
+    var cu = $("creatUnknown"); if (cu) s.creatUnknown = !!cu.checked;
     return s;
   }
-  function fire(el, name){ el.dispatchEvent(new Event(name, {bubbles:true})); }
-  function fill(s){
+  function fill(s, ids, lists){
     if (!s) return;
-    FIELDS.forEach(function(id){ var el = document.getElementById(id); if (el && s[id] != null) { el.value = s[id]; fire(el, "input"); fire(el, "change"); } });
-    var cu = document.getElementById("creatUnknown"); if (cu && s.creatUnknown != null) { cu.checked = !!s.creatUnknown; fire(cu, "change"); if (!cu.checked && s.creatinine != null) document.getElementById("creatinine").value = s.creatinine; }
-    [["#condChecks", s.conds], ["#actChecks", s.acts]].forEach(function(p){
-      [].slice.call(document.querySelectorAll(p[0] + " input")).forEach(function(c){ c.checked = (p[1] || []).indexOf(c.value) >= 0; });
-    });
+    (ids || FIELDS).forEach(function(id){ var el = $(id); if (el && s[id] != null) { el.value = s[id]; fire(el, "input"); fire(el, "change"); } });
+    if ((!ids || ids === FIELDS || ids === CHECKIN_FIELDS) && s.creatUnknown != null){
+      var cu = $("creatUnknown"); if (cu){ cu.checked = !!s.creatUnknown; fire(cu, "change"); if (!cu.checked && s.creatinine != null) $("creatinine").value = s.creatinine; }
+    }
+    if (lists !== false){
+      [["#condChecks", s.conds], ["#actChecks", s.acts]].forEach(function(p){
+        if (p[1] == null) return;
+        [].slice.call(document.querySelectorAll(p[0] + " input")).forEach(function(c){ c.checked = p[1].indexOf(c.value) >= 0; });
+      });
+    }
   }
+  function profileComplete(p){ return !!p && REQUIRED_PROFILE.every(function(k){ return p[k] != null && p[k] !== ""; }); }
   window.PP_snapshot = snapshot;
   window.PP_authHeader = function(){ return (acct && acct.token) ? {"Authorization":"Bearer " + acct.token} : {}; };
 
-  // ---- short-term memory: the visit in progress survives a refresh (this tab only)
+  // short-term memory: an unfinished visit survives a refresh (this tab only)
   var timer = null;
   function saveDraft(){ clearTimeout(timer); timer = setTimeout(function(){ try { sessionStorage.setItem(DRAFT, JSON.stringify(snapshot())); } catch (e) {} }, 400); }
   if (form){ form.addEventListener("input", saveDraft); form.addEventListener("change", saveDraft); }
+  function draft(){ try { var d = JSON.parse(sessionStorage.getItem(DRAFT) || "null"); return (d && Object.keys(d).length > 3) ? d : null; } catch (e) { return null; } }
+  function clearDraft(){ try { sessionStorage.removeItem(DRAFT); } catch (e) {} }
 
-  // ---- the account panel
-  var bar = document.createElement("div"); bar.className = "acct"; bar.id = "acctBar";
-  var anchor = document.getElementById("introBlock");
-  if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(bar, anchor.nextSibling);
 
-  function setMsg(t, err){ var m = document.getElementById("acctMsg"); if (m){ m.textContent = t || ""; m.className = "msg" + (err ? " err" : ""); } }
+  // ---------- cute pictures (inline SVG, no downloads) ----------
+  function face(cx, cy, dark){
+    var c = dark || "#1B2A41";
+    return '<circle cx="' + (cx-7) + '" cy="' + cy + '" r="2.4" fill="' + c + '"/><circle cx="' + (cx+7) + '" cy="' + cy + '" r="2.4" fill="' + c + '"/>' +
+      '<path d="M' + (cx-4) + ' ' + (cy+6) + ' Q' + cx + ' ' + (cy+11) + ' ' + (cx+4) + ' ' + (cy+6) + '" fill="none" stroke="' + c + '" stroke-width="2" stroke-linecap="round"/>' +
+      '<ellipse cx="' + (cx-12) + '" cy="' + (cy+5) + '" rx="3.2" ry="2" fill="#FF9FA8" opacity=".75"/><ellipse cx="' + (cx+12) + '" cy="' + (cy+5) + '" rx="3.2" ry="2" fill="#FF9FA8" opacity=".75"/>';
+  }
+  var ART = {
+    avocado: '<svg viewBox="0 0 60 72" class="veg"><path d="M30 4C44 4 52 28 52 44C52 59 42 67 30 67C18 67 8 59 8 44C8 28 16 4 30 4Z" fill="#7DB84A" stroke="#4E8A2B" stroke-width="2.5"/><path d="M30 13C40 13 45 31 45 44C45 55 38 61 30 61C22 61 15 55 15 44C15 31 20 13 30 13Z" fill="#F2E7A0"/><circle cx="30" cy="49" r="9" fill="#A06F3E"/>' + face(30, 30) + '</svg>',
+    carrot: '<svg viewBox="0 0 60 72" class="veg"><path d="M30 16C40 16 46 24 44 36L32 67Q30 71 28 67L16 36C14 24 20 16 30 16Z" fill="#FF9248" stroke="#D96A1E" stroke-width="2.5"/><path d="M30 16C24 8 22 4 19 1M30 16C30 8 30 4 30 0M30 16C36 8 38 4 41 1" stroke="#3FA66A" stroke-width="3.6" stroke-linecap="round" fill="none"/><path d="M22 44h6M32 52h6M26 58h5" stroke="#D96A1E" stroke-width="2" stroke-linecap="round"/>' + face(30, 31) + '</svg>',
+    tomato: '<svg viewBox="0 0 60 72" class="veg"><circle cx="30" cy="40" r="25" fill="#F2575F" stroke="#C93A44" stroke-width="2.5"/><path d="M30 17l-6 -7 6 3 6 -3z M20 20l8 -2 M40 20l-8 -2" fill="#3FA66A" stroke="#2F8A4B" stroke-width="2" stroke-linejoin="round"/>' + face(30, 38, "#fff") + '</svg>',
+    broccoli: '<svg viewBox="0 0 60 72" class="veg"><path d="M23 68L26 44H34L37 68Z" fill="#B7DB8A" stroke="#7FB04E" stroke-width="2"/><circle cx="19" cy="34" r="13" fill="#4FB36B" stroke="#2F8A4B" stroke-width="2.5"/><circle cx="41" cy="34" r="13" fill="#4FB36B" stroke="#2F8A4B" stroke-width="2.5"/><circle cx="30" cy="23" r="15" fill="#4FB36B" stroke="#2F8A4B" stroke-width="2.5"/>' + face(30, 33) + '</svg>'
+  };
 
-  function render(extra){
+  function plus(x, y, sz, op){ var a = sz / 3; return '<g opacity="' + (op || 1) + '"><rect x="' + (x - a/2) + '" y="' + (y - sz/2) + '" width="' + a + '" height="' + sz + '" rx="' + (a/2.2) + '" fill="#fff"/><rect x="' + (x - sz/2) + '" y="' + (y - a/2) + '" width="' + sz + '" height="' + a + '" rx="' + (a/2.2) + '" fill="#fff"/></g>'; }
+  function pill(x, y, rot, c1, c2){ return '<g transform="translate(' + x + ' ' + y + ') rotate(' + rot + ')"><rect x="-17" y="-8" width="34" height="16" rx="8" fill="' + c2 + '"/><path d="M-9 -8H0V8H-9A8 8 0 0 1 -9 -8Z" fill="' + c1 + '" transform="translate(-8 0)"/><rect x="-17" y="-8" width="34" height="16" rx="8" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="1.2"/><rect x="-10" y="-5" width="14" height="3" rx="1.5" fill="#fff" opacity=".55"/></g>'; }
+  ART.bp = '<svg viewBox="0 0 380 300" class="bpart" role="img" aria-label="A red heart resting on a blood pressure monitor">' +
+    '<defs>' +
+    '<radialGradient id="hgR" cx=".36" cy=".3" r=".85"><stop offset="0" stop-color="#FF7B72"/><stop offset=".45" stop-color="#E02F3B"/><stop offset="1" stop-color="#9E1224"/></radialGradient>' +
+    '<linearGradient id="cuffG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3A3B42"/><stop offset="1" stop-color="#121216"/></linearGradient>' +
+    '<linearGradient id="ringG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4F5F8"/><stop offset=".5" stop-color="#B9BDC8"/><stop offset="1" stop-color="#6E7380"/></linearGradient>' +
+    '<radialGradient id="bulbG" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#4A4B54"/><stop offset="1" stop-color="#0E0E12"/></radialGradient>' +
+    '<radialGradient id="shad" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#000" stop-opacity=".28"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>' +
+    '</defs>' +
+    '<ellipse cx="195" cy="278" rx="150" ry="16" fill="url(#shad)"/>' +
+    /* cuff roll */
+    '<path d="M22 214 C14 168 36 128 84 122 L160 134 L162 252 L70 262 C40 262 26 242 22 214Z" fill="url(#cuffG)"/>' +
+    '<path d="M44 150 C60 134 96 130 140 142" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="5" stroke-linecap="round"/>' +
+    '<path d="M32 196 C34 232 56 250 100 248" fill="none" stroke="#fff" stroke-opacity=".09" stroke-width="4" stroke-linecap="round"/>' +
+    /* heart */
+    '<path d="M122 232 C26 164 14 76 70 50 C104 36 124 56 128 76 C134 52 160 32 194 46 C250 70 232 160 122 232Z" fill="url(#hgR)"/>' +
+    '<path d="M70 62 C86 52 106 58 116 76" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="9" stroke-linecap="round"/>' +
+    '<ellipse cx="78" cy="96" rx="9" ry="16" fill="#fff" fill-opacity=".22" transform="rotate(18 78 96)"/>' +
+    '<path d="M214 78 C230 118 200 178 132 226" fill="none" stroke="#6E0B1A" stroke-opacity=".35" stroke-width="12" stroke-linecap="round"/>' +
+    /* tubing */
+    '<path d="M150 254 C176 292 262 292 300 252 C326 224 318 190 292 176" fill="none" stroke="#17171B" stroke-width="10" stroke-linecap="round"/>' +
+    '<path d="M150 254 C176 290 262 290 300 250" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="2.5" stroke-linecap="round"/>' +
+    /* bulb */
+    '<ellipse cx="150" cy="226" rx="26" ry="19" fill="url(#bulbG)" transform="rotate(-62 150 226)"/>' +
+    '<ellipse cx="143" cy="214" rx="6" ry="11" fill="#fff" fill-opacity=".18" transform="rotate(-62 143 214)"/>' +
+    /* gauge */
+    '<circle cx="236" cy="190" r="50" fill="url(#ringG)"/>' +
+    '<circle cx="236" cy="190" r="42" fill="#fff" stroke="#8D92A0" stroke-width="2"/>' +
+    '<g stroke="#2E3340" stroke-width="2.2" stroke-linecap="round">' +
+    (function(){ var t = ""; for (var i = 0; i < 13; i++){ var ang = (-210 + i * 20) * Math.PI / 180, r1 = 36, r2 = (i % 3 === 0) ? 29 : 32; t += '<line x1="' + (236 + r1 * Math.cos(ang)).toFixed(1) + '" y1="' + (190 + r1 * Math.sin(ang)).toFixed(1) + '" x2="' + (236 + r2 * Math.cos(ang)).toFixed(1) + '" y2="' + (190 + r2 * Math.sin(ang)).toFixed(1) + '"/>'; } return t; })() +
+    '</g>' +
+    '<path d="M196 168 A44 44 0 0 1 222 150" fill="none" stroke="#2FA66A" stroke-width="3" stroke-linecap="round" opacity=".8"/><path d="M262 154 A44 44 0 0 1 280 188" fill="none" stroke="#D93B3B" stroke-width="3" stroke-linecap="round" opacity=".8"/>' +
+    '<text x="236" y="212" text-anchor="middle" font-size="8" font-family="Inter,Arial,sans-serif" font-weight="700" fill="#4A5262" letter-spacing=".5">mmHg</text>' +
+    '<line x1="236" y1="190" x2="256" y2="166" stroke="#C0182A" stroke-width="3.2" stroke-linecap="round"/><circle cx="236" cy="190" r="5.5" fill="#1B1D26"/>' +
+    '<path d="M205 158 C214 146 228 142 240 143" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="3" stroke-linecap="round"/>' +
+    '</svg>';
+
+  function mascot(cls){ var m = $("mascotSrc"); return m ? m.innerHTML.replace('class="mascot"', 'class="' + (cls || "mascot") + '"') : ""; }
+  function veggieRow(){ return '<div class="veggies">' + ART.avocado + ART.carrot + ART.tomato + ART.broccoli + '</div>'; }
+  var SAY = {
+    0:"Hi! Just your basics. I'll remember them, so you only do this once.",
+    1:"Rough answers are totally fine here.",
+    2:"Tell me what you like and what you don't. I'll plan around it.",
+    3:"Step on the scale and measure your waist. Takes a minute.",
+    4:"Write it like you're texting a friend. I'll do the maths.",
+    5:"Same as last time? Then just hit continue.",
+    6:"Anything feeling off lately? Tick it, or skip it.",
+    7:"Last look before I work out your result."
+  };
+  function addSay(){
+    document.querySelectorAll(".step").forEach(function(sec){
+      var n = parseInt(sec.dataset.step, 10); if (!(n in SAY) || sec.querySelector(".say")) return;
+      var d = document.createElement("div"); d.className = "say";
+      d.innerHTML = '<span class="sm">' + mascot("mini") + '</span><div class="bub">' + SAY[n] + '</div>';
+      var hint = sec.querySelector(".step-hint"); (hint || sec.firstChild).insertAdjacentElement("afterend", d);
+    });
+  }
+  var TIPS = [
+    "Most of the sodium we eat comes from packaged and restaurant food, not the salt shaker.",
+    "On a food label, 140 mg of sodium or less per serving counts as low sodium.",
+    "About 150 minutes of brisk walking a week helps. Ten minutes at a time counts.",
+    "At home, check your blood pressure at the same time each day, after sitting quietly for five minutes.",
+    "Rinsing canned beans and vegetables washes away some of the sodium.",
+    "Garlic, lemon, herbs and spices add flavor without any salt.",
+    "Fruit and vegetables at every meal is the heart of the DASH way of eating.",
+    "Alcohol pushes blood pressure up. Fewer drinks helps."
+  ];
+  var FACTS = [
+    "About 1 in 2 adults in the US has high blood pressure.",
+    "High blood pressure usually has no symptoms, so the only way to know is to measure it.",
+    "A reading of 130/80 mm Hg or higher counts as high blood pressure. Normal is below 120/80.",
+    "Most of the sodium we eat comes from packaged and restaurant food, not the salt shaker.",
+    "Adults are advised to keep sodium under 2,300 mg a day. That is about one teaspoon of salt.",
+    "In the original DASH trial, the DASH diet lowered systolic pressure by about 11 mm Hg in people who had high blood pressure.",
+    "Regular aerobic exercise, like brisk walking, lowers systolic pressure by roughly 5 to 8 mm Hg.",
+    "Losing about 2 pounds (1 kg) can lower systolic pressure by around 1 mm Hg.",
+    "Blood pressure goes up and down through the day. One reading is only a snapshot.",
+    "Cutting back on sodium can lower blood pressure within a few weeks.",
+    "Taste buds adjust to less salt. Many people stop missing it after a few weeks.",
+    "High blood pressure is a major risk factor for heart attack and stroke."
+  ];
+  function randomFact(){
+    var last = -1; try { last = parseInt(localStorage.getItem("pp_fact") || "-1", 10); } catch (e) {}
+    var i; do { i = Math.floor(Math.random() * FACTS.length); } while (i === last && FACTS.length > 1);
+    try { localStorage.setItem("pp_fact", String(i)); } catch (e) {}
+    return FACTS[i];
+  }
+  function dayTip(){ var d = new Date(), n = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5); return TIPS[n % TIPS.length]; }
+
+  // ---------- views ----------
+  function show(name){
+    Object.keys(V).forEach(function(k){ V[k].hidden = (k !== name); });
+    document.body.classList.toggle("signedin", !!(acct && acct.token));
+    document.querySelectorAll(".guest-only").forEach(function(e){ e.hidden = !!(acct && acct.token); });
+    renderNav(name);
+    window.scrollTo(0, 0);
+  }
+  function renderNav(view){
+    var n = $("navRight"); if (!n) return;
     if (acct && acct.token){
-      bar.innerHTML = '<h3>Signed in as <span id="acctCode"></span></h3>' +
-        '<div class="small">Your answers from earlier visits are saved. Your visit history is below, and the form is filled in from your last visit.</div>' +
-        '<div class="row"><button type="button" class="alt" id="acctHist">My history</button><button type="button" class="alt" id="acctSet">Account settings</button><button type="button" class="alt" id="acctOut">Sign out</button></div>' +
-        '<div id="acctSetBox"></div>' +
-        '<div class="msg" id="acctMsg"></div><div id="acctHistBox"></div>';
-      document.getElementById("acctCode").textContent = acct.code + (acct.name ? " (" + acct.name + ")" : "");
-      document.getElementById("acctOut").onclick = function(){ store(null); try { sessionStorage.removeItem(DRAFT); } catch (e) {} render(); };
-      document.getElementById("acctHist").onclick = showHistory;
-      document.getElementById("acctSet").onclick = showSettings;
-      if (extra) { var m = document.getElementById("acctMsg"); m.innerHTML = extra; }
+      n.innerHTML = '<span class="who">' + esc(acct.name || "Signed in") + ' · ' + esc(acct.code) + '</span>' +
+        (view !== "dash" ? '<button type="button" class="pill" id="navDash">Dashboard</button>' : "") +
+        '<button type="button" class="pill" id="navOut">Sign out</button>';
+      if ($("navDash")) $("navDash").onclick = function(){ loadDash(); };
+      $("navOut").onclick = signOut;
     } else {
-      bar.innerHTML = '<h3>Come back later and find your results (optional)</h3>' +
-        '<div class="small">Make a free account to keep your answers and past plans. You do not need one to use the tool.</div>' +
-        '<div class="row"><input id="acctCodeIn" placeholder="Patient ID (like PRIYA-482)" autocomplete="username" maxlength="16" style="width:190px"><input id="acctPinIn" type="password" inputmode="numeric" placeholder="PIN" autocomplete="current-password" maxlength="8"><button type="button" id="acctIn">Sign in</button></div>' +
-        '<div class="row"><span class="small">New here?</span><input id="acctFirst" placeholder="Your first name" maxlength="30" autocomplete="given-name"><input id="acctNew" type="password" inputmode="numeric" placeholder="Choose a 4–8 digit PIN" maxlength="8"><input id="acctMail" type="email" placeholder="Email (optional, for recovery)" maxlength="254" style="width:210px"><button type="button" class="alt" id="acctMake">Create my ID</button></div>' +
-        '<div class="row"><button type="button" class="alt" id="acctForgot">Forgot your ID or PIN?</button></div><div id="acctRecBox"></div>' +
-        '<div class="msg" id="acctMsg"></div>';
-      document.getElementById("acctForgot").onclick = showRecovery;
-      document.getElementById("acctIn").onclick = signIn;
-      document.getElementById("acctMake").onclick = createAcct;
+      n.innerHTML = (view === "wiz") ? '<button type="button" class="pill" id="navHome">Back to sign in</button>' : "";
+      if ($("navHome")) $("navHome").onclick = function(){ location.reload(); };
     }
   }
-  function idBox(j){
-    return '<b>Your patient ID</b><br><span class="code">' + esc(j.patient_code) + '</span><br><b>Your recovery key</b><br><span class="code">' + esc(j.recovery_key) + '</span><br>' +
-      '<b>Write both down and keep them somewhere safe.</b> The recovery key is shown only once. If you forget your PIN, the ID and recovery key let you set a new one.';
+  function signOut(){ store(null); clearDraft(); state = {me:null, profile:null, latest:null}; location.reload(); }
+
+  // ---------- sign-in page ----------
+  function renderAuth(tab, extraHtml){
+    tab = tab || "in";
+    var h = '<div class="auth"><div class="auth-hero light">' + ART.bp + '<h1>Hypertension</h1><div class="rule"></div></div><div class="auth-card">';
+    if (extraHtml){
+      h += extraHtml;
+    } else {
+      h += '<h2>' + (tab === "in" ? "Sign in" : "Create account") + '</h2>' +
+        '<p class="sub">' + (tab === "in" ? "Welcome back." : "A name and a PIN. That\u2019s all.") + '</p>' +
+        '<div class="tabs"><button type="button" id="tabIn" class="' + (tab === "in" ? "on" : "") + '">Sign in</button><button type="button" id="tabNew" class="' + (tab === "new" ? "on" : "") + '">Create account</button></div>';
+      if (tab === "in"){
+        h += '<div class="af"><label for="aCode">Patient ID</label><input id="aCode" placeholder="PRIYA-482" autocomplete="username" maxlength="16"></div>' +
+          '<div class="af"><label for="aPin">PIN</label><input id="aPin" type="password" inputmode="numeric" placeholder="4 to 8 digits" autocomplete="current-password" maxlength="8"></div>' +
+          '<button type="button" class="btnx block" id="aGo">Sign in</button>' +
+          '<div class="amsg" id="aMsg"></div><div style="margin-top:8px"><button type="button" class="linkbtn" id="aForgot">Forgot your ID or PIN?</button></div><div id="aRec"></div>';
+      } else {
+        h += '<div class="af"><label for="nName">Your first name</label><input id="nName" placeholder="Priya" maxlength="30" autocomplete="given-name"></div>' +
+          '<div class="af"><label for="nPin">Choose a PIN</label><input id="nPin" type="password" inputmode="numeric" placeholder="4 to 8 digits" autocomplete="new-password" maxlength="8"></div>' +
+          '<div class="af"><label for="nMail">Email (optional)</label><input id="nMail" type="email" placeholder="you@example.com" maxlength="254" autocomplete="email"></div>' +
+          '<button type="button" class="btnx block" id="nGo">Create my account</button><div class="amsg" id="aMsg"></div>';
+      }
+      h += '<div class="guestrow"><button type="button" class="linkbtn" id="aGuest">Continue without an account</button></div>';
+    }
+    h += '</div></div>';
+    V.auth.innerHTML = h;
+    show("auth");
+    if (extraHtml) return;
+    $("tabIn").onclick = function(){ renderAuth("in"); };
+    $("tabNew").onclick = function(){ renderAuth("new"); };
+    $("aGuest").onclick = startGuest;
+    if (tab === "in"){
+      $("aGo").onclick = doSignIn;
+      [$("aCode"), $("aPin")].forEach(function(i){ i.addEventListener("keydown", function(e){ if (e.key === "Enter") doSignIn(); }); });
+      $("aForgot").onclick = showRecovery;
+    } else {
+      $("nGo").onclick = doCreate;
+      $("nPin").addEventListener("keydown", function(e){ if (e.key === "Enter") doCreate(); });
+    }
   }
-  function afterSignIn(extra, restore){
-    render(extra);
-    if (extra && !restore) return Promise.resolve();   // keep the ID and recovery key on screen; nothing to restore for a brand-new account
-    return call("/account/latest").then(function(j){
-      var a = j && j.assessment;
-      if (extra) { if (a && a.form_snapshot) fill(a.form_snapshot); return; }   // keep the recovery message; just fill in the form
-      if (a && a.form_snapshot){
-        fill(a.form_snapshot);
-        setMsg("Welcome back. We filled in your answers from your last visit (" + a.date + "). Please update yesterday’s food and anything that has changed.");
-      } else if (a) {
-        setMsg("Welcome back. Your last visit is saved, but it has no stored form answers to fill in.");
-      } else { setMsg("You are signed in. Your next result will be saved here."); }
-    }).catch(function(){});
-  }
-  function signIn(){
-    var code = document.getElementById("acctCodeIn").value.trim(), pin = document.getElementById("acctPinIn").value.trim();
-    if (!code || !pin) return setMsg("Enter your patient ID and PIN.", true);
+  function amsg(t, err){ var m = $("aMsg"); if (m){ m.textContent = t || ""; m.className = "amsg" + (err ? " err" : ""); } }
+  function doSignIn(){
+    var code = $("aCode").value.trim(), pin = $("aPin").value.trim();
+    if (!code || !pin) return amsg("Enter your patient ID and PIN.", true);
+    amsg("Signing in…");
     post("/account/login", {patient_code:code, pin:pin}).then(function(j){
-      store({token:j.token, code:j.patient_code, name:j.display_name}); afterSignIn();
-    }).catch(function(e){ setMsg(e.message, true); });
+      store({token:j.token, code:j.patient_code, name:j.display_name}); loadDash();
+    }).catch(function(e){ amsg(e.message, true); });
   }
-  function createAcct(){
-    var pin = document.getElementById("acctNew").value.trim();
-    if (!/^[0-9]{4,8}$/.test(pin)) return setMsg("The PIN must be 4 to 8 digits.", true);
-    var nm = ((document.getElementById("acctFirst") || {}).value || "").trim() || (document.getElementById("personName") || {}).value || "";
-    var em = ((document.getElementById("acctMail") || {}).value || "").trim();
-    post("/account/register", {pin:pin, display_name:nm.trim() || null, email:em || null}).then(function(j){
+  function doCreate(){
+    var pin = $("nPin").value.trim(), nm = $("nName").value.trim(), em = $("nMail").value.trim();
+    if (!nm) return amsg("Please add your first name.", true);
+    if (!/^[0-9]{4,8}$/.test(pin)) return amsg("The PIN must be 4 to 8 digits.", true);
+    amsg("Creating your account…");
+    post("/account/register", {pin:pin, display_name:nm, email:em || null}).then(function(j){
       store({token:j.token, code:j.patient_code, name:j.display_name});
-      afterSignIn(idBox(j));
-    }).catch(function(e){ setMsg(e.message, true); });
+      showIdCard(j);
+    }).catch(function(e){ amsg(e.message, true); });
+  }
+  function copyBtn(txt){ return '<button type="button" class="pill copy" data-copy="' + esc(txt) + '">Copy</button>'; }
+  function showIdCard(j){
+    var h = '<h2>You\u2019re in! \uD83C\uDF89</h2><p class="sub">Save these to sign in again.</p>' +
+      '<div class="idcard"><div class="lbl">Your patient ID</div><div class="val">' + esc(j.patient_code) + copyBtn(j.patient_code) + '</div>' +
+      '<div class="lbl">Your recovery key (shown only once)</div><div class="val">' + esc(j.recovery_key) + copyBtn(j.recovery_key) + '</div>' +
+      '<div class="warn">Write both down. The recovery key is shown only once.</div></div>' +
+      '<button type="button" class="btnx block" id="idGo">Continue</button>';
+    renderAuth("new", h);
+    document.querySelectorAll("[data-copy]").forEach(function(b){ b.onclick = function(){ try { navigator.clipboard.writeText(b.getAttribute("data-copy")); b.textContent = "Copied"; } catch (e) { b.textContent = "Select and copy"; } }; });
+    $("idGo").onclick = function(){ state.profile = null; startProfile(true, j.display_name); };
   }
   function showRecovery(){
-    var box = document.getElementById("acctRecBox");
+    var box = $("aRec");
     if (box.innerHTML){ box.innerHTML = ""; return; }
-    var h = '<div class="hist"><b>Reset your PIN with your recovery key</b><div class="row"><input id="rkCode" placeholder="Patient ID" maxlength="16"><input id="rkKey" placeholder="Recovery key (RK-…)" maxlength="30" style="width:200px"><input id="rkPin" type="password" inputmode="numeric" placeholder="New PIN" maxlength="8"><button type="button" id="rkGo">Reset PIN</button></div></div>';
-    if (emailOn) h += '<div class="hist"><b>Or use your email</b><div class="small">Only works if you added an email when you made your ID.</div>' +
-      '<div class="row"><input id="fiMail" type="email" placeholder="Your email" maxlength="254" style="width:210px"><button type="button" class="alt" id="fiGo">Email me my patient ID</button></div>' +
-      '<div class="row"><input id="fpCode" placeholder="Patient ID" maxlength="16"><button type="button" class="alt" id="fpGo">Email me a reset code</button></div>' +
-      '<div class="row"><input id="rcCode" placeholder="Patient ID" maxlength="16"><input id="rcCodeIn" placeholder="6-digit code" maxlength="6" style="width:120px"><input id="rcPin" type="password" inputmode="numeric" placeholder="New PIN" maxlength="8"><button type="button" id="rcGo">Reset PIN</button></div></div>';
-    else h += '<div class="hist small">Email recovery is not switched on yet. If you lost both your PIN and recovery key, ask the care team to help.</div>';
+    var h = '<div class="recbox"><h4>Reset your PIN with your recovery key</h4>' +
+      '<div class="af"><input id="rkCode" placeholder="Patient ID" maxlength="16"></div><div class="af"><input id="rkKey" placeholder="Recovery key (RK-…)" maxlength="30"></div><div class="af"><input id="rkPin" type="password" inputmode="numeric" placeholder="New PIN" maxlength="8"></div><button type="button" class="btnx alt" id="rkGo">Reset PIN</button></div>';
+    if (emailOn) h += '<div class="recbox"><h4>Or use your email</h4><div class="af"><input id="fiMail" type="email" placeholder="Your email" maxlength="254"></div><button type="button" class="btnx alt" id="fiGo">Email me my patient ID</button>' +
+      '<div class="af" style="margin-top:12px"><input id="fpCode" placeholder="Patient ID" maxlength="16"></div><button type="button" class="btnx alt" id="fpGo">Email me a reset code</button>' +
+      '<div class="af" style="margin-top:12px"><input id="rcCode" placeholder="Patient ID" maxlength="16"></div><div class="af"><input id="rcCodeIn" placeholder="6-digit code" maxlength="6"></div><div class="af"><input id="rcPin" type="password" inputmode="numeric" placeholder="New PIN" maxlength="8"></div><button type="button" class="btnx alt" id="rcGo">Reset PIN</button></div>';
+    else h += '<div class="recbox"><span class="h">Email recovery is not switched on yet. If you lost both your PIN and recovery key, ask the care team to help.</span></div>';
     box.innerHTML = h;
-    var v = function(id){ return document.getElementById(id).value.trim(); };
-    function done(j, extra){ store({token:j.token, code:(v("rkCode") || v("rcCode")).toUpperCase(), name:null}); afterSignIn(extra, true); }
-    document.getElementById("rkGo").onclick = function(){
-      post("/account/reset-pin-with-key", {patient_code:v("rkCode"), recovery_key:v("rkKey"), new_pin:v("rkPin")}).then(function(j){
-        done(j, '<b>PIN changed.</b> Your old recovery key no longer works. Your new recovery key is<br><span class="code">' + esc(j.new_recovery_key) + '</span><br><b>Write it down.</b> It is shown only once.');
-      }).catch(function(e){ setMsg(e.message, true); });
-    };
+    var v = function(id){ return $(id).value.trim(); };
+    function done(j, code){
+      store({token:j.token, code:code.toUpperCase(), name:null});
+      V.auth.querySelector(".auth-card").innerHTML = '<h2>PIN changed ✅</h2><p class="sub">You are signed in.</p>' +
+        (j.new_recovery_key ? '<div class="idcard"><div class="lbl">Your new recovery key (the old one no longer works)</div><div class="val">' + esc(j.new_recovery_key) + copyBtn(j.new_recovery_key) + '</div><div class="warn"><b>Write it down.</b> It is shown only once.</div></div>' : "") +
+        '<button type="button" class="btnx block" id="rcContinue">Continue</button>';
+      document.querySelectorAll("[data-copy]").forEach(function(b){ b.onclick = function(){ try { navigator.clipboard.writeText(b.getAttribute("data-copy")); b.textContent = "Copied"; } catch (e) {} }; });
+      $("rcContinue").onclick = function(){ loadDash(); };
+    }
+    $("rkGo").onclick = function(){ post("/account/reset-pin-with-key", {patient_code:v("rkCode"), recovery_key:v("rkKey"), new_pin:v("rkPin")}).then(function(j){ done(j, v("rkCode")); }).catch(function(e){ amsg(e.message, true); }); };
     if (emailOn){
-      document.getElementById("fiGo").onclick = function(){ post("/account/forgot-id", {email:v("fiMail")}).then(function(j){ setMsg(j.message); }).catch(function(e){ setMsg(e.message, true); }); };
-      document.getElementById("fpGo").onclick = function(){ post("/account/forgot-pin", {patient_code:v("fpCode")}).then(function(j){ setMsg(j.message); }).catch(function(e){ setMsg(e.message, true); }); };
-      document.getElementById("rcGo").onclick = function(){
-        post("/account/reset-pin", {patient_code:v("rcCode"), code:v("rcCodeIn"), new_pin:v("rcPin")}).then(function(j){ done(j, "<b>PIN changed.</b> You are signed in."); }).catch(function(e){ setMsg(e.message, true); });
-      };
+      $("fiGo").onclick = function(){ post("/account/forgot-id", {email:v("fiMail")}).then(function(j){ amsg(j.message); }).catch(function(e){ amsg(e.message, true); }); };
+      $("fpGo").onclick = function(){ post("/account/forgot-pin", {patient_code:v("fpCode")}).then(function(j){ amsg(j.message); }).catch(function(e){ amsg(e.message, true); }); };
+      $("rcGo").onclick = function(){ post("/account/reset-pin", {patient_code:v("rcCode"), code:v("rcCodeIn"), new_pin:v("rcPin")}).then(function(j){ done(j, v("rcCode")); }).catch(function(e){ amsg(e.message, true); }); };
     }
   }
-  function showSettings(){
-    var box = document.getElementById("acctSetBox");
-    if (box.innerHTML){ box.innerHTML = ""; return; }
-    box.innerHTML = '<div class="hist"><b>Recovery</b><div class="small">An email lets you get your ID or a PIN reset code if you forget. It is used for nothing else.</div>' +
-      '<div class="row"><input id="seMail" type="email" placeholder="Your email" maxlength="254" style="width:210px"><button type="button" class="alt" id="seGo">Save email</button></div>' +
-      '<div class="row"><input id="nkPin" type="password" inputmode="numeric" placeholder="Your PIN" maxlength="8"><button type="button" class="alt" id="nkGo">Make a new recovery key</button></div>' +
-      '<div class="row"><input id="cpOld" type="password" inputmode="numeric" placeholder="Old PIN" maxlength="8"><input id="cpNew" type="password" inputmode="numeric" placeholder="New PIN" maxlength="8"><button type="button" class="alt" id="cpGo">Change PIN</button></div></div>';
-    var v = function(id){ return document.getElementById(id).value.trim(); };
-    document.getElementById("seGo").onclick = function(){ post("/account/set-email", {email:v("seMail")}).then(function(){ setMsg("Email saved."); }).catch(function(e){ setMsg(e.message, true); }); };
-    document.getElementById("nkGo").onclick = function(){ post("/account/new-recovery-key", {pin:v("nkPin")}).then(function(j){ setMsg(""); document.getElementById("acctMsg").innerHTML = '<b>Your new recovery key</b> (the old one no longer works)<br><span class="code">' + esc(j.recovery_key) + '</span><br><b>Write it down.</b> It is shown only once.'; }).catch(function(e){ setMsg(e.message, true); }); };
-    document.getElementById("cpGo").onclick = function(){ post("/account/change-pin", {old_pin:v("cpOld"), new_pin:v("cpNew")}).then(function(){ setMsg("PIN changed."); }).catch(function(e){ setMsg(e.message, true); }); };
-  }
-  function showHistory(){
-    var box = document.getElementById("acctHistBox");
-    box.innerHTML = '<div class="hist small">Loading…</div>';
-    call("/account/me").then(function(j){
-      if (!j.history.length){ box.innerHTML = '<div class="hist small">No saved visits yet. Your next result will appear here.</div>'; return; }
-      box.innerHTML = '<div class="hist"><b>' + j.visits + ' saved visit' + (j.visits === 1 ? "" : "s") + '</b></div>';
-      var host = box.firstChild;
-      j.history.forEach(function(h){
-        var it = document.createElement("div"); it.className = "item";
-        it.innerHTML = '<span>' + esc(h.date) + ' · risk ' + Math.round(h.risk_probability * 100) + '% (' + esc(h.tier) + ')' +
-          (h.review_status && h.review_status !== "pending" ? ' · clinician: ' + esc(h.review_status) : "") + '</span>';
-        var use = document.createElement("button"); use.type = "button"; use.className = "alt"; use.textContent = "Use these answers";
-        use.onclick = function(){ call("/account/assessment/" + h.assessment_id).then(function(a){ if (a.form_snapshot){ fill(a.form_snapshot); setMsg("Filled in from " + a.date + ". Update anything that has changed."); window.scrollTo({top:0, behavior:"smooth"}); } else setMsg("That visit has no stored form answers.", true); }).catch(function(e){ setMsg(e.message, true); }); };
-        it.appendChild(use);
-        if (h.plan_id){
-          var pb = document.createElement("button"); pb.type = "button"; pb.className = "alt"; pb.textContent = "View plan";
-          pb.onclick = function(){
-            var old = it.querySelector(".planbox"); if (old){ old.remove(); return; }
-            call("/account/plan/" + h.plan_id).then(function(p){ var d = document.createElement("div"); d.className = "planbox"; d.textContent = p.text + (p.reviewer_note ? "\n\nClinician note: " + p.reviewer_note : ""); it.appendChild(d); }).catch(function(e){ setMsg(e.message, true); });
-          };
-          it.appendChild(pb);
-        }
-        host.appendChild(it);
-      });
-    }).catch(function(e){ box.innerHTML = '<div class="hist small err">' + esc(e.message) + '</div>'; if (/sign in/i.test(e.message)) { store(null); render(); } });
+
+  // ---------- guest ----------
+  function startGuest(){
+    var d = draft(); if (d) fill(d);
+    show("wiz");
+    window.PP_flow("full");
   }
 
-  // ---- called by the main script after a result is shown
+  // ---------- profile and check-in flows ----------
+  function startProfile(next, firstName){
+    setupNext = !!next;
+    fill(state.profile, PROFILE_FIELDS);
+    if (state.profile) fill(state.profile, ["personName"], true);
+    if (firstName && !$("personName").value) $("personName").value = firstName;
+    show("wiz");
+    window.PP_flow("profile");
+  }
+  function startCheckin(){
+    if (!profileComplete(state.profile)) return startProfile(true);
+    fill(state.profile, PROFILE_FIELDS);
+    var snap = state.latest && state.latest.form_snapshot;
+    if (snap) fill(snap, CHECKIN_FIELDS, false);
+    var d = draft(); if (d){ fill(d); }
+    show("wiz");
+    window.PP_flow("checkin");
+  }
+  window.PP_home = function(){ if (acct && acct.token) loadDash(); else location.reload(); };
+  window.PP_saveProfile = function(){
+    var snap = profileSnap(), btn = $("profBtn");
+    btn.disabled = true; btn.textContent = "Saving…";
+    post("/account/profile", {profile:snap}).then(function(){
+      state.profile = snap;
+      if (setupNext){ setupNext = false; startCheckin(); }
+      else { loadDash("Profile saved. ✅"); }
+    }).catch(function(e){ alert(e.message); }).finally(function(){ btn.disabled = false; btn.textContent = "Save profile"; });
+  };
+
+  // ---------- dashboard ----------
+  function labelOf(id, val){
+    var el = $(id); if (!el || val == null || val === "") return "";
+    if (el.tagName === "SELECT"){ for (var i = 0; i < el.options.length; i++) if (el.options[i].value === String(val)) return el.options[i].text; }
+    return String(val);
+  }
+  function listLabels(sel, vals){
+    return (vals || []).map(function(v){ var c = document.querySelector(sel + ' input[value="' + v + '"]'); return c ? c.parentNode.textContent.trim() : v; });
+  }
+  function tierOf(p){ return p < 0.33 ? ["Lower","low","#1F8F63"] : (p < 0.5 ? ["Moderate","mid","#C47A1F"] : ["Higher","high","#C8432D"]); }
+  function greeting(){ var h = new Date().getHours(); return h < 12 ? "Good morning" : (h < 18 ? "Good afternoon" : "Good evening"); }
+  function loadDash(note){
+    show("dash");
+    V.dash.innerHTML = '<div class="dash"><div class="skel"></div><div class="dgrid"><div class="dcard skel" style="height:220px"></div><div class="dcard skel" style="height:220px"></div></div></div>';
+    Promise.all([call("/account/me"), call("/account/profile"), call("/account/latest")]).then(function(r){
+      state.me = r[0]; state.profile = r[1].profile; state.latest = r[2].assessment;
+      if (state.me.display_name && acct) { acct.name = state.me.display_name; store(acct); renderNav("dash"); }
+      // accounts made before profiles existed: build the profile from the last visit, once
+      if (!state.profile && state.latest && state.latest.form_snapshot){
+        var s = state.latest.form_snapshot, p = {};
+        PROFILE_FIELDS.forEach(function(k){ if (s[k] != null && s[k] !== "") p[k] = s[k]; });
+        p.conds = s.conds || []; p.acts = s.acts || [];
+        if (profileComplete(p)){ state.profile = p; post("/account/profile", {profile:p}).catch(function(){}); }
+      }
+      if (!state.me.history.length && !profileComplete(state.profile)) return startProfile(true, state.me.display_name);
+      renderDash(note);
+    }).catch(function(e){
+      if (/sign in/i.test(e.message)){ store(null); renderAuth("in"); return; }
+      V.dash.innerHTML = '<div class="dash"><div class="dcard wide"><h3>We could not load your dashboard</h3><p class="cap">' + esc(e.message) + '</p><button type="button" class="btnx" id="dRetry">Try again</button></div></div>';
+      $("dRetry").onclick = function(){ loadDash(); };
+    });
+  }
+  function renderDash(note){
+    var me = state.me, hist = me.history || [], last = hist[0], p = state.profile || {};
+    var name = me.display_name || (acct && acct.name) || "there";
+    var h = '<div class="dash"><div class="dash-hero"><div><h1>' + greeting() + ', ' + esc(name) + ' 👋</h1><p>' +
+      '<span class="factlbl">Did you know?</span> ' + esc(randomFact()) +
+      '</p><button type="button" class="btnx go" id="dStart" style="margin-top:16px">' + (last ? "Start today’s check-in →" : "Start my first check-in →") + '</button></div><div class="heroart">' + ART.bp + '</div></div>';
+    if (note) h += '<div class="dmsg" id="dNote">' + esc(note) + '</div>';
+    h += '<div class="dgrid">';
+    // Rosie's tip
+    var days = last ? Math.max(0, Math.round((Date.now() - new Date(last.date.replace(" ", "T")).getTime()) / 864e5)) : null;
+    var delta = (hist.length > 1) ? Math.round((hist[0].risk_probability - hist[1].risk_probability) * 100) : null;
+    h += '<div class="dcard wide tipcard"><div class="tipart">' + mascot("mini big") + '</div><div class="tipbody"><div class="tiplbl">Rosie\u2019s tip of the day</div><div class="tiptxt">' + esc(dayTip()) + '</div>' +
+      '<div class="stats"><div class="stat"><b>' + me.visits + '</b><span>check-in' + (me.visits === 1 ? "" : "s") + ' so far</span></div>' +
+      '<div class="stat"><b>' + (days === null ? "–" : (days === 0 ? "Today" : days + "d")) + '</b><span>since your last one</span></div>' +
+      '<div class="stat"><b>' + (delta === null ? "–" : (delta === 0 ? "Same" : (delta < 0 ? "↓ " : "↑ ") + Math.abs(delta) + " pts")) + '</b><span>vs the one before</span></div></div></div></div>';
+    // latest result
+    h += '<div class="dcard"><h3><span class="ic">❤️</span>Latest result</h3>';
+    if (last){
+      var t = tierOf(last.risk_probability), pct = Math.round(last.risk_probability * 100), C = 2 * Math.PI * 52;
+      h += '<p class="cap">From ' + esc(last.date) + '</p><div class="ringwrap"><div class="ring"><svg viewBox="0 0 128 128"><circle class="bg" cx="64" cy="64" r="52"/><circle class="fg" id="ringFg" cx="64" cy="64" r="52" stroke="' + t[2] + '" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + C.toFixed(1) + '"/></svg><div class="num">' + pct + '%<small>' + t[0] + '</small></div></div><div>';
+      h += '<span class="badge ' + t[1] + '">' + t[0] + ' estimated risk</span>';
+      if (last.review_status && last.review_status !== "pending") h += '<div style="margin-top:8px"><span class="badge grey">Clinician: ' + esc(last.review_status) + '</span></div>';
+      if (hist.length > 1){
+        var pts = hist.slice(0, 10).reverse().map(function(x){ return x.risk_probability; }), W = 230, H = 64, step = pts.length > 1 ? (W - 10) / (pts.length - 1) : 0;
+        var line = pts.map(function(v, i){ return (5 + i * step).toFixed(1) + "," + (H - 8 - v * (H - 16)).toFixed(1); }).join(" ");
+        h += '<div style="margin-top:10px"><svg class="spark" viewBox="0 0 ' + W + ' ' + H + '"><polyline fill="none" stroke="#1F4E8C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="' + line + '"/></svg><div class="cap" style="margin:0">Your last ' + pts.length + ' estimates</div></div>';
+      }
+      h += '</div></div>';
+      if (last.plan_id) h += '<div style="margin-top:14px"><button type="button" class="pill solid" data-plan="' + last.plan_id + '" data-box="latestPlan">View my plan</button></div><div id="latestPlan"></div>';
+    } else h += '<div class="emptyart">' + mascot("mini big") + '<p class="empty">Nothing here yet. Your first check-in will show up here.</p></div>';
+    h += '</div>';
+    // profile
+    h += '<div class="dcard"><div class="top"><h3><span class="ic">🗂️</span>My profile</h3><button type="button" class="pill" id="dEdit">Edit</button></div><p class="cap">Saved once. You only change it when something changes.</p>';
+    if (profileComplete(p)){
+      var chips = [];
+      var sex = labelOf("gender", p.gender), eth = labelOf("ethnicity", p.ethnicity);
+      chips.push(["", sex + " · " + p.age + " years"]);
+      chips.push(["Height", p.heightFt + " ft " + (p.heightIn || 0) + " in"]);
+      if (eth) chips.push(["", eth]);
+      chips.push(["Smoked 100+", labelOf("smoke", p.smoke)]);
+      chips.push(["Household", labelOf("hhsize", p.hhsize)]);
+      if (p.constraint) chips.push(["Diet", labelOf("constraint", p.constraint)]);
+      if (p.cuisine) chips.push(["Cuisine", p.cuisine]);
+      if (p.dislikes) chips.push(["Avoids", p.dislikes]);
+      listLabels("#condChecks", p.conds).forEach(function(x){ chips.push(["", x]); });
+      listLabels("#actChecks", p.acts).forEach(function(x){ chips.push(["", x]); });
+      h += '<div class="chips">' + chips.map(function(c){ return '<span class="pchip">' + (c[0] ? '<em>' + esc(c[0]) + '</em>' : "") + esc(c[1]) + '</span>'; }).join("") + '</div>';
+    } else h += '<p class="empty">Your profile is not finished yet.</p><button type="button" class="btnx" id="dFinish">Finish my profile</button>';
+    h += '</div>';
+    // history
+    h += '<div class="dcard wide"><h3><span class="ic">🕘</span>My history</h3><p class="cap">' + me.visits + ' saved check-in' + (me.visits === 1 ? "" : "s") + '</p>';
+    if (!hist.length) h += '<p class="empty">Nothing here yet.</p>';
+    hist.slice(0, 12).forEach(function(x, i){
+      var t2 = tierOf(x.risk_probability);
+      h += '<div class="hitem"><span class="d">' + esc(x.date) + '</span><span class="badge ' + t2[1] + '">' + Math.round(x.risk_probability * 100) + '% · ' + t2[0] + '</span>' +
+        (x.review_status && x.review_status !== "pending" ? '<span class="badge grey">Clinician: ' + esc(x.review_status) + '</span>' : "") + '<span class="sp"></span>' +
+        (x.plan_id ? '<button type="button" class="pill" data-plan="' + x.plan_id + '" data-box="hp' + i + '">View plan</button>' : '<span class="cap" style="margin:0">No plan</span>') + '<div id="hp' + i + '" style="width:100%"></div></div>';
+    });
+    h += '</div>';
+    // account settings
+    h += '<div class="dcard wide"><h3><span class="ic">🔐</span>Account and recovery</h3><p class="cap">Keep your sign-in safe.</p><button type="button" class="pill" id="dSet">Show settings</button><div id="dSetBox" hidden></div><div class="dmsg" id="dMsg"></div></div>';
+    h += '</div></div>';
+    V.dash.innerHTML = h;
+    var fg = $("ringFg"); if (fg){ var C2 = 2 * Math.PI * 52; setTimeout(function(){ fg.style.strokeDashoffset = (C2 * (1 - last.risk_probability)).toFixed(1); }, 60); }
+    $("dStart").onclick = startCheckin;
+    if ($("dEdit")) $("dEdit").onclick = function(){ startProfile(false); };
+    if ($("dFinish")) $("dFinish").onclick = function(){ startProfile(true); };
+    $("dSet").onclick = toggleSettings;
+    document.querySelectorAll("[data-plan]").forEach(function(b){
+      b.onclick = function(){
+        var box = $(b.getAttribute("data-box"));
+        if (box.innerHTML){ box.innerHTML = ""; return; }
+        box.innerHTML = '<div class="planbox">Loading…</div>';
+        call("/account/plan/" + b.getAttribute("data-plan")).then(function(pl){ box.innerHTML = '<div class="planbox">' + esc(pl.text + (pl.reviewer_note ? "\n\nClinician note: " + pl.reviewer_note : "")) + '</div>'; })
+          .catch(function(e){ box.innerHTML = '<div class="planbox">' + esc(e.message) + '</div>'; });
+      };
+    });
+  }
+  function dmsg(html, err){ var m = $("dMsg"); if (m){ m.innerHTML = html || ""; m.className = "dmsg" + (err ? " err" : ""); } }
+  function toggleSettings(){
+    var box = $("dSetBox");
+    if (!box.hidden){ box.hidden = true; $("dSet").textContent = "Show settings"; return; }
+    box.hidden = false; $("dSet").textContent = "Hide settings";
+    box.innerHTML = '<div class="setgrid">' +
+      '<div class="box"><h4>Recovery email</h4><div class="small">Lets you get your ID or a PIN reset code if you forget. Used for nothing else.</div><div class="af"><input id="seMail" type="email" placeholder="Your email" maxlength="254"></div><button type="button" class="btnx alt" id="seGo">Save email</button></div>' +
+      '<div class="box"><h4>New recovery key</h4><div class="small">Makes a fresh key. The old one stops working.</div><div class="af"><input id="nkPin" type="password" inputmode="numeric" placeholder="Your PIN" maxlength="8"></div><button type="button" class="btnx alt" id="nkGo">Make a new key</button></div>' +
+      '<div class="box"><h4>Change PIN</h4><div class="small">Use 4 to 8 digits.</div><div class="af"><input id="cpOld" type="password" inputmode="numeric" placeholder="Old PIN" maxlength="8"></div><div class="af"><input id="cpNew" type="password" inputmode="numeric" placeholder="New PIN" maxlength="8"></div><button type="button" class="btnx alt" id="cpGo">Change PIN</button></div></div>';
+    var v = function(id){ return $(id).value.trim(); };
+    $("seGo").onclick = function(){ post("/account/set-email", {email:v("seMail")}).then(function(){ dmsg("Email saved."); }).catch(function(e){ dmsg(esc(e.message), true); }); };
+    $("nkGo").onclick = function(){ post("/account/new-recovery-key", {pin:v("nkPin")}).then(function(j){ dmsg('<b>Your new recovery key</b> (the old one no longer works)<br><span class="code">' + esc(j.recovery_key) + '</span><br><b>Write it down.</b> It is shown only once.'); }).catch(function(e){ dmsg(esc(e.message), true); }); };
+    $("cpGo").onclick = function(){ post("/account/change-pin", {old_pin:v("cpOld"), new_pin:v("cpNew")}).then(function(){ dmsg("PIN changed."); }).catch(function(e){ dmsg(esc(e.message), true); }); };
+  }
+
+  // ---------- called by the question flow after a result is shown ----------
   window.PP_afterResults = function(data){
-    try { sessionStorage.removeItem(DRAFT); } catch (e) {}
-    if (acct && acct.token || !data || !data.id || !data.claim_token) return;
-    var rb = document.getElementById("resultsBody"); if (!rb) return;
-    var d = document.createElement("div"); d.className = "acct"; d.style.margin = "14px 0";
-    d.innerHTML = '<h3>Save this result?</h3><div class="small">Make a free ID and PIN and this visit, your answers and any plan you create will be saved for next time.</div>' +
-      '<div class="row"><input id="saveNew" type="password" inputmode="numeric" placeholder="Choose a 4–8 digit PIN" maxlength="8"><input id="saveMail" type="email" placeholder="Email (optional, for recovery)" maxlength="254" style="width:210px"><button type="button" id="saveBtn">Create ID and save</button></div><div class="msg" id="saveMsg"></div>';
+    clearDraft();
+    var rb = $("resultsBody"); if (!rb || !data) return;
+    if (acct && acct.token){
+      var ok = document.createElement("div"); ok.className = "savebox";
+      ok.innerHTML = '<h3>Saved to your account ✅</h3><div class="small">This check-in is in your history. Find it on your dashboard any time.</div>';
+      rb.insertBefore(ok, rb.firstChild);
+      return;
+    }
+    if (!data.id || !data.claim_token) return;
+    var d = document.createElement("div"); d.className = "savebox";
+    d.innerHTML = '<h3>Save this result?</h3><div class="small">Make a free ID and PIN. Your profile, this check-in and any plan are saved for next time, so you never retype your basics.</div>' +
+      '<div class="row"><input id="saveNew" type="password" inputmode="numeric" placeholder="Choose a 4–8 digit PIN" maxlength="8"><input id="saveMail" type="email" placeholder="Email (optional, for recovery)" maxlength="254" style="width:220px"><button type="button" class="btnx" id="saveBtn" style="padding:11px 18px">Create ID and save</button></div><div class="msg" id="saveMsg"></div>';
     rb.insertBefore(d, rb.firstChild);
-    document.getElementById("saveBtn").onclick = function(){
-      var pin = document.getElementById("saveNew").value.trim(), m = document.getElementById("saveMsg");
+    $("saveBtn").onclick = function(){
+      var pin = $("saveNew").value.trim(), m = $("saveMsg");
       if (!/^[0-9]{4,8}$/.test(pin)){ m.textContent = "The PIN must be 4 to 8 digits."; m.className = "msg err"; return; }
-      var nm = (document.getElementById("personName") || {}).value || "";
-      var em2 = ((document.getElementById("saveMail") || {}).value || "").trim();
-      post("/account/register", {pin:pin, display_name:nm.trim() || null, email:em2 || null}).then(function(j){
+      var nm = ($("personName") || {}).value || "", em2 = (($("saveMail") || {}).value || "").trim();
+      post("/account/register", {pin:pin, display_name:nm.trim().split(/\s+/)[0] || null, email:em2 || null}).then(function(j){
         store({token:j.token, code:j.patient_code, name:j.display_name});
         return post("/account/claim", {assessment_id:data.id, claim_token:data.claim_token, form_snapshot:snapshot()}).then(function(){
-          d.innerHTML = '<h3>Saved</h3><div>' + idBox(j) + '</div>';
-          render();
+          return post("/account/profile", {profile:profileSnap()}).catch(function(){});
+        }).then(function(){
+          d.innerHTML = '<h3>Saved ✅</h3><div class="idcard"><div class="lbl">Your patient ID</div><div class="val">' + esc(j.patient_code) + '</div><div class="lbl">Your recovery key (shown only once)</div><div class="val">' + esc(j.recovery_key) + '</div><div class="warn"><b>Write both down.</b> They let you sign in again and reset a forgotten PIN.</div></div>';
+          renderNav("wiz");
         });
       }).catch(function(e){ m.textContent = e.message; m.className = "msg err"; });
     };
   };
 
-  // ---- start up: restore this tab's unfinished visit first, otherwise the saved answers of a signed-in patient
+  // ---------- start up ----------
+  addSay();
   call("/account/status").then(function(j){ emailOn = !!(j && j.email_recovery); }).catch(function(){});
-  render();
-  var draft = null; try { draft = JSON.parse(sessionStorage.getItem(DRAFT) || "null"); } catch (e) {}
-  if (acct && acct.token){
-    if (draft && Object.keys(draft).length > 3){ fill(draft); render(); setMsg("Your unfinished answers from this visit were restored."); }
-    else afterSignIn();
-  } else if (draft && Object.keys(draft).length > 3){ fill(draft); setMsg("Your unfinished answers from this visit were restored."); }
+  if (acct && acct.token) loadDash(); else renderAuth("in");
 })();
+
 </script>
 
 </body>
