@@ -51,7 +51,7 @@ How the data were prepared: 9,254 participants -> 3,398 under 18 removed -> 606 
 ## Known limits
 - The blinded rating study is designed but not yet run; the diet reader has not been checked against a dietitian.
 - Held-out AUC comes from one split of one survey cycle (95% bootstrap interval 0.775 to 0.828 on the test rows; no cross-validation, no tuning).
-- Two kidney-safety per-serving potassium limits are placeholders (`app/rag/safety.py`, `app/rag/menu.py`) and need dietitian approval.
+- Scope: hypertension only (nutritionist guidance). Kidney disease, a low eGFR, pregnancy and breastfeeding get a referral, not a plan. The old kidney-safe branches in `app/rag` are inactive and can be deleted later.
 - CORS is open and the admin key is a shared secret: fine for a prototype, not for production.
 
 ## Data and sources
