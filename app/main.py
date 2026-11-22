@@ -169,11 +169,11 @@ class Preferences(BaseModel):
     cuisine: Optional[str] = None
     constraint: Optional[str] = None
     dislikes: Optional[list] = None
-    conditions: Optional[list] = None      # e.g. ["pcos", "diabetes", "cholesterol", "pregnant"]
+    conditions: Optional[list] = None      # only "pregnant" and "kidney" are used (they send the person to a clinician); other values are ignored
     activities: Optional[list] = None      # e.g. ["yoga", "home", "gym", "zumba", "walking", "swimming", "cycling"]
     fitness: Optional[str] = None          # "beginner" or "active"
     grocery_budget: Optional[str] = None   # e.g. "200-400"; kept with the record
-    weight_kg: Optional[float] = None      # optional; used only for the kidney-safe protein target
+    weight_kg: Optional[float] = None      # optional
 
 
 class AssessRequest(BaseModel):
@@ -202,7 +202,7 @@ def assess(req: AssessRequest, authorization: Optional[str] = Header(default=Non
     prefs_dict = req.preferences.dict(exclude_none=True) if req.preferences else {}
 
     # If creatinine is unknown, the risk model gets a typical value for the person's sex,
-    # but the stored profile keeps it empty, so the plan uses the cautious kidney-safe rules.
+    # but the stored profile keeps it empty. Kidney disease is outside this tool's scope; a person who reports it, or whose creatinine gives a low eGFR, gets no plan.
     model_profile = dict(profile_dict)
     if model_profile.get("LBXSCR") is None:
         model_profile["LBXSCR"] = 0.9 if model_profile.get("RIAGENDR") == 1 else 0.7
@@ -288,7 +288,7 @@ SCENARIOS = [
     },
     {
         "label": "Scenario 4: Low income, diet-driven risk",
-        "preferences": {"cuisine": "South Asian", "constraint": "vegetarian", "conditions": ["pcos"], "activities": ["yoga", "home", "zumba"], "fitness": "beginner"},
+        "preferences": {"cuisine": "South Asian", "constraint": "vegetarian", "conditions": [], "activities": ["yoga", "home", "zumba"], "fitness": "beginner"},
         "profile": {
             "RIAGENDR": 2, "RIDAGEYR": 45, "RIDRETH3": 1, "INDFMPIR": 0.6,
             "BMXBMI": 27.5, "BMXWAIST": 95.0, "DR1TKCAL": 1700, "DR1TSODI": 4200,

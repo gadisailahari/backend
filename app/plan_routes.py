@@ -51,14 +51,17 @@ def _llm(messages, **kw):
 def fallback_text(structured):
     t = structured["TARGETS"]
     if structured.get("needs_clinician"):
+        if structured.get("scope_reason") == "kidney":
+            return ("This tool covers the diet for high blood pressure only, so it does not create an eating or exercise plan when kidney disease or a low kidney function result is present. "
+                    "Please consult your doctor or a renal (kidney) dietitian for a plan that fits you. This is education, not a diagnosis.")
         return ("Because you are pregnant or breastfeeding, this tool does not create an eating or exercise plan. "
                 "Please ask your doctor, midwife or a registered dietitian for a plan that fits you. This is education, not a diagnosis.")
     lines = ["We could not produce a personalised plan that passes our nutrient and safety checks, so here is general guidance only.",
              f"- Keep sodium under {t['sodium_max_mg']} mg per day: choose fresh foods, check labels and limit processed foods.",
              "- Follow the DASH eating pattern: plenty of vegetables, fruits, whole grains, low-fat dairy, beans and nuts.",
              "- Discuss any diet change with your doctor or a registered dietitian. This is education, not a diagnosis."]
-    if structured["kidney_safe_mode"]:
-        lines.append("- Your kidney function result is low or unknown, so please ask a kidney dietitian before changing potassium or protein intake.")
+    if structured.get("creatinine_unknown"):
+        lines.insert(3, "- " + pipeline.POTASSIUM_NOTE)
     return "\n".join(lines)
 
 
@@ -71,9 +74,9 @@ def _inputs(a):
 def _store(structured, res, assessment_id, parent=None):
     if res["status"] == "approved_by_checker":
         text = pipeline.render_plan_text(res["view"])
-        return plan_db.save_plan(assessment_id, parent, "rag_checker", res["status"], structured, {"obj": res["plan"], "view": res["view"]}, text, res["totals"], res["sources"], res["attempts"]), text
+        return plan_db.save_plan(assessment_id, parent, "rag_checker", res["status"], structured, {"obj": res["plan"], "view": res["view"]}, text, res["totals"], res["sources"], res["attempts"], res.get("trace")), text
     text = fallback_text(structured)
-    return plan_db.save_plan(assessment_id, parent, "rag_checker", "rejected_fallback", structured, None, text, None, None, res["attempts"]), text
+    return plan_db.save_plan(assessment_id, parent, "rag_checker", "rejected_fallback", structured, None, text, None, None, res["attempts"], res.get("trace")), text
 
 
 class PlanRequest(BaseModel):
@@ -85,7 +88,7 @@ def plan_status():
     r = None
     try: r = get_retriever()
     except Exception as e: return {"retriever": f"error: {type(e).__name__}", "llm_key_present": bool(os.environ.get("GROQ_API_KEY"))}
-    return {"retriever": r.mode, "passages": len(r.docs), "llm_key_present": bool(os.environ.get("GROQ_API_KEY")), "model": os.environ.get("LLM_MODEL", "openai/gpt-oss-120b")}
+    return {"retriever": r.mode, "passages": len(r.docs), "llm_key_present": bool(os.environ.get("GROQ_API_KEY")), "model": os.environ.get("LLM_MODEL", "openai/gpt-oss-120b"), "prompt_version": pipeline.PROMPT_VERSION, "provider": "Groq chat-completions API"}
 
 
 @router.post("/plan")
@@ -190,7 +193,7 @@ def _code():
 
 def _person(structured, label):
     f = ", ".join(x["factor"] + " (" + x["direction"] + ")" for x in structured["top_factors"])
-    extra = " Kidney function is low, so kidney-safe rules apply." if structured["kidney_safe_mode"] else ""
+    extra = ""
     return f"{label}. Risk: {structured['risk_tier']}. Top factors: {f}. Cuisine: {structured['cuisine'] or 'any'}; diet type: {structured['diet_type'] or 'any'}. Health conditions: {', '.join(structured['conditions']) or 'none'}. Preferred activities: {', '.join(structured['activities']) or 'any'}.{extra}"
 
 
@@ -286,7 +289,9 @@ def _selftest_row(r, use_ai, delay):
     prefs = {"cuisine": r["cuisine"] or None, "constraint": r["diet"] or None, "dislikes": _split(r["dislikes"]), "conditions": _split(r["conditions"]),
              "activities": _split(r["activities"]), "fitness": r["fitness"] or "beginner"}
     from app.ml.risk_model import run_risk_prediction, run_explainability
-    rk = run_risk_prediction(profile); ex = run_explainability(profile)
+    mp = dict(profile)   # same rule as /assess: an unknown creatinine gets a typical value for the risk model only
+    if mp.get("LBXSCR") is None: mp["LBXSCR"] = 0.9 if mp.get("RIAGENDR") == 1 else 0.7
+    rk = run_risk_prediction(mp); ex = run_explainability(mp)
     st = pipeline.build_structured_input(profile, rk["risk_probability"], ex["top_factors"], prefs)
 
     def paced(m, **kw):
@@ -302,7 +307,8 @@ def _selftest_row(r, use_ai, delay):
     expect_status = r["expect_status"]
     got = "needs_clinician" if res["status"] == "needs_clinician" else ("plan" if res["status"] == "approved_by_checker" else "rejected")
     chk("status is " + expect_status, got == expect_status, f"got {got}")
-    chk("kidney mode is " + r["expect_kidney_mode"], st["kidney_safe_mode"] == (r["expect_kidney_mode"] == "yes"), f"egfr {st['egfr']}")
+    chk("kidney-specific rules are never used (hypertension scope only)", st["kidney_safe_mode"] is False, f"egfr {st['egfr']}")
+    chk("conditions other than pregnancy and kidney disease are ignored", set(st["conditions"]) <= {"pregnant", "kidney"}, ",".join(st["conditions"]))
     if res["status"] == "approved_by_checker":
         obj, view = res["plan"], res["view"]
         ids = [i["id"] for s in obj["meals"].values() for o in s for i in o["items"]]
@@ -323,14 +329,15 @@ def _selftest_row(r, use_ai, delay):
         acts = set(st["activities"]); used = set()
         for e in view["exercise"]: used |= set(M.EXERCISES[e["id"]]["keys"])
         chk("preferred activity included", (not acts) or bool(acts & used), ", ".join(sorted(acts)))
-        chk("protein target shown (or kidney message)", bool(view["protein"].get("text")), "")
+        chk("protein target shown", bool(view["protein"].get("text")), "")
+        chk("potassium note shown only when creatinine is unknown", bool(view.get("safety_notes")) == (profile.get("LBXSCR") is None), f"creatinine {profile.get('LBXSCR')}")
         chk("foods-to-avoid list present", bool(view["avoid"]), "")
         chk("tips have sources", all(t["cite"] for t in view["tips"]) and bool(view["tips"]), "")
     return res, checks
 
 
 @router.get("/selftest")
-def selftest(use_ai: bool = False, limit: int = 20, _a: bool = Depends(require_admin_key)):
+def selftest(use_ai: bool = False, limit: int = 30, _a: bool = Depends(require_admin_key)):
     """Runs the known test patients in data/test_cases.csv and checks each plan with independent rules. use_ai=false tests the software path (fast)."""
     from fastapi.responses import HTMLResponse
     try:
@@ -342,6 +349,55 @@ def selftest(use_ai: bool = False, limit: int = 20, _a: bool = Depends(require_a
         return HTMLResponse("<html><body style='font-family:sans-serif;padding:16px'><h2>Self-test could not run</h2><p>" + html.escape(f"{type(e).__name__}: {e}") +
                             "</p><p>Files seen in data folder: " + html.escape(", ".join(sorted(x.name for x in (RAG_DIR / "data").glob("*")))) +
                             "</p><pre style='white-space:pre-wrap;font-size:12px'>" + html.escape(tb[-2500:]) + "</pre></body></html>", status_code=200)
+
+
+def _case_rows():
+    import io
+    _f = RAG_DIR / "data/test_cases.csv"
+    if _f.exists():
+        _txt = _f.read_text(encoding="utf-8")
+    else:
+        import selftest_cases
+        _txt = selftest_cases.CSV_TEXT
+    return list(csv.DictReader(io.StringIO(_txt)))
+
+
+@router.get("/selftest/export")
+def selftest_export(use_ai: bool = False, cases: str = "", fmt: str = "json", _a: bool = Depends(require_admin_key)):
+    """Plans for the known test patients with everything needed to trace them: inputs, the exact prompts, the raw model replies, the checker history and the final plan.
+    use_ai=true calls the live language model (Groq) and needs GROQ_API_KEY; use_ai=false uses the rule-based builder only.
+    cases = comma-separated case ids (default: all). fmt = json or md."""
+    from fastapi.responses import JSONResponse, PlainTextResponse
+    import datetime
+    want = {c.strip().upper() for c in cases.split(",") if c.strip()}
+    out = []
+    for r in _case_rows():
+        if want and r["case_id"].upper() not in want: continue
+        try:
+            res, checks = _selftest_row(r, use_ai, STUDY_DELAY_S)
+            if res["status"] == "approved_by_checker":
+                text = pipeline.render_plan_text(res["view"]); built = res.get("built_by") or "language model (checker-approved)"
+            else:
+                text = res.get("message") or "No plan was made."; built = res["status"]
+            tr = res.get("trace") or {}
+            out.append({"case_id": r["case_id"], "name": r["name"], "inputs": {k: v for k, v in r.items() if not k.startswith("expect_")},
+                        "status": res["status"], "built_by": built, "attempts": res.get("attempts"), "plan_text": text,
+                        "checker_history": res.get("history"), "checks": [{"check": n, "passed": g, "detail": d} for n, g, d in checks],
+                        "llm_model": tr.get("llm_model"), "prompt_version": tr.get("prompt_version"), "system_prompt": tr.get("system_prompt"),
+                        "user_prompt": tr.get("user_prompt"), "raw_model_replies": tr.get("replies")})
+        except Exception as e:
+            out.append({"case_id": r["case_id"], "name": r["name"], "error": f"{type(e).__name__}: {e}"})
+    meta = {"generated_at": datetime.datetime.utcnow().isoformat() + "Z", "use_ai": use_ai, "provider": "Groq chat-completions API (called from code, not a chat interface)",
+            "llm_model_setting": os.environ.get("LLM_MODEL", "openai/gpt-oss-120b"), "prompt_version": pipeline.PROMPT_VERSION}
+    if fmt != "md": return JSONResponse({"meta": meta, "plans": out})
+    L = ["# Plans for the test patients", "", *[f"- {k}: {v}" for k, v in meta.items()], ""]
+    for o in out:
+        L += [f"## {o['case_id']} {o['name']}", ""]
+        if "error" in o: L += ["Error: " + o["error"], ""]; continue
+        i = o["inputs"]
+        L += [f"Inputs: sex {i['RIAGENDR']}, age {i['RIDAGEYR']}, BMI {i['BMXBMI']}, sodium {i['DR1TSODI']} mg, creatinine {i['LBXSCR'] or 'unknown'}, cuisine {i['cuisine'] or '-'}, diet {i['diet'] or '-'}, dislikes {i['dislikes'] or '-'}, activities {i['activities'] or '-'}",
+              f"Status: {o['status']}. Built by: {o['built_by']}. Attempts: {o['attempts']}. Checks passed: {sum(1 for c in o['checks'] if c['passed'])}/{len(o['checks'])}", "", "```", o["plan_text"], "```", ""]
+    return PlainTextResponse("\n".join(L), media_type="text/markdown; charset=utf-8")
 
 
 def _selftest_page(use_ai, limit):
@@ -357,7 +413,7 @@ def _selftest_page(use_ai, limit):
             _sp = RAG_DIR / "data/selftest_cases.py"
             _spec = importlib.util.spec_from_file_location("selftest_cases", _sp); selftest_cases = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(selftest_cases)
         _txt = selftest_cases.CSV_TEXT
-    rows = list(csv.DictReader(io.StringIO(_txt)))[: max(1, min(limit, 20))]
+    rows = list(csv.DictReader(io.StringIO(_txt)))[: max(1, min(limit, 30))]
     out, total_ok, total = [], 0, 0
     for r in rows:
         try:

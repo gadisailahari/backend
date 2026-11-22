@@ -12,6 +12,7 @@ def init_tables():
                 status TEXT, structured_json TEXT, plan_json TEXT, text TEXT, totals_json TEXT, sources_json TEXT,
                 attempts INTEGER, review_status TEXT DEFAULT 'pending', reviewed_text TEXT, reviewer_note TEXT,
                 reviewed_at TIMESTAMP)""")
+            cur.execute("ALTER TABLE plans ADD COLUMN IF NOT EXISTS trace_json TEXT")
             cur.execute("""CREATE TABLE IF NOT EXISTS plan_feedback (
                 id SERIAL PRIMARY KEY, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, plan_id INTEGER,
                 kind TEXT, message TEXT, result_status TEXT, new_plan_id INTEGER,
@@ -31,13 +32,13 @@ def _one(cur, sql, args):
     cur.execute(sql, args); r = cur.fetchone(); return dict(r) if r else None
 
 
-def save_plan(assessment_id, parent_plan_id, system, status, structured, plan, text, totals, sources, attempts):
+def save_plan(assessment_id, parent_plan_id, system, status, structured, plan, text, totals, sources, attempts, trace=None):
     with get_conn() as conn:
         with conn.cursor() as cur:
-            cur.execute("""INSERT INTO plans (assessment_id,parent_plan_id,system,status,structured_json,plan_json,text,totals_json,sources_json,attempts)
-                           VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id""",
+            cur.execute("""INSERT INTO plans (assessment_id,parent_plan_id,system,status,structured_json,plan_json,text,totals_json,sources_json,attempts,trace_json)
+                           VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id""",
                         (assessment_id, parent_plan_id, system, status, json.dumps(structured), json.dumps(plan), text,
-                         json.dumps(totals), json.dumps(sources), attempts))
+                         json.dumps(totals), json.dumps(sources), attempts, json.dumps(trace) if trace else None))
             pid = cur.fetchone()["id"]
         conn.commit(); return pid
 

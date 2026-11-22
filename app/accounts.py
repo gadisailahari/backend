@@ -32,7 +32,7 @@ def init_account_tables():
                 patient_code TEXT UNIQUE NOT NULL, pin_salt TEXT NOT NULL, pin_hash TEXT NOT NULL,
                 display_name TEXT, last_login TIMESTAMP, failed_attempts INTEGER DEFAULT 0, locked_until DOUBLE PRECISION DEFAULT 0)""")
             for col, typ in [("email", "TEXT"), ("recovery_salt", "TEXT"), ("recovery_hash", "TEXT"), ("reset_hash", "TEXT"),
-                             ("reset_exp", "DOUBLE PRECISION DEFAULT 0"), ("reset_tries", "INTEGER DEFAULT 0")]:
+                             ("reset_exp", "DOUBLE PRECISION DEFAULT 0"), ("reset_tries", "INTEGER DEFAULT 0"), ("profile_json", "TEXT")]:
                 cur.execute(f"ALTER TABLE patients ADD COLUMN IF NOT EXISTS {col} {typ}")
             cur.execute("ALTER TABLE assessments ADD COLUMN IF NOT EXISTS patient_id INTEGER")
             cur.execute("ALTER TABLE assessments ADD COLUMN IF NOT EXISTS form_json TEXT")
@@ -234,6 +234,27 @@ def latest(authorization: Optional[str] = Header(default=None)):
     a = _q("SELECT id FROM assessments WHERE patient_id=%s ORDER BY id DESC LIMIT 1", (pid,), one=True)
     if not a: return {"assessment": None}
     return {"assessment": my_assessment(a["id"], authorization)}
+
+
+@router.get("/profile")
+def get_profile(authorization: Optional[str] = Header(default=None)):
+    """The long-term profile: answers that rarely change (sex, age, height, food pattern ...). Saved once, reused at every check-in."""
+    pid = require_patient(authorization)
+    r = _q("SELECT profile_json FROM patients WHERE id=%s", (pid,), one=True)
+    return {"profile": json.loads(r["profile_json"]) if r and r["profile_json"] else None}
+
+
+class ProfileBody(BaseModel):
+    profile: dict
+
+
+@router.post("/profile")
+def save_profile(body: ProfileBody, authorization: Optional[str] = Header(default=None)):
+    pid = require_patient(authorization)
+    s = _snapshot(body.profile)
+    if s is None: raise HTTPException(400, "That profile is invalid or too large")
+    _q("UPDATE patients SET profile_json=%s WHERE id=%s", (s, pid), commit=True)
+    return {"ok": True}
 
 
 @router.get("/plan/{plan_id}")
