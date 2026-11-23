@@ -10,7 +10,6 @@ _DATA = json.load(open(HERE / "data/menu.json"))
 FOODS = {f["id"]: f for f in _DATA["foods"]}
 
 CKD_HIGH_K_MG_PER_PORTION = 450          # PLACEHOLDER - not from a guideline; a dietitian must replace it before real use
-REFINED_STARCH = {"white_rice", "couscous", "dosa", "upma"}   # left out for PCOS / diabetes (DGA: make at least half of grains whole)
 
 SLOT_BUDGET_MG = {False: {"breakfast": 450, "lunch": 750, "dinner": 750, "snack": 350},    # sums to 2,300
                   True:  {"breakfast": 400, "lunch": 650, "dinner": 650, "snack": 300}}    # sums to 2,000 (kidney-safe)
@@ -65,7 +64,6 @@ def allowed_foods(structured):
     for f in FOODS.values():
         if f["kind"] not in kinds: continue
         if gf and f["gluten"]: continue
-        if conds & {"pcos", "diabetes"} and f["id"] in REFINED_STARCH: continue
         if any(t and (t in f["label"].lower() or t == f["kind"] or (t in ("meat",) and f["kind"] in ("beef", "pork", "poultry"))) for t in toks): continue
         if structured.get("kidney_safe_mode"):
             if f["per100"]["potassium_mg"] * f["portion_g"] / 100 >= CKD_HIGH_K_MG_PER_PORTION: continue
@@ -131,10 +129,8 @@ def avoid_list(structured):
              "mediterranean": "Olives, brined cheese (feta), cured meats and canned fish in brine.",
              "american": "Fast food, deli meats, canned soups and frozen dinners."}
     if cu in extra: A.insert(1, (extra[cu], "salty_foods"))
-    if "cholesterol" in conds or diet_key(structured.get("diet_type")) == "non-vegetarian":
+    if diet_key(structured.get("diet_type")) == "non-vegetarian":
         A.append(("Fried foods and fatty cuts of meat. Choose baked, grilled or steamed.", "satfat"))
-    if conds & {"pcos", "diabetes"}:
-        A.append(("White rice and white bread. Choose whole grains, beans and lentils.", "whole_grains"))
     if structured.get("kidney_safe_mode"):
         A.append(("Salt substitutes and 'lite' salt. They contain potassium.", "salt_substitute_ckd"))
         A.append(("Starting new supplements or high-protein products without a kidney dietitian.", "ckd_dietitian"))
