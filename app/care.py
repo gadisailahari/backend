@@ -8,7 +8,7 @@ Design rules
 """
 import os, re, io, csv, json, math, secrets, threading, time, difflib
 from typing import Optional, List
-from fastapi import APIRouter, HTTPException, Query, Depends, Body
+from fastapi import APIRouter, HTTPException, Query, Depends, Body, Header
 from pydantic import BaseModel, Field
 
 from app import database, plan_db, plan_routes as PR, notify
@@ -107,7 +107,7 @@ class CheckinRequest(BaseModel):
 
 
 @router.post("/checkin")
-def checkin(req: CheckinRequest):
+def checkin(req: CheckinRequest, authorization: Optional[str] = Header(default=None)):
     p, a = _plan_and_assessment(req.plan_id)
     if not a: raise HTTPException(404, "Assessment for this plan was not found")
     syms = [s for s in req.symptoms if s in RED_FLAGS or s in AMBER_FLAGS]
@@ -156,6 +156,10 @@ def checkin(req: CheckinRequest):
     guidance = personalize_presentation(generate_core_guidance(expl["top_factors"]), prefs)
     new_aid = database.save_assessment(profile=profile, preferences=prefs, risk_probability=risk["risk_probability"], risk_label=risk["risk_label"],
                                        top_factors=expl["top_factors"], guidance=guidance, name=a.get("name"))
+    from app import accounts
+    owner = accounts.patient_from_header(authorization)
+    if owner and a.get("patient_id") == owner:
+        _exec("UPDATE assessments SET patient_id=%s, form_json=%s WHERE id=%s", (owner, a.get("form_json"), new_aid))
     factors = [(f, s) for f, s in expl["top_factors"]]
     structured = PR.pipeline.build_structured_input(profile, risk["risk_probability"], factors, prefs)
     stored = json.loads(p["plan_json"]) if p["plan_json"] else None

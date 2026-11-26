@@ -260,11 +260,26 @@ def save_profile(body: ProfileBody, authorization: Optional[str] = Header(defaul
 @router.get("/plan/{plan_id}")
 def my_plan(plan_id: int, authorization: Optional[str] = Header(default=None)):
     pid = require_patient(authorization)
-    p = _q("""SELECT p.id, p.text, p.reviewed_text, p.review_status, p.reviewer_note FROM plans p
+    p = _q("""SELECT p.id, p.created_at, p.status, p.plan_json, p.text, p.reviewed_text, p.review_status, p.reviewer_note FROM plans p
               JOIN assessments a ON a.id = p.assessment_id WHERE p.id=%s AND a.patient_id=%s""", (plan_id, pid), one=True)
     if not p: raise HTTPException(404, "Not found")
-    final = p["reviewed_text"] if p["review_status"] == "edited" and p["reviewed_text"] else p["text"]
-    return {"plan_id": p["id"], "text": final, "review_status": p["review_status"], "reviewer_note": p["reviewer_note"]}
+    edited = p["review_status"] == "edited" and p["reviewed_text"]
+    final = p["reviewed_text"] if edited else p["text"]
+    view = None
+    if not edited and p["plan_json"]:
+        try: view = (json.loads(p["plan_json"]) or {}).get("view")
+        except Exception: view = None
+    return {"plan_id": p["id"], "date": str(p["created_at"])[:16], "status": p["status"], "text": final, "view": view,
+            "review_status": p["review_status"], "reviewer_note": p["reviewer_note"]}
+
+
+@router.get("/plans")
+def my_plans(authorization: Optional[str] = Header(default=None)):
+    pid = require_patient(authorization)
+    rows = _q("""SELECT p.id, p.created_at, p.status, p.review_status FROM plans p
+                 JOIN assessments a ON a.id = p.assessment_id WHERE a.patient_id=%s ORDER BY p.id DESC LIMIT 30""", (pid,))
+    return {"plans": [{"plan_id": r["id"], "date": str(r["created_at"])[:16], "status": r["status"],
+                       "personal": r["status"] == "approved_by_checker", "review_status": r["review_status"]} for r in rows]}
 
 
 @router.post("/change-pin")
