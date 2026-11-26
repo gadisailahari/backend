@@ -502,6 +502,34 @@ h1,h2,h3,.brand span,.intro h1{font-family:var(--ui); letter-spacing:-.012em;}
 .hitem:last-child{border-bottom:0;}
 .hitem .d{font-weight:600; min-width:130px; font-size:.92rem;}
 .hitem .sp{flex:1;}
+@media print{ body *{visibility:hidden !important} #planCard, #planCard *{visibility:visible !important} #planCard{position:absolute; left:0; top:0; width:100%; box-shadow:none; border:0} #planBtns{display:none !important} }
+.asst-fab{position:fixed; right:22px; bottom:22px; z-index:60; border:0; border-radius:999px; padding:14px 20px; font-weight:800; font-size:.95rem; color:#fff; cursor:pointer; background:linear-gradient(135deg,#1F4E8C,#2F7BD0); box-shadow:0 14px 30px -10px rgba(22,58,105,.7); font-family:inherit;}
+.asst-fab:hover{filter:brightness(1.06);}
+.asst{position:fixed; top:0; right:0; bottom:0; width:min(420px,100vw); z-index:70; background:#fff; box-shadow:-20px 0 50px -20px rgba(22,58,105,.45); display:flex; flex-direction:column; transform:translateX(105%); transition:transform .25s ease; font-family:inherit;}
+.asst.open{transform:none;}
+.asst-head{display:flex; align-items:center; justify-content:space-between; padding:16px 18px; background:linear-gradient(135deg,#1F4E8C,#2F7BD0); color:#fff;}
+.asst-head b{font-size:1.02rem;}
+.asst-head button{background:rgba(255,255,255,.18); border:0; color:#fff; width:32px; height:32px; border-radius:50%; font-size:1.1rem; cursor:pointer;}
+.asst-tabs{display:flex; gap:6px; padding:10px 12px 0; border-bottom:1px solid #E3EBF5; flex-wrap:wrap;}
+.asst-tabs button{border:0; background:#EEF3FA; color:#1F4E8C; padding:8px 12px; border-radius:12px 12px 0 0; font-weight:700; font-size:.82rem; cursor:pointer; font-family:inherit;}
+.asst-tabs button.on{background:#1F4E8C; color:#fff;}
+.asst-body{flex:1; overflow:auto; padding:16px 18px 22px; font-size:.92rem; line-height:1.5;}
+.asst-body label{display:block; font-weight:700; margin:12px 0 4px; font-size:.86rem;}
+.asst-body textarea,.asst-body select,.asst-body input[type=text]{width:100%; border:1px solid #CFDCEC; border-radius:12px; padding:10px 12px; font:inherit; box-sizing:border-box;}
+.asst-body textarea{min-height:84px; resize:vertical;}
+.asst-chips{display:flex; flex-wrap:wrap; gap:6px; margin:8px 0;}
+.asst-chips button{border:1px solid #CFDCEC; background:#F5F9FE; border-radius:999px; padding:6px 11px; font-size:.8rem; cursor:pointer; font-family:inherit;}
+.asst-log{display:flex; flex-direction:column; gap:8px; margin:10px 0;}
+.asst-log .b{padding:10px 12px; border-radius:14px; max-width:92%; white-space:pre-wrap;}
+.asst-log .me{align-self:flex-end; background:#1F4E8C; color:#fff;}
+.asst-log .bot{align-self:flex-start; background:#EEF3FA;}
+.asst-note{background:#F5F9FE; border:1px solid #E1EAF5; border-radius:12px; padding:10px 12px; margin:10px 0; font-size:.85rem;}
+.asst-note.red{background:#FDECEA; border-color:#F0B8B0;}
+.asst-chk{display:flex; gap:8px; align-items:flex-start; margin:4px 0; font-weight:400;}
+.asst-chk input{margin-top:4px;}
+.asst-go{margin-top:14px; border:0; border-radius:12px; background:#1F4E8C; color:#fff; padding:11px 18px; font-weight:800; cursor:pointer; font-family:inherit;}
+.asst-go:disabled{opacity:.6; cursor:wait;}
+@media print{ .asst-fab,.asst{display:none !important} }
 .planbox{white-space:pre-wrap; background:#F5F9FE; border:1px solid #E1EAF5; border-radius:14px; padding:14px; margin:8px 0 2px; font-size:.9rem; width:100%; max-height:380px; overflow:auto;}
 .setgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px; margin-top:12px;}
 .setgrid .box{background:#F7FAFE; border:1px solid #E1EAF5; border-radius:16px; padding:14px;}
@@ -1986,6 +2014,7 @@ footer p{font-size:.82rem;}
 
   // ---------- views ----------
   function show(name){
+    if (name !== "dash" && typeof removeAssist === "function") removeAssist();
     Object.keys(V).forEach(function(k){ V[k].hidden = (k !== name); });
     document.body.classList.toggle("signedin", !!(acct && acct.token));
     document.querySelectorAll(".guest-only").forEach(function(e){ e.hidden = !!(acct && acct.token); });
@@ -2186,6 +2215,7 @@ footer p{font-size:.82rem;}
       '<div class="stats"><div class="stat"><b>' + me.visits + '</b><span>check-in' + (me.visits === 1 ? "" : "s") + ' so far</span></div>' +
       '<div class="stat"><b>' + (days === null ? "–" : (days === 0 ? "Today" : days + "d")) + '</b><span>since your last one</span></div>' +
       '<div class="stat"><b>' + (delta === null ? "–" : (delta === 0 ? "Same" : (delta < 0 ? "↓ " : "↑ ") + Math.abs(delta) + " pts")) + '</b><span>vs the one before</span></div></div></div></div>';
+    h += '<div class="dcard wide" id="planCard"><div class="top"><h3><span class="ic">🍽️</span>Your food plan</h3><span id="planBtns"></span></div><div id="planBody"><p class="cap">Loading your plan…</p></div></div>';
     // latest result
     h += '<div class="dcard"><h3><span class="ic">❤️</span>Latest result</h3>';
     if (last){
@@ -2199,7 +2229,6 @@ footer p{font-size:.82rem;}
         h += '<div style="margin-top:10px"><svg class="spark" viewBox="0 0 ' + W + ' ' + H + '"><polyline fill="none" stroke="#1F4E8C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="' + line + '"/></svg><div class="cap" style="margin:0">Your last ' + pts.length + ' estimates</div></div>';
       }
       h += '</div></div>';
-      if (last.plan_id) h += '<div style="margin-top:14px"><button type="button" class="pill solid" data-plan="' + last.plan_id + '" data-box="latestPlan">View my plan</button></div><div id="latestPlan"></div>';
     } else h += '<div class="emptyart">' + mascot("mini big") + '<p class="empty">Nothing here yet. Your first check-in will show up here.</p></div>';
     h += '</div>';
     // profile
@@ -2244,10 +2273,175 @@ footer p{font-size:.82rem;}
         var box = $(b.getAttribute("data-box"));
         if (box.innerHTML){ box.innerHTML = ""; return; }
         box.innerHTML = '<div class="planbox">Loading…</div>';
-        call("/account/plan/" + b.getAttribute("data-plan")).then(function(pl){ box.innerHTML = '<div class="planbox">' + esc(pl.text + (pl.reviewer_note ? "\n\nClinician note: " + pl.reviewer_note : "")) + '</div>'; })
+        call("/account/plan/" + b.getAttribute("data-plan")).then(function(pl){ box.innerHTML = planHtml(pl); })
           .catch(function(e){ box.innerHTML = '<div class="planbox">' + esc(e.message) + '</div>'; });
       };
     });
+    loadPlanCard();
+  }
+  function citesD(c){ return (c && c.length) ? ' <span class="tag">[' + c.map(esc).join(", ") + "]</span>" : ""; }
+
+  function viewHtmlD(v){
+    var o = '<div class="pv">';
+    
+    (v.safety_notes || []).forEach(function(n){ o += '<div class="plan-flag"><b>Please note:</b> ' + esc(n) + "</div>"; });
+    if (v.summary) o += '<div class="sum">' + esc(v.summary) + "</div>";
+    if (v.protein && v.protein.text) o += '<h4>💪 Protein</h4><div class="prot">' + esc(v.protein.text) + "</div>";
+    o += "<h4>🍽️ What to eat (pick one option per meal)</h4>";
+    [["breakfast","🌅 Breakfast"],["lunch","🥗 Lunch"],["dinner","🍲 Dinner"],["snack","🍎 Snack"]].forEach(function(s){
+      var opts = (v.meals || {})[s[0]] || []; if (!opts.length) return;
+      o += "<div><b>" + s[1] + '</b></div><div class="opts">';
+      opts.forEach(function(op, n){
+        o += '<div class="opt"><b>' + String.fromCharCode(65 + n) + ") " + esc(op.name) + "</b><ul>" +
+          op.items.map(function(i){ return "<li>" + esc(i.label) + " – " + i.grams + " g</li>"; }).join("") +
+          '</ul><div class="nums">about ' + op.kcal + " kcal · " + op.protein_g + " g protein · " + op.sodium_mg + " mg sodium</div></div>";
+      });
+      o += "</div>";
+    });
+    if (v.avoid && v.avoid.length){
+      o += "<h4>🚫 What to avoid or limit</h4><ul class='plain'>" + v.avoid.map(function(a){
+        return "<li>" + esc(a.text) + (a.source ? ' <span class="tag">(' + esc(a.source.title) + ", p" + a.source.page + ")</span>" : "") + "</li>"; }).join("") + "</ul>";
+    }
+    if (v.exercise && v.exercise.length){
+      o += "<h4>🏃 Exercise each week</h4>" + v.exercise.map(function(e){
+        return '<div class="ex"><span>' + esc(e.label) + "</span><span>" + e.minutes + " min × " + e.days + " days</span></div>"; }).join("");
+      if (v.exercise_summary) o += '<div class="plan-meta">That adds up to about ' + v.exercise_summary.aerobic_min_per_week + " minutes of cardio and " + v.exercise_summary.strength_days_per_week + " strength days a week.</div>";
+      if (v.exercise_note) o += '<div class="plan-meta">' + esc(v.exercise_note) + "</div>";
+    }
+    if (v.tips && v.tips.length){
+      o += "<h4>💡 Tips</h4><ul class='plain'>" + v.tips.map(function(t){ return "<li>" + esc(t.text) + citesD(t.cite) + "</li>"; }).join("") + "</ul>";
+    }
+    if (v.totals){
+      o += '<div class="plan-meta">Checked by software, for a day of meals: about ' + Math.round(v.totals.kcal) + " kcal, " + Math.round(v.totals.protein_g) +
+        " g protein. Worst-case sodium (the saltiest option of each meal): " + Math.round(v.totals.sodium_mg_worst_case) + " mg. " + esc(v.sodium_note || "") + "</div>";
+    }
+    if (v.sources){
+      var items = Object.keys(v.sources).map(function(k){ return k + ": " + v.sources[k].title + " (PDF page " + v.sources[k].page + ")"; });
+      if (items.length) o += '<div class="plan-src"><b>Sources used:</b><br>' + items.map(esc).join("<br>") + "</div>";
+    }
+    return o + "</div>";
+  }
+
+
+
+  var AS = {tab:"chat", planId:null, log:[]};
+  function removeAssist(){ ["asstFab","asst"].forEach(function(i){ var e = $(i); if (e) e.parentNode.removeChild(e); }); AS.log = []; }
+  function setAssistPlan(id){ AS.planId = id; if (!$("asstFab")) buildAssist(); }
+  function buildAssist(){
+    var f = document.createElement("button"); f.type = "button"; f.id = "asstFab"; f.className = "asst-fab"; f.innerHTML = "💬 Plan help"; f.onclick = function(){ openAssist(); };
+    var a = document.createElement("aside"); a.id = "asst"; a.className = "asst"; a.setAttribute("aria-label", "Plan assistant");
+    a.innerHTML = '<div class="asst-head"><b>Your plan assistant</b><button type="button" id="asstX" aria-label="Close">✕</button></div>' +
+      '<div class="asst-tabs"><button type="button" data-t="chat">Change my plan</button><button type="button" data-t="ask">Ask a clinician</button><button type="button" data-t="week">Weekly check-in</button><button type="button" data-t="replies">Replies</button></div><div class="asst-body" id="asstBody"></div>';
+    document.body.appendChild(f); document.body.appendChild(a);
+    $("asstX").onclick = closeAssist;
+    [].forEach.call(a.querySelectorAll(".asst-tabs button"), function(b){ b.onclick = function(){ AS.tab = b.getAttribute("data-t"); drawAssist(); }; });
+  }
+  function openAssist(t){ if (t) AS.tab = t; $("asst").classList.add("open"); drawAssist(); }
+  function closeAssist(){ var a = $("asst"); if (a) a.classList.remove("open"); }
+  function reqs(){ try { return JSON.parse(localStorage.getItem("pp_reqs") || "[]"); } catch (e) { return []; } }
+  function saveReq2(id, token){ try { var a = reqs(); a.push({id:id, token:token}); localStorage.setItem("pp_reqs", JSON.stringify(a.slice(-20))); } catch (e) {} }
+  function refreshPlanAfter(newId){ if (newId) AS.planId = newId; loadPlanCard(); }
+  function drawAssist(){
+    [].forEach.call(document.querySelectorAll("#asst .asst-tabs button"), function(b){ b.classList.toggle("on", b.getAttribute("data-t") === AS.tab); });
+    var box = $("asstBody");
+    if (AS.tab === "chat") drawChat(box); else if (AS.tab === "ask") drawAsk(box); else if (AS.tab === "week") drawWeek(box); else drawReplies(box);
+  }
+  function logHtml(){ return AS.log.map(function(m){ return '<div class="b ' + m.c + '">' + esc(m.t) + '</div>'; }).join(""); }
+  function drawChat(box){
+    box.innerHTML = '<p style="margin:0 0 6px">Tell me what to change, or ask why. I will rewrite your plan and check it again.</p>' +
+      '<div class="asst-chips">' + ["Make my dinners lighter", "I do not like fish", "Easier meals, fewer ingredients", "Why is sodium limited?"].map(function(t){ return '<button type="button">' + esc(t) + '</button>'; }).join("") + '</div>' +
+      '<div class="asst-log" id="asstLog">' + logHtml() + '</div><label for="asstMsg">Your message</label><textarea id="asstMsg" maxlength="500"></textarea><button type="button" class="asst-go" id="asstSend">Send</button>';
+    [].forEach.call(box.querySelectorAll(".asst-chips button"), function(b){ b.onclick = function(){ $("asstMsg").value = b.textContent; }; });
+    $("asstSend").onclick = function(){
+      var m = $("asstMsg").value.trim(); if (!m || !AS.planId) return;
+      var btn = $("asstSend"); btn.disabled = true; AS.log.push({c:"me", t:m}); AS.log.push({c:"bot", t:"Working on it… this can take up to a minute."});
+      drawChat(box); $("asstSend").disabled = true;
+      post("/chat", {plan_id: AS.planId, message: m}).then(function(r){
+        AS.log.pop();
+        if (r.mode === "why") AS.log.push({c:"bot", t:r.answer});
+        else if (r.status === "approved_by_checker"){ AS.log.push({c:"bot", t:"Done. Your plan was rewritten and passed the safety checks. It is updated on your dashboard."}); refreshPlanAfter(r.plan_id); }
+        else AS.log.push({c:"bot", t:r.note || "I could not apply that safely."});
+        drawChat(box);
+      }).catch(function(e){ AS.log.pop(); AS.log.push({c:"bot", t:"Sorry, that did not work: " + e.message}); drawChat(box); });
+    };
+  }
+  function drawAsk(box){
+    box.innerHTML = '<p style="margin:0 0 6px">A person on the care team will read your question and reply. It is not instant.</p><div class="asst-note red">If you think this is an emergency, call 911 (or your local emergency number) now.</div>' +
+      '<label for="qT">Your question</label><textarea id="qT" maxlength="1000"></textarea><label for="qE">Email, to be told about the reply (optional)</label><input type="text" id="qE" autocomplete="email">' +
+      '<button type="button" class="asst-go" id="qS">Send to clinician</button><div id="qM"></div>';
+    $("qS").onclick = function(){
+      var t = $("qT").value.trim(), m = $("qM"); if (t.length < 5){ m.innerHTML = '<div class="asst-note red">Please write your question.</div>'; return; }
+      $("qS").disabled = true;
+      post("/ask-clinician", {plan_id: AS.planId, question: t, email: $("qE").value || null}).then(function(r){
+        saveReq2(r.request_id, r.token); m.innerHTML = '<div class="asst-note' + (r.urgent ? " red" : "") + '">' + esc(r.message) + ' Request number ' + r.request_id + '. See the Replies tab.</div>'; $("qT").value = "";
+      }).catch(function(e){ m.innerHTML = '<div class="asst-note red">Could not send: ' + esc(e.message) + '</div>'; }).then(function(){ $("qS").disabled = false; });
+    };
+  }
+  var RED2 = [["chest_pain","Chest pain or pressure"],["fainting","Fainting or passing out"],["severe_breathless","Severe shortness of breath"],["stroke_signs","Face drooping, arm weakness or trouble speaking"],["severe_headache","A sudden severe headache"]];
+  var AMB2 = [["dizzy","Dizziness or light-headedness"],["palpitations","A racing or irregular heartbeat"],["swelling","Swelling in legs or feet"],["joint_pain","Joint or muscle pain"],["very_tired","Unusual tiredness"]];
+  function opt15(id, d){ return '<select id="' + id + '">' + [1,2,3,4,5].map(function(n){ return '<option value="' + n + '"' + (n === d ? " selected" : "") + '>' + n + '</option>'; }).join("") + '</select>'; }
+  function chk2(list){ return list.map(function(x){ return '<label class="asst-chk"><input type="checkbox" class="sy" value="' + x[0] + '"> ' + esc(x[1]) + '</label>'; }).join(""); }
+  function drawWeek(box){
+    box.innerHTML = '<p style="margin:0 0 6px">A quick weekly check. Your plan can adjust to how the week went.</p>' +
+      '<label for="wF">How much of the plan did you follow?</label><select id="wF"><option value="yes">Most or all of it</option><option value="mostly" selected>Some of it</option><option value="no">Hardly any</option></select>' +
+      '<label for="wE">Energy this week (1 low, 5 great)</label>' + opt15("wE", 3) + '<label for="wC">Comfort during exercise (1 hard, 5 easy)</label>' + opt15("wC", 3) +
+      '<div class="asst-note red"><b>Any of these now? Tick them. They need medical attention.</b>' + chk2(RED2) + '</div><label>Other symptoms</label>' + chk2(AMB2) +
+      '<label for="wB">New BMI (optional)</label><input type="text" id="wB" inputmode="decimal"><label for="wW">New waist in cm (optional)</label><input type="text" id="wW" inputmode="decimal">' +
+      '<label for="wN">Anything else? (optional)</label><textarea id="wN" maxlength="500"></textarea><button type="button" class="asst-go" id="wS">Send check-in</button><div id="wM"></div>';
+    $("wS").onclick = function(){
+      var syms = [].map.call(box.querySelectorAll(".sy:checked"), function(x){ return x.value; }), upd = {}, m = $("wM");
+      if ($("wB").value) upd.BMXBMI = parseFloat($("wB").value); if ($("wW").value) upd.BMXWAIST = parseFloat($("wW").value);
+      $("wS").disabled = true; m.innerHTML = '<div class="asst-note">Updating your plan… this can take up to a minute.</div>';
+      post("/checkin", {plan_id: AS.planId, followed: $("wF").value, energy: +$("wE").value, comfort: +$("wC").value, symptoms: syms, note: $("wN").value, updates: upd}).then(function(r){
+        if (r.urgent){ if (r.request_id) saveReq2(r.request_id, r.token); m.innerHTML = '<div class="asst-note red"><b>' + esc(r.message) + '</b></div>'; return; }
+        m.innerHTML = '<div class="asst-note"><b>Thank you. Your plan was updated using your check-in.</b>' + (r.adaptations || []).map(function(x){ return "<br>" + esc(x); }).join("") + '<br>The new plan is on your dashboard.</div>';
+        refreshPlanAfter(r.plan_id);
+      }).catch(function(e){ m.innerHTML = '<div class="asst-note red">Could not send: ' + esc(e.message) + '</div>'; }).then(function(){ $("wS").disabled = false; });
+    };
+  }
+  function drawReplies(box){
+    var list = reqs(); if (!list.length){ box.innerHTML = '<p>You have not asked a clinician anything on this device yet.</p>'; return; }
+    box.innerHTML = '<p>Checking…</p>';
+    Promise.all(list.map(function(x){ return fetch(BACKEND + "/ask-clinician/" + x.id + "?token=" + encodeURIComponent(x.token)).then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }); })).then(function(rs){
+      rs = rs.filter(Boolean).reverse();
+      box.innerHTML = rs.length ? rs.map(function(r){
+        return '<div class="asst-note"><b>Question #' + r.request_id + ':</b> ' + esc(r.question) + '<br>' + (r.status === "answered" ? '<b>Reply from ' + esc(r.answered_by) + ':</b> ' + esc(r.answer) + (r.plan_changed ? '<br><i>Your plan was updated by the clinician.</i>' : "") : '<i>Not answered yet. Please check again later.</i>') + '</div>';
+      }).join("") : '<p>No requests found.</p>';
+      if (rs.some(function(r){ return r.plan_changed; })) loadPlanCard();
+    });
+  }
+  function planHtml(pl){
+    var o = "";
+    if (pl.review_status && pl.review_status !== "pending") o += '<div style="margin:6px 0"><span class="badge grey">Clinician: ' + esc(pl.review_status) + '</span></div>';
+    if (pl.reviewer_note) o += '<div class="plan-flag"><b>Note from your clinician:</b> ' + esc(pl.reviewer_note) + '</div>';
+    if (pl.view) o += viewHtmlD(pl.view);
+    else o += '<div class="planbox" style="max-height:none">' + esc(pl.text) + '</div>';
+    return o;
+  }
+  function loadPlanCard(){
+    var body = $("planBody"), btns = $("planBtns"); if (!body) return;
+    call("/account/plans").then(function(r){
+      var list = r.plans || [], main = null;
+      list.forEach(function(x){ if (!main && x.personal) main = x; });
+      if (!main) main = list[0];
+      if (!main){
+        body.innerHTML = '<div class="emptyart">' + mascot("mini big") + '<p class="empty">No plan yet. Do a check-in, then tap <b>Create my plan</b>.</p></div>';
+        return;
+      }
+      function show(x){
+        AS.planId = x.plan_id; if (!$("asstFab")) buildAssist();
+        body.innerHTML = '<div class="planbox">Loading…</div>';
+        call("/account/plan/" + x.plan_id).then(function(pl){
+          body.innerHTML = (x.personal ? "" : '<p class="cap">General guidance only</p>') + planHtml(pl);
+        }).catch(function(e){ body.innerHTML = '<p class="cap">' + esc(e.message) + '</p>'; });
+      }
+      btns.innerHTML = '<button type="button" class="pill solid" id="planHelp">Change plan · Ask clinician</button> <button type="button" class="pill" id="planPrint">Print or save</button>' +
+        (list.length > 1 ? ' <select id="planPick" class="pill">' + list.map(function(x, i){ return '<option value="' + i + '"' + (x === main ? " selected" : "") + '>' + esc(x.date) + (x.personal ? "" : " (general)") + '</option>'; }).join("") + '</select>' : "");
+      $("planPrint").onclick = function(){ window.print(); };
+      $("planHelp").onclick = function(){ openAssist("chat"); };
+      if ($("planPick")) $("planPick").onchange = function(){ show(list[+this.value]); };
+      show(main);
+    }).catch(function(e){ body.innerHTML = '<p class="cap">' + esc(e.message) + '</p>'; });
   }
   function dmsg(html, err){ var m = $("dMsg"); if (m){ m.innerHTML = html || ""; m.className = "dmsg" + (err ? " err" : ""); } }
   function toggleSettings(){
