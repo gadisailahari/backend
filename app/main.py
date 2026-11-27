@@ -1,125 +1,91 @@
-"""
-FastAPI backend for the Hypertension Risk Assessment system.
-
-Endpoints:
-  POST /assess              -- run a full risk assessment, saves to history
-  GET  /assessments         -- list past assessments
-  GET  /assessments/{id}    -- get one past assessment
-  GET  /scenarios           -- the 5 standard usability-eval scenarios, pre-computed
-  POST /usability-review    -- submit a reviewer's rating for a scenario
-  GET  /usability-reviews   -- list all submitted reviews
-  GET  /usability-summary   -- average ratings across all reviews
-  GET  /health              -- simple health check (for Railway)
-
-Run locally:
-    uvicorn app.main:app --reload
-
-Docker/Railway: see Dockerfile in this same backend/ folder.
-"""
-
 import os
-
 from fastapi import FastAPI, HTTPException, Query, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
-
 from app.ml.risk_model import run_risk_prediction, run_explainability
 from app.ml.dietary_guidance import generate_core_guidance, personalize_presentation, format_report
 from app import database
 try:
     from app.plan_routes import router as plan_router, init_plan_tables
     _PLAN_ERR = None
-except Exception as _e:          # a problem in the new plan feature must never take the whole site down
-    plan_router, init_plan_tables = None, None
-    _PLAN_ERR = f"{type(_e).__name__}: {_e}"
-
+except Exception as _e:
+    plan_router, init_plan_tables = (None, None)
+    _PLAN_ERR = f'{type(_e).__name__}: {_e}'
 try:
     from app.diet_text import router as diet_router
     _DIET_ERR = None
 except Exception as _e:
     diet_router = None
-    _DIET_ERR = f"{type(_e).__name__}: {_e}"
-
+    _DIET_ERR = f'{type(_e).__name__}: {_e}'
 try:
     from app.care import router as care_router, init_care_tables
     _CARE_ERR = None
 except Exception as _e:
-    care_router, init_care_tables = None, None
-    _CARE_ERR = f"{type(_e).__name__}: {_e}"
-
+    care_router, init_care_tables = (None, None)
+    _CARE_ERR = f'{type(_e).__name__}: {_e}'
 try:
     from app.accounts import router as account_router, init_account_tables, link_assessment, claim_token
     _ACCOUNT_ERR = None
 except Exception as _e:
-    account_router, init_account_tables, link_assessment, claim_token = None, None, None, None
-    _ACCOUNT_ERR = f"{type(_e).__name__}: {_e}"
-
+    account_router, init_account_tables, link_assessment, claim_token = (None, None, None, None)
+    _ACCOUNT_ERR = f'{type(_e).__name__}: {_e}'
 try:
     from app.hub import router as hub_router, init_hub_tables
     _HUB_ERR = None
 except Exception as _e:
-    hub_router, init_hub_tables = None, None
-    _HUB_ERR = f"{type(_e).__name__}: {_e}"
+    hub_router, init_hub_tables = (None, None)
+    _HUB_ERR = f'{type(_e).__name__}: {_e}'
+app = FastAPI(title='Hypertension Risk Assessment API', version='1.0')
+app.add_middleware(CORSMiddleware, allow_origins=['*'], allow_methods=['*'], allow_headers=['*'])
+ADMIN_KEY = os.environ.get('ADMIN_KEY')
 
-app = FastAPI(title="Hypertension Risk Assessment API", version="1.0")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # tighten this to your desktop app / frontend origin in production
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Set ADMIN_KEY in Railway's environment variables to require this key on
-# the results endpoints (so random visitors can't browse everyone's name +
-# results). Leave it unset only while you're first testing locally.
-ADMIN_KEY = os.environ.get("ADMIN_KEY")
-
-
-def require_admin_key(key: Optional[str] = Query(default=None)):
+def require_admin_key(key: Optional[str]=Query(default=None)):
     if ADMIN_KEY and key != ADMIN_KEY:
-        raise HTTPException(status_code=401, detail="Missing or invalid admin key")
+        raise HTTPException(status_code=401, detail='Missing or invalid admin key')
     return True
-
-
 if care_router is not None:
     app.include_router(care_router)
 else:
-    @app.get("/care/status")
-    def care_status_disabled():
-        return {"care_feature": "disabled", "error": _CARE_ERR}
 
+    @app.get('/care/status')
+    def care_status_disabled():
+        return {'care_feature': 'disabled', 'error': _CARE_ERR}
 if diet_router is not None:
     app.include_router(diet_router)
 else:
-    @app.get("/diet/status")
-    def diet_status_disabled():
-        return {"diet_feature": "disabled", "error": _DIET_ERR}
 
+    @app.get('/diet/status')
+    def diet_status_disabled():
+        return {'diet_feature': 'disabled', 'error': _DIET_ERR}
 if account_router is not None:
     app.include_router(account_router)
 else:
-    @app.get("/account/status")
-    def account_status_disabled():
-        return {"accounts": "disabled", "error": _ACCOUNT_ERR}
 
+    @app.get('/account/status')
+    def account_status_disabled():
+        return {'accounts': 'disabled', 'error': _ACCOUNT_ERR}
 if hub_router is not None:
     app.include_router(hub_router)
 else:
-    @app.get("/hub/status")
-    def hub_status_disabled():
-        return {"hub": "disabled", "error": _HUB_ERR}
 
+    @app.get('/hub/status')
+    def hub_status_disabled():
+        return {'hub': 'disabled', 'error': _HUB_ERR}
 if plan_router is not None:
     app.include_router(plan_router)
+    try:
+        from app.evaluation import router as eval_router
+        app.include_router(eval_router)
+    except Exception as _e:
+        print('evaluation module not loaded:', _e, flush=True)
 else:
-    @app.get("/plan/status")
+
+    @app.get('/plan/status')
     def plan_status_disabled():
-        return {"plan_feature": "disabled", "error": _PLAN_ERR}
+        return {'plan_feature': 'disabled', 'error': _PLAN_ERR}
 
-
-@app.on_event("startup")
+@app.on_event('startup')
 def startup():
     database.init_db()
     if init_plan_tables is not None:
@@ -143,7 +109,6 @@ def startup():
         except Exception as e:
             print('hub tables not created:', e)
 
-
 class Profile(BaseModel):
     RIAGENDR: int
     RIDAGEYR: float
@@ -158,195 +123,91 @@ class Profile(BaseModel):
     DR1TCARB: float
     DR1TTFAT: float
     DR1TALCO: float
-    LBXSCR: Optional[float] = None   # None = person does not know their creatinine
+    LBXSCR: Optional[float] = None
     SMQ020: int
     PAQ650: int
     PAQ665: int
     ALQ121: float
 
-
 class Preferences(BaseModel):
     cuisine: Optional[str] = None
     constraint: Optional[str] = None
     dislikes: Optional[list] = None
-    conditions: Optional[list] = None      # only "pregnant" and "kidney" are used (they send the person to a clinician); other values are ignored
-    activities: Optional[list] = None      # e.g. ["yoga", "home", "gym", "zumba", "walking", "swimming", "cycling"]
-    fitness: Optional[str] = None          # "beginner" or "active"
-    grocery_budget: Optional[str] = None   # e.g. "200-400"; kept with the record
-    weight_kg: Optional[float] = None      # optional
-
+    conditions: Optional[list] = None
+    activities: Optional[list] = None
+    fitness: Optional[str] = None
+    grocery_budget: Optional[str] = None
+    weight_kg: Optional[float] = None
+    height_cm: Optional[float] = None
 
 class AssessRequest(BaseModel):
     name: Optional[str] = None
-    form_snapshot: Optional[dict] = None   # the answers as typed; kept only for signed-in patients
+    form_snapshot: Optional[dict] = None
     profile: Profile
     preferences: Optional[Preferences] = None
-
 
 class UsabilityReviewRequest(BaseModel):
     scenario_label: str
     clarity_rating: int
     relevance_rating: int
     practicality_rating: int
-    comments: Optional[str] = ""
+    comments: Optional[str] = ''
 
-
-@app.get("/health")
+@app.get('/health')
 def health():
-    return {"status": "ok"}
+    return {'status': 'ok'}
 
-
-@app.post("/assess")
-def assess(req: AssessRequest, authorization: Optional[str] = Header(default=None)):
+@app.post('/assess')
+def assess(req: AssessRequest, authorization: Optional[str]=Header(default=None)):
     profile_dict = req.profile.dict()
     prefs_dict = req.preferences.dict(exclude_none=True) if req.preferences else {}
-
-    # If creatinine is unknown, the risk model gets a typical value for the person's sex,
-    # but the stored profile keeps it empty. Kidney disease is outside this tool's scope; a person who reports it, or whose creatinine gives a low eGFR, gets no plan.
     model_profile = dict(profile_dict)
-    if model_profile.get("LBXSCR") is None:
-        model_profile["LBXSCR"] = 0.9 if model_profile.get("RIAGENDR") == 1 else 0.7
+    if model_profile.get('LBXSCR') is None:
+        model_profile['LBXSCR'] = 0.9 if model_profile.get('RIAGENDR') == 1 else 0.7
     risk_result = run_risk_prediction(model_profile)
     explain_result = run_explainability(model_profile)
-    guidance = generate_core_guidance(explain_result["top_factors"])
+    guidance = generate_core_guidance(explain_result['top_factors'])
     guidance = personalize_presentation(guidance, prefs_dict)
-
-    assessment_id = database.save_assessment(
-        profile=profile_dict,
-        preferences=prefs_dict,
-        risk_probability=risk_result["risk_probability"],
-        risk_label=risk_result["risk_label"],
-        top_factors=explain_result["top_factors"],
-        guidance=guidance,
-        name=req.name,
-    )
-    if link_assessment is not None:   # a signed-in patient's visit is saved to their account; anonymous visits are unchanged
+    assessment_id = database.save_assessment(profile=profile_dict, preferences=prefs_dict, risk_probability=risk_result['risk_probability'], risk_label=risk_result['risk_label'], top_factors=explain_result['top_factors'], guidance=guidance, name=req.name)
+    if link_assessment is not None:
         try:
             link_assessment(assessment_id, authorization, req.form_snapshot)
         except Exception as e:
-            print("could not link assessment to patient:", e)
+            print('could not link assessment to patient:', e)
+    return {'id': assessment_id, 'claim_token': claim_token(assessment_id) if claim_token is not None else None, 'risk_probability': risk_result['risk_probability'], 'risk_label': risk_result['risk_label'], 'top_factors': explain_result['top_factors'], 'guidance': guidance, 'report_text': format_report(guidance)}
 
-    return {
-        "id": assessment_id,
-        "claim_token": claim_token(assessment_id) if claim_token is not None else None,
-        "risk_probability": risk_result["risk_probability"],
-        "risk_label": risk_result["risk_label"],
-        "top_factors": explain_result["top_factors"],
-        "guidance": guidance,
-        "report_text": format_report(guidance),
-    }
-
-
-@app.get("/assessments")
-def get_assessments(limit: int = 50, _auth: bool = Depends(require_admin_key)):
+@app.get('/assessments')
+def get_assessments(limit: int=50, _auth: bool=Depends(require_admin_key)):
     return database.list_assessments(limit)
 
-
-@app.get("/assessments/{assessment_id}")
-def get_assessment(assessment_id: int, _auth: bool = Depends(require_admin_key)):
+@app.get('/assessments/{assessment_id}')
+def get_assessment(assessment_id: int, _auth: bool=Depends(require_admin_key)):
     result = database.get_assessment(assessment_id)
     if result is None:
-        raise HTTPException(status_code=404, detail="Assessment not found")
+        raise HTTPException(status_code=404, detail='Assessment not found')
     return result
+SCENARIOS = [{'label': 'Scenario 1: Younger, lower-risk profile', 'preferences': {}, 'profile': {'RIAGENDR': 1, 'RIDAGEYR': 32, 'RIDRETH3': 3, 'INDFMPIR': 4.0, 'BMXBMI': 23.5, 'BMXWAIST': 82.0, 'DR1TKCAL': 2200, 'DR1TSODI': 2600, 'DR1TPOTA': 3000, 'DR1TPROT': 85, 'DR1TCARB': 260, 'DR1TTFAT': 65, 'DR1TALCO': 2, 'LBXSCR': 0.8, 'SMQ020': 2, 'PAQ650': 1, 'PAQ665': 1, 'ALQ121': 4}}, {'label': 'Scenario 2: Middle-aged, sodium-driven risk', 'preferences': {'cuisine': 'Mexican', 'activities': ['walking', 'cycling'], 'fitness': 'beginner'}, 'profile': {'RIAGENDR': 1, 'RIDAGEYR': 55, 'RIDRETH3': 4, 'INDFMPIR': 1.8, 'BMXBMI': 29.0, 'BMXWAIST': 100.0, 'DR1TKCAL': 2000, 'DR1TSODI': 4800, 'DR1TPOTA': 2300, 'DR1TPROT': 75, 'DR1TCARB': 250, 'DR1TTFAT': 80, 'DR1TALCO': 5, 'LBXSCR': 1.0, 'SMQ020': 2, 'PAQ650': 2, 'PAQ665': 2, 'ALQ121': 3}}, {'label': 'Scenario 3: Older adult, high overall risk', 'preferences': {'constraint': 'vegetarian', 'activities': ['yoga'], 'fitness': 'beginner'}, 'profile': {'RIAGENDR': 2, 'RIDAGEYR': 68, 'RIDRETH3': 3, 'INDFMPIR': 2.5, 'BMXBMI': 33.0, 'BMXWAIST': 108.0, 'DR1TKCAL': 1800, 'DR1TSODI': 3900, 'DR1TPOTA': 2000, 'DR1TPROT': 60, 'DR1TCARB': 220, 'DR1TTFAT': 70, 'DR1TALCO': 0, 'LBXSCR': 1.1, 'SMQ020': 1, 'PAQ650': 2, 'PAQ665': 2, 'ALQ121': 1}}, {'label': 'Scenario 4: Low income, diet-driven risk', 'preferences': {'cuisine': 'South Asian', 'constraint': 'vegetarian', 'conditions': [], 'activities': ['yoga', 'home', 'zumba'], 'fitness': 'beginner'}, 'profile': {'RIAGENDR': 2, 'RIDAGEYR': 45, 'RIDRETH3': 1, 'INDFMPIR': 0.6, 'BMXBMI': 27.5, 'BMXWAIST': 95.0, 'DR1TKCAL': 1700, 'DR1TSODI': 4200, 'DR1TPOTA': 1700, 'DR1TPROT': 55, 'DR1TCARB': 230, 'DR1TTFAT': 60, 'DR1TALCO': 0, 'LBXSCR': 0.9, 'SMQ020': 2, 'PAQ650': 2, 'PAQ665': 2, 'ALQ121': 0}}, {'label': 'Scenario 5: Active lifestyle, borderline risk', 'preferences': {'cuisine': 'American', 'dislikes': ['fish'], 'activities': ['gym'], 'fitness': 'active'}, 'profile': {'RIAGENDR': 1, 'RIDAGEYR': 41, 'RIDRETH3': 6, 'INDFMPIR': 3.2, 'BMXBMI': 26.0, 'BMXWAIST': 90.0, 'DR1TKCAL': 2400, 'DR1TSODI': 3400, 'DR1TPOTA': 2600, 'DR1TPROT': 95, 'DR1TCARB': 270, 'DR1TTFAT': 70, 'DR1TALCO': 6, 'LBXSCR': 1.0, 'SMQ020': 2, 'PAQ650': 1, 'PAQ665': 1, 'ALQ121': 5}}]
 
-
-# ---------- Usability evaluation (Objective 5) ----------
-
-SCENARIOS = [
-    {
-        "label": "Scenario 1: Younger, lower-risk profile",
-        "preferences": {},
-        "profile": {
-            "RIAGENDR": 1, "RIDAGEYR": 32, "RIDRETH3": 3, "INDFMPIR": 4.0,
-            "BMXBMI": 23.5, "BMXWAIST": 82.0, "DR1TKCAL": 2200, "DR1TSODI": 2600,
-            "DR1TPOTA": 3000, "DR1TPROT": 85, "DR1TCARB": 260, "DR1TTFAT": 65,
-            "DR1TALCO": 2, "LBXSCR": 0.8, "SMQ020": 2, "PAQ650": 1, "PAQ665": 1,
-            "ALQ121": 4,
-        },
-    },
-    {
-        "label": "Scenario 2: Middle-aged, sodium-driven risk",
-        "preferences": {"cuisine": "Mexican", "activities": ["walking", "cycling"], "fitness": "beginner"},
-        "profile": {
-            "RIAGENDR": 1, "RIDAGEYR": 55, "RIDRETH3": 4, "INDFMPIR": 1.8,
-            "BMXBMI": 29.0, "BMXWAIST": 100.0, "DR1TKCAL": 2000, "DR1TSODI": 4800,
-            "DR1TPOTA": 2300, "DR1TPROT": 75, "DR1TCARB": 250, "DR1TTFAT": 80,
-            "DR1TALCO": 5, "LBXSCR": 1.0, "SMQ020": 2, "PAQ650": 2, "PAQ665": 2,
-            "ALQ121": 3,
-        },
-    },
-    {
-        "label": "Scenario 3: Older adult, high overall risk",
-        "preferences": {"constraint": "vegetarian", "activities": ["yoga"], "fitness": "beginner"},
-        "profile": {
-            "RIAGENDR": 2, "RIDAGEYR": 68, "RIDRETH3": 3, "INDFMPIR": 2.5,
-            "BMXBMI": 33.0, "BMXWAIST": 108.0, "DR1TKCAL": 1800, "DR1TSODI": 3900,
-            "DR1TPOTA": 2000, "DR1TPROT": 60, "DR1TCARB": 220, "DR1TTFAT": 70,
-            "DR1TALCO": 0, "LBXSCR": 1.1, "SMQ020": 1, "PAQ650": 2, "PAQ665": 2,
-            "ALQ121": 1,
-        },
-    },
-    {
-        "label": "Scenario 4: Low income, diet-driven risk",
-        "preferences": {"cuisine": "South Asian", "constraint": "vegetarian", "conditions": [], "activities": ["yoga", "home", "zumba"], "fitness": "beginner"},
-        "profile": {
-            "RIAGENDR": 2, "RIDAGEYR": 45, "RIDRETH3": 1, "INDFMPIR": 0.6,
-            "BMXBMI": 27.5, "BMXWAIST": 95.0, "DR1TKCAL": 1700, "DR1TSODI": 4200,
-            "DR1TPOTA": 1700, "DR1TPROT": 55, "DR1TCARB": 230, "DR1TTFAT": 60,
-            "DR1TALCO": 0, "LBXSCR": 0.9, "SMQ020": 2, "PAQ650": 2, "PAQ665": 2,
-            "ALQ121": 0,
-        },
-    },
-    {
-        "label": "Scenario 5: Active lifestyle, borderline risk",
-        "preferences": {"cuisine": "American", "dislikes": ["fish"], "activities": ["gym"], "fitness": "active"},
-        "profile": {
-            "RIAGENDR": 1, "RIDAGEYR": 41, "RIDRETH3": 6, "INDFMPIR": 3.2,
-            "BMXBMI": 26.0, "BMXWAIST": 90.0, "DR1TKCAL": 2400, "DR1TSODI": 3400,
-            "DR1TPOTA": 2600, "DR1TPROT": 95, "DR1TCARB": 270, "DR1TTFAT": 70,
-            "DR1TALCO": 6, "LBXSCR": 1.0, "SMQ020": 2, "PAQ650": 1, "PAQ665": 1,
-            "ALQ121": 5,
-        },
-    },
-]
-
-
-@app.get("/scenarios")
+@app.get('/scenarios')
 def get_scenarios():
-    """Pre-computed usability-evaluation scenarios, ready for a reviewer to rate."""
     results = []
     for s in SCENARIOS:
-        risk_result = run_risk_prediction(s["profile"])
-        explain_result = run_explainability(s["profile"])
-        guidance = generate_core_guidance(explain_result["top_factors"])
-        guidance = personalize_presentation(guidance, s["preferences"])
-        results.append({
-            "label": s["label"],
-            "risk_probability": risk_result["risk_probability"],
-            "risk_label": risk_result["risk_label"],
-            "guidance": guidance,
-            "report_text": format_report(guidance),
-        })
+        risk_result = run_risk_prediction(s['profile'])
+        explain_result = run_explainability(s['profile'])
+        guidance = generate_core_guidance(explain_result['top_factors'])
+        guidance = personalize_presentation(guidance, s['preferences'])
+        results.append({'label': s['label'], 'risk_probability': risk_result['risk_probability'], 'risk_label': risk_result['risk_label'], 'guidance': guidance, 'report_text': format_report(guidance)})
     return results
 
-
-@app.post("/usability-review")
+@app.post('/usability-review')
 def submit_review(req: UsabilityReviewRequest):
-    review_id = database.save_usability_review(
-        scenario_label=req.scenario_label,
-        clarity=req.clarity_rating,
-        relevance=req.relevance_rating,
-        practicality=req.practicality_rating,
-        comments=req.comments or "",
-    )
-    return {"id": review_id, "status": "saved"}
+    review_id = database.save_usability_review(scenario_label=req.scenario_label, clarity=req.clarity_rating, relevance=req.relevance_rating, practicality=req.practicality_rating, comments=req.comments or '')
+    return {'id': review_id, 'status': 'saved'}
 
-
-@app.get("/usability-reviews")
+@app.get('/usability-reviews')
 def get_reviews():
     return database.list_usability_reviews()
 
-
-@app.get("/usability-summary")
+@app.get('/usability-summary')
 def get_summary():
     return database.usability_summary()
