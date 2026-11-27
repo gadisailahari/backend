@@ -1,0 +1,14 @@
+Processed NHANES 2017-18 table: 5250 adults
+Age 18-80: 5250
+Complete data for all 18 model inputs: 3466
+With measured height and weight: 3466
+Not pregnant (the tool gives no plan to pregnant users): 3444
+eGFR 60 or higher (the tool refers lower values to a clinician with no plan): 3164
+Available per cell (stratum, sex):
+  higher    female  737
+  higher    male    990
+  lower     female  652
+  lower     male    441
+  moderate  female  156
+  moderate  male    188
+Seed 20261126. Selected 120 participants (20 per stratum and sex). Written to /tmp/dt/share/pulse-and-plate/app/eval_data/sample_120.csv
